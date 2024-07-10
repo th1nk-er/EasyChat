@@ -1,0 +1,46 @@
+spring:
+  mail:
+    default-encoding: utf-8
+    properties:
+      mail:
+        smtp:
+          connectionpoolsize: 10
+          ssl:
+            enable: true
+          connectiontimeout: 5000
+          writetimeout: 5000
+          timeout: 3000
+          auth: true
+          starttls:
+            enable: true
+            required: true
+  application:
+    name: EasyChat
+  profiles:
+    active: dev
+server:
+  port: 8080
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui
+    enabled: true
+mybatis-plus:
+  global-config:
+    db-config:
+      logic-delete-field: deleted
+      logic-delete-value: 1
+  configuration:
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+  mapper-locations: classpath*:mapper/*.xml
+easy-chat:
+  mail:
+    sender:
+      name: EasyChat
+    verify-code:
+      # 有效时间：单位分钟
+      expire: 15
+      template:
+        path: classpath:static/email-code.html # 模板文件

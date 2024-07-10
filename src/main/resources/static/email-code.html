@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title></title>
+    <style>
+      p {
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div style="width: 100%; height: 5px; background-color: #2672ec"></div>
+    <table>
+      <tr>
+        <p style="font-size: 25px; font-weight: 700">
+          ${APPLICATION_NAME}账号邮箱验证码
+        </p>
+      </tr>
+      <tr>
+        <p style="font-size: 20px">你正在进行邮箱验证操作，验证码为:</p>
+      </tr>
+      <tr>
+        <p
+          style="
+            font-size: 25px;
+            font-weight: bolder;
+            padding: 20px 60px;
+            color: #2672ec;
+            background-color: aliceblue;
+          "
+        >
+          ${VERIFY_CODE}
+        </p>
+      </tr>
+      <tr>
+        <p
+          style="
+            font-size: 15px;
+            color: rgb(126, 129, 129);
+            margin: 0;
+            padding: 0;
+          "
+        >
+          此验证码 ${EXPIRE_TIME} 分钟内有效
+        </p>
+      </tr>
+      <tr>
+        <p
+          style="
+            font-size: 15px;
+            color: rgb(126, 129, 129);
+            margin: 0;
+            padding: 0;
+          "
+        >
+          如非本人操作
+        </p>
+      </tr>
+      <tr>
+        <p
+          style="
+            font-size: 15px;
+            color: rgb(126, 129, 129);
+            margin: 0;
+            padding: 0;
+          "
+        >
+          转给他人将导致账号被盗和个人信息泄漏，谨防诈骗
+        </p>
+      </tr>
+    </table>
+  </body>
+</html>

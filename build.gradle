@@ -1,0 +1,62 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.1'
+    id 'io.spring.dependency-management' version '1.1.5'
+}
+
+group = 'top.th1nk'
+version = '0.0.1-SNAPSHOT'
+
+springBoot {
+    buildInfo()
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis' // redis
+    implementation 'org.springframework.boot:spring-boot-starter-security' // spring security
+    implementation 'org.springframework.boot:spring-boot-starter-web' // spring web
+    implementation 'org.springframework.boot:spring-boot-starter-websocket' // spring websocket
+    implementation 'org.springframework.boot:spring-boot-starter-mail' // email
+    compileOnly 'org.projectlombok:lombok' // lombok
+    runtimeOnly 'com.mysql:mysql-connector-j' // mysql connector
+    annotationProcessor 'org.projectlombok:lombok' // lombok
+    testImplementation 'org.springframework.boot:spring-boot-starter-test' // spring boot test
+    testImplementation 'org.springframework.security:spring-security-test' // spring security test
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher' // junit
+
+    implementation group: 'com.alibaba', name: 'druid-spring-boot-starter', version: '1.2.23'  // druid连接池
+    implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.6.0' // spring-doc
+    implementation group: 'com.baomidou', name: 'mybatis-plus-boot-starter', version: '3.5.7' // mybatis plus
+
+    // 引入新版 mybatis-spring 解决 https://github.com/baomidou/mybatis-plus/issues/5962
+    implementation group: 'org.mybatis', name: 'mybatis-spring', version: '3.0.3'
+
+
+    // jwt
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+    implementation group: 'com.alibaba.fastjson2', name: 'fastjson2', version: '2.0.51' // fastjson
+
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
