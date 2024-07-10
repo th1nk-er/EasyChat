@@ -5,20 +5,20 @@
 <mapper namespace="top.th1nk.easychat.mapper.SysUserMapper">
 
     <resultMap id="BaseResultMap" type="top.th1nk.easychat.domain.SysUser">
-            <id property="id" column="id" jdbcType="INTEGER"/>
-            <result property="username" column="username" jdbcType="VARCHAR"/>
-            <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
-            <result property="password" column="password" jdbcType="VARCHAR"/>
-            <result property="email" column="email" jdbcType="VARCHAR"/>
-            <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
-            <result property="role" column="role" jdbcType="TINYINT"/>
-            <result property="sex" column="sex" jdbcType="TINYINT"/>
-            <result property="registerIp" column="register_ip" jdbcType="VARCHAR"/>
-            <result property="loginIp" column="login_ip" jdbcType="VARCHAR"/>
-            <result property="locked" column="locked" jdbcType="TINYINT"/>
-            <result property="deleted" column="deleted" jdbcType="TINYINT"/>
-            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
-            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="email" column="email" jdbcType="VARCHAR"/>
+        <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
+        <result property="role" column="role" jdbcType="TINYINT"/>
+        <result property="sex" column="sex" jdbcType="TINYINT"/>
+        <result property="registerIp" column="register_ip" jdbcType="VARCHAR"/>
+        <result property="loginIp" column="login_ip" jdbcType="VARCHAR"/>
+        <result property="locked" column="locked" jdbcType="TINYINT"/>
+        <result property="deleted" column="deleted" jdbcType="TINYINT"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -28,6 +28,12 @@
         login_ip,locked,deleted,
         create_time,update_time
     </sql>
+    <update id="updateLoginIp">
+        UPDATE ec_user
+        SET login_ip = #{ip}
+        WHERE username = #{username}
+          and deleted = 0
+    </update>
     <select id="getByUsername" resultType="top.th1nk.easychat.domain.SysUser">
         SELECT *
         FROM ec_user

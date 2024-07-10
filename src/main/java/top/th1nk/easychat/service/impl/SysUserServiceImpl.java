@@ -26,6 +26,7 @@ import top.th1nk.easychat.exception.RegisterException;
 import top.th1nk.easychat.mapper.SysUserMapper;
 import top.th1nk.easychat.service.EmailService;
 import top.th1nk.easychat.service.SysUserService;
+import top.th1nk.easychat.utils.IpUtils;
 import top.th1nk.easychat.utils.JwtUtils;
 import top.th1nk.easychat.utils.UserUtils;
 
@@ -65,6 +66,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         BeanUtils.copyProperties(registerDto, user);
         user.setPassword(UserUtils.encryptPassword(registerDto.getPassword()));
         user.setNickname(registerDto.getUsername());
+        user.setRegisterIp(IpUtils.getClientIp());
 //        user.setAvatar(""); // TODO 设置默认头像地址
         log.info("注册用户:{}", user);
         // 插入到数据库
@@ -94,8 +96,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
         try {
             Authentication authenticate = authenticationManager.authenticate(authenticationToken);
+            // 登录成功
             userVo = UserUtils.userToVo(user);
             userVo.setLoginType(loginDto.getType());
+            baseMapper.updateLoginIp(user.getUsername(), IpUtils.getClientIp()); // 更新登录IP
             SecurityContextHolder.getContext().setAuthentication(authenticate);
         } catch (AuthenticationException e) {
             log.info("登录失败 登陆方式:{} 用户名:{} 邮箱:{}", loginDto.getType().getDesc(), user.getUsername(), user.getEmail());

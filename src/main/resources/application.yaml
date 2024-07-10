@@ -1,4 +1,6 @@
 spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
   mail:
     default-encoding: utf-8
     properties:

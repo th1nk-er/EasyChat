@@ -25,6 +25,14 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      * @return 用户
      */
     SysUser getByEmail(String email);
+
+    /**
+     * 更新登录ip
+     *
+     * @param username 用户名
+     * @param ip       ip
+     */
+    void updateLoginIp(String username, String ip);
 }
 
 
