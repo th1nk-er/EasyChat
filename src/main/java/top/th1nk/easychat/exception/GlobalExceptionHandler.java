@@ -16,7 +16,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(LoginException.class)
     public Response loginException(LoginException e) {
-        return Response.error(e.getMessage());
+        return Response.error(e.getCode(), e.getMessage());
     }
 
     /**
@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(RegisterException.class)
     public Response registerException(RegisterException e) {
-        return Response.error(e.getMessage());
+        return Response.error(e.getCode(), e.getMessage());
     }
 
     /**
@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(CommonException.class)
     public Response commonException(CommonException e) {
-        return Response.error(e.getMessage());
+        return Response.error(e.getCode(), e.getMessage());
     }
 
     /**

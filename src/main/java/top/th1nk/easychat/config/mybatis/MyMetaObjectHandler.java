@@ -1,4 +1,4 @@
-package top.th1nk.easychat.config;
+package top.th1nk.easychat.config.mybatis;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import org.apache.ibatis.reflection.MetaObject;

@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 import top.th1nk.easychat.domain.Response;
+import top.th1nk.easychat.domain.dto.LoginDto;
 import top.th1nk.easychat.domain.dto.RegisterDto;
 import top.th1nk.easychat.domain.dto.VerifyEmailDto;
 import top.th1nk.easychat.domain.vo.UserVo;
@@ -44,5 +45,11 @@ public class SysUserController {
         emailService.sendVerifyCodeEmail(verifyEmailDto.getEmail(), code);
         emailService.saveVerifyCode(verifyEmailDto.getEmail(), code);
         return Response.ok();
+    }
+
+    @Operation(summary = "用户登录", description = "用户登录")
+    @PostMapping("/login")
+    public Response login(@RequestBody LoginDto loginDto) {
+        return Response.ok(sysUserService.login(loginDto));
     }
 }

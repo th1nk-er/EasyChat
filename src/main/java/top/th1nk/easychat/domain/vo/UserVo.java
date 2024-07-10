@@ -2,6 +2,7 @@ package top.th1nk.easychat.domain.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import top.th1nk.easychat.enums.LoginType;
 import top.th1nk.easychat.enums.UserRole;
 import top.th1nk.easychat.enums.UserSex;
 
@@ -47,6 +48,8 @@ public class UserVo implements Serializable {
     @Schema(description = "用户角色 0-普通用户 1-管理员")
     private UserRole role;
 
+    @Schema(description = "登录方式")
+    private LoginType loginType;
     /**
      * 性别 0-男 1-女 2-保密
      */

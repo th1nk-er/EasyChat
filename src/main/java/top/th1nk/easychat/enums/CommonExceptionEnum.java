@@ -10,7 +10,8 @@ public enum CommonExceptionEnum {
     EMAIL_SEND_FAILED(1004, "邮件发送失败"),
     PARAM_INVALID(1005, "参数错误"),
     EMAIL_VERIFY_CODE_EXPIRE(1006, "邮箱验证码已过期"),
-    EMAIL_VERIFY_CODE_ERROR(1007, "邮箱验证码错误"),
+    TOKEN_INVALID(1007, "令牌无效"),
+    TOKEN_EXPIRE(1008, "令牌过期"),
     ;
     private final String message;
     private final int code;

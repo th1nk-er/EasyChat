@@ -36,6 +36,9 @@ mybatis-plus:
     log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
   mapper-locations: classpath*:mapper/*.xml
 easy-chat:
+  jwt:
+    secret: =====================EASYCHAT=====================
+    expireSeconds: 3600
   mail:
     sender:
       name: EasyChat

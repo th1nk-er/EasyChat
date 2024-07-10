@@ -10,8 +10,10 @@ import top.th1nk.easychat.enums.LoginExceptionEnum;
 public class LoginException extends RuntimeException {
 
     private final String message;
+    private final int code;
 
     public LoginException(LoginExceptionEnum e) {
         this.message = e.getMessage();
+        this.code = e.getCode();
     }
 }

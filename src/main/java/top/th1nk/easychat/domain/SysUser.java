@@ -3,12 +3,15 @@ package top.th1nk.easychat.domain;
 import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import top.th1nk.easychat.enums.UserRole;
 import top.th1nk.easychat.enums.UserSex;
 
 import java.io.Serial;
-import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @TableName ec_user
@@ -16,7 +19,7 @@ import java.time.LocalDateTime;
 @TableName(value = "ec_user")
 @Data
 @Schema(description = "用户信息实体类")
-public class SysUser implements Serializable {
+public class SysUser implements UserDetails {
     /**
      * 主键ID
      */
@@ -107,4 +110,9 @@ public class SysUser implements Serializable {
     @Serial
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
 }

@@ -1,21 +1,32 @@
 package top.th1nk.easychat.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import top.th1nk.easychat.config.security.EmailAuthenticationToken;
 import top.th1nk.easychat.domain.SysUser;
+import top.th1nk.easychat.domain.UserToken;
+import top.th1nk.easychat.domain.dto.LoginDto;
 import top.th1nk.easychat.domain.dto.RegisterDto;
 import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.enums.CommonExceptionEnum;
+import top.th1nk.easychat.enums.LoginExceptionEnum;
+import top.th1nk.easychat.enums.LoginType;
 import top.th1nk.easychat.enums.RegisterExceptionEnum;
 import top.th1nk.easychat.exception.CommonException;
+import top.th1nk.easychat.exception.LoginException;
 import top.th1nk.easychat.exception.RegisterException;
 import top.th1nk.easychat.mapper.SysUserMapper;
 import top.th1nk.easychat.service.EmailService;
 import top.th1nk.easychat.service.SysUserService;
+import top.th1nk.easychat.utils.JwtUtils;
 import top.th1nk.easychat.utils.UserUtils;
 
 /**
@@ -28,20 +39,11 @@ import top.th1nk.easychat.utils.UserUtils;
 public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements SysUserService {
     @Resource
     private EmailService emailService;
+    @Resource
+    private AuthenticationManager authenticationManager;
 
-    @Override
-    public SysUser getUserByUsername(String username) {
-        LambdaQueryWrapper<SysUser> qw = new LambdaQueryWrapper<>();
-        qw.eq(SysUser::getUsername, username);
-        return baseMapper.selectOne(qw);
-    }
-
-    @Override
-    public SysUser getUserByEmail(String email) {
-        LambdaQueryWrapper<SysUser> qw = new LambdaQueryWrapper<>();
-        qw.eq(SysUser::getEmail, email);
-        return baseMapper.selectOne(qw);
-    }
+    @Resource
+    private JwtUtils jwtUtils;
 
     @Override
     public UserVo register(RegisterDto registerDto) {
@@ -52,12 +54,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             throw new CommonException(CommonExceptionEnum.PASSWORD_INVALID); // 密码不合法
         if (!UserUtils.isValidEmail(registerDto.getEmail()))
             throw new CommonException(CommonExceptionEnum.EMAIL_INVALID); // 邮箱不合法
-        if (this.getUserByUsername(registerDto.getUsername()) != null)
+        if (baseMapper.getByUsername(registerDto.getUsername()) != null)
             throw new RegisterException(RegisterExceptionEnum.USERNAME_EXIST); // 用户名已存在
-        if (this.getUserByEmail(registerDto.getEmail()) != null)
+        if (baseMapper.getByEmail(registerDto.getEmail()) != null)
             throw new RegisterException(RegisterExceptionEnum.EMAIL_EXIST); // 邮箱已存在
         if (!emailService.verifyCode(registerDto.getEmail(), registerDto.getVerifyCode()))
-            throw new CommonException(CommonExceptionEnum.EMAIL_VERIFY_CODE_ERROR); // 验证码错误
+            throw new RegisterException(RegisterExceptionEnum.EMAIL_VERIFY_CODE_ERROR); // 验证码错误
         // 创建用户
         SysUser user = new SysUser();
         BeanUtils.copyProperties(registerDto, user);
@@ -69,7 +71,41 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         if (baseMapper.insert(user) != 1)
             throw new RegisterException(RegisterExceptionEnum.REGISTER_FAILED); // 注册失败
         // 返回用户Vo
-        return UserUtils.userToVo(this.getUserByUsername(registerDto.getUsername()));
+        return UserUtils.userToVo(baseMapper.getByUsername(registerDto.getUsername()));
+    }
+
+    @Override
+    public UserToken login(LoginDto loginDto) {
+        SysUser user;
+        UserVo userVo;
+        Authentication authenticationToken;
+        if (loginDto.getType() == LoginType.EMAIL) {
+            // 邮箱登录
+            if (!UserUtils.isValidEmail(loginDto.getEmail()))
+                throw new CommonException(CommonExceptionEnum.EMAIL_INVALID);
+            user = baseMapper.getByEmail(loginDto.getEmail());
+            if (user == null)
+                throw new LoginException(LoginExceptionEnum.EMAIL_NOT_REGISTER); // 邮箱未注册
+            authenticationToken = new EmailAuthenticationToken(loginDto.getEmail(), loginDto.getVerifyCode());
+        } else {
+            // 密码登录
+            user = baseMapper.getByUsername(loginDto.getUsername());
+            authenticationToken = new UsernamePasswordAuthenticationToken(user.getUsername(), loginDto.getPassword());
+        }
+        try {
+            Authentication authenticate = authenticationManager.authenticate(authenticationToken);
+            userVo = UserUtils.userToVo(user);
+            userVo.setLoginType(loginDto.getType());
+            SecurityContextHolder.getContext().setAuthentication(authenticate);
+        } catch (AuthenticationException e) {
+            log.info("登录失败 登陆方式:{} 用户名:{} 邮箱:{}", loginDto.getType().getDesc(), user.getUsername(), user.getEmail());
+            if (loginDto.getType() == LoginType.EMAIL)
+                throw new LoginException(LoginExceptionEnum.EMAIL_VERIFY_CODE_ERROR); // 邮箱验证码错误
+            else
+                throw new LoginException(LoginExceptionEnum.USERNAME_OR_PASSWORD_ERROR); // 用户名或密码错误
+        }
+        // 生成Token
+        return jwtUtils.generateToken(userVo);
     }
 
 }

@@ -28,4 +28,16 @@
         login_ip,locked,deleted,
         create_time,update_time
     </sql>
+    <select id="getByUsername" resultType="top.th1nk.easychat.domain.SysUser">
+        SELECT *
+        FROM ec_user
+        where username = #{username}
+          and deleted = 0
+    </select>
+    <select id="getByEmail" resultType="top.th1nk.easychat.domain.SysUser">
+        SELECT *
+        FROM ec_user
+        where email = #{email}
+          and deleted = 0
+    </select>
 </mapper>

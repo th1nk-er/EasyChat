@@ -1,4 +1,4 @@
-package top.th1nk.easychat.config;
+package top.th1nk.easychat.config.mybatis;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
