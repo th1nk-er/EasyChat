@@ -6,6 +6,17 @@ spring:
     url: jdbc:mysql://localhost:3306/easychat
     username: easychat
     password: 123456
+    druid:
+      web-stat-filter:
+        enabled: true
+        url-pattern: /*
+        exclusions: /druid/*,*.js,*.gif,*.jpg,*.png,*.css,*.ico,*.html,*.json
+      filter:
+        stat:
+          enabled: true # 开启SQL监控
+      stat-view-servlet:
+        enabled: true # 开启druid监控面板
+        url-pattern: /druid/*
   data:
     redis:
       host: localhost

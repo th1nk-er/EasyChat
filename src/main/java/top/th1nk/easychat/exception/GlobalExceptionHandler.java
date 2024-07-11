@@ -3,7 +3,9 @@ package top.th1nk.easychat.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import top.th1nk.easychat.domain.Response;
+import top.th1nk.easychat.enums.CommonExceptionEnum;
 
 /**
  * 全局异常处理器
@@ -33,6 +35,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CommonException.class)
     public Response commonException(CommonException e) {
         return Response.error(e.getCode(), e.getMessage());
+    }
+
+    /**
+     * 404
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public Response noResourceFoundException(NoResourceFoundException e) {
+        return Response.error(CommonExceptionEnum.RESOURCE_NOT_FOUND.getCode(), CommonExceptionEnum.RESOURCE_NOT_FOUND.getMessage());
     }
 
     /**

@@ -67,6 +67,8 @@ public class SecurityConfig {
                             .requestMatchers("/user/verify-email").permitAll()
                             // 用户登录
                             .requestMatchers("/user/login").permitAll()
+                            // druid
+                            .requestMatchers("/druid/**").permitAll()
                             .anyRequest().authenticated();
                 });
 

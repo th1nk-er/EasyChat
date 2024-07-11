@@ -12,6 +12,7 @@ public enum CommonExceptionEnum {
     EMAIL_VERIFY_CODE_EXPIRE(1006, "邮箱验证码已过期"),
     TOKEN_INVALID(1007, "令牌无效"),
     TOKEN_EXPIRE(1008, "令牌过期"),
+    RESOURCE_NOT_FOUND(1009, "资源不存在"),
     ;
     private final String message;
     private final int code;
