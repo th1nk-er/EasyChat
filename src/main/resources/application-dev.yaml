@@ -21,7 +21,12 @@ spring:
     redis:
       host: localhost
       port: 6379
-
+springdoc:
+  # 开启swagger-ui
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
