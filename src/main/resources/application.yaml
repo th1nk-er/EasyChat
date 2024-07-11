@@ -46,6 +46,7 @@ easy-chat:
   jwt:
     secret: =====================EASYCHAT=====================
     expireSeconds: 3600
+    max-token: 3
   mail:
     sender:
       name: EasyChat

@@ -8,8 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-import top.th1nk.easychat.domain.UserToken;
+import top.th1nk.easychat.domain.SysUserToken;
 import top.th1nk.easychat.domain.vo.UserVo;
+import top.th1nk.easychat.service.SysUserTokenService;
 
 import javax.crypto.SecretKey;
 import java.security.Key;
@@ -32,15 +33,19 @@ public class JwtUtils {
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
 
+    @Resource
+    private SysUserTokenService sysUserTokenService;
+
     /**
      * 生成token
      *
      * @param userVo 用户信息
      * @return UserToken实体类
      */
-    public UserToken generateToken(UserVo userVo) {
-        UserToken userToken = new UserToken();
+    public SysUserToken generateToken(UserVo userVo) {
+        SysUserToken userToken = new SysUserToken();
         LocalDateTime now = LocalDateTime.now();
+        userToken.setUserId(userVo.getId());
         userToken.setIssueTime(now);
         userToken.setExpireTime(now.plusSeconds(expireSeconds));
         userToken.setToken(Jwts.builder()
@@ -88,7 +93,8 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secret));
     }
 
-    private void saveToken(UserToken userToken, UserVo userVo) {
+    private void saveToken(SysUserToken userToken, UserVo userVo) {
         redisTemplate.opsForValue().set(TOKEN_PREFIX + userToken.getToken(), userVo, Duration.ofSeconds(expireSeconds));
+        sysUserTokenService.saveUserToken(userToken);
     }
 }

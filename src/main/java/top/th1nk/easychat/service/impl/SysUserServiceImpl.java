@@ -12,7 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import top.th1nk.easychat.config.security.EmailAuthenticationToken;
 import top.th1nk.easychat.domain.SysUser;
-import top.th1nk.easychat.domain.UserToken;
+import top.th1nk.easychat.domain.SysUserToken;
 import top.th1nk.easychat.domain.dto.LoginDto;
 import top.th1nk.easychat.domain.dto.RegisterDto;
 import top.th1nk.easychat.domain.vo.UserVo;
@@ -77,7 +77,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    public UserToken login(LoginDto loginDto) {
+    public SysUserToken login(LoginDto loginDto) {
         SysUser user;
         UserVo userVo;
         Authentication authenticationToken;

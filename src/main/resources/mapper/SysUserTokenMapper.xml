@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.th1nk.easychat.mapper.SysUserTokenMapper">
+
+    <resultMap id="BaseResultMap" type="top.th1nk.easychat.domain.SysUserToken">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="token" column="token" jdbcType="VARCHAR"/>
+        <result property="issueTime" column="issue_time" jdbcType="TIMESTAMP"/>
+        <result property="expireTime" column="expire_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,token,
+        issue_time,expire_time
+    </sql>
+    <update id="updateExpireTimeByToken">
+        UPDATE easychat.ec_user_token
+        SET expire_time = #{expireTime}
+        WHERE token = #{token}
+    </update>
+    <select id="getByUserId" resultType="top.th1nk.easychat.domain.SysUserToken">
+        SELECT *
+        FROM easychat.ec_user_token
+        WHERE user_id = #{userId}
+    </select>
+</mapper>

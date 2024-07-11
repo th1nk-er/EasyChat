@@ -51,6 +51,12 @@ public class EasyChatConfiguration {
          * 有效时长 单位：秒
          */
         private long expireSeconds = 3600;
+
+        /**
+         * 用户最大Token数量
+         * 用于限制用户登录设备数目
+         */
+        private int maxToken = 3;
     }
 
     @Data
