@@ -18,7 +18,7 @@ public interface SysUserTokenService extends IService<SysUserToken> {
 
     /**
      * 保存token到数据库
-     * 并检查是否超出token在线数，超出则强制过期最早token
+     * 并检查是否超出token在线数，超出则强制覆盖最早token
      *
      * @param sysUserToken token
      */

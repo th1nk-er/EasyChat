@@ -15,6 +15,7 @@ import top.th1nk.easychat.domain.SysUser;
 import top.th1nk.easychat.domain.SysUserToken;
 import top.th1nk.easychat.domain.dto.LoginDto;
 import top.th1nk.easychat.domain.dto.RegisterDto;
+import top.th1nk.easychat.domain.dto.UserTokenDto;
 import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.enums.CommonExceptionEnum;
 import top.th1nk.easychat.enums.LoginExceptionEnum;
@@ -26,8 +27,9 @@ import top.th1nk.easychat.exception.RegisterException;
 import top.th1nk.easychat.mapper.SysUserMapper;
 import top.th1nk.easychat.service.EmailService;
 import top.th1nk.easychat.service.SysUserService;
-import top.th1nk.easychat.utils.IpUtils;
+import top.th1nk.easychat.service.SysUserTokenService;
 import top.th1nk.easychat.utils.JwtUtils;
+import top.th1nk.easychat.utils.RequestUtils;
 import top.th1nk.easychat.utils.UserUtils;
 
 /**
@@ -45,6 +47,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Resource
     private JwtUtils jwtUtils;
+    @Resource
+    private SysUserTokenService sysUserTokenService;
 
     @Override
     public UserVo register(RegisterDto registerDto) {
@@ -66,7 +70,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         BeanUtils.copyProperties(registerDto, user);
         user.setPassword(UserUtils.encryptPassword(registerDto.getPassword()));
         user.setNickname(registerDto.getUsername());
-        user.setRegisterIp(IpUtils.getClientIp());
+        user.setRegisterIp(RequestUtils.getClientIp());
 //        user.setAvatar(""); // TODO 设置默认头像地址
         log.info("注册用户:{}", user);
         // 插入到数据库
@@ -77,7 +81,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    public SysUserToken login(LoginDto loginDto) {
+    public UserTokenDto login(LoginDto loginDto) {
         SysUser user;
         UserVo userVo;
         Authentication authenticationToken;
@@ -99,7 +103,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             // 登录成功
             userVo = UserUtils.userToVo(user);
             userVo.setLoginType(loginDto.getType());
-            baseMapper.updateLoginIp(user.getUsername(), IpUtils.getClientIp()); // 更新登录IP
+            baseMapper.updateLoginIp(user.getUsername(), RequestUtils.getClientIp()); // 更新登录IP
             SecurityContextHolder.getContext().setAuthentication(authenticate);
         } catch (AuthenticationException e) {
             log.info("登录失败 登陆方式:{} 用户名:{} 邮箱:{}", loginDto.getType().getDesc(), user.getUsername(), user.getEmail());
@@ -109,7 +113,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 throw new LoginException(LoginExceptionEnum.USERNAME_OR_PASSWORD_ERROR); // 用户名或密码错误
         }
         // 生成Token
-        return jwtUtils.generateToken(userVo);
+        SysUserToken sysUserToken = jwtUtils.generateToken(userVo);
+        sysUserTokenService.saveUserToken(sysUserToken);
+        UserTokenDto userTokenDto = new UserTokenDto();
+        BeanUtils.copyProperties(sysUserToken, userTokenDto);
+        return userTokenDto;
     }
 
 }

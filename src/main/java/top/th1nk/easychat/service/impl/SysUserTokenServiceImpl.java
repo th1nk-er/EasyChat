@@ -7,6 +7,7 @@ import top.th1nk.easychat.config.easychat.EasyChatConfiguration;
 import top.th1nk.easychat.domain.SysUserToken;
 import top.th1nk.easychat.mapper.SysUserTokenMapper;
 import top.th1nk.easychat.service.SysUserTokenService;
+import top.th1nk.easychat.utils.JwtUtils;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -23,6 +24,8 @@ public class SysUserTokenServiceImpl extends ServiceImpl<SysUserTokenMapper, Sys
 
     @Resource
     private EasyChatConfiguration easyChatConfiguration;
+    @Resource
+    private JwtUtils jwtUtils;
 
     @Override
     public void expireToken(String token) {
@@ -37,14 +40,12 @@ public class SysUserTokenServiceImpl extends ServiceImpl<SysUserTokenMapper, Sys
         if (userTokenList.isEmpty() || userTokenList.size() < max)
             baseMapper.insert(sysUserToken);
         else {
-            // 检查是否有过期token，如果有过期token，则覆盖，否则删除最早创建的token
             // 根据token的issueTime排序，获取最早创建的token
             userTokenList.sort(Comparator.comparing(SysUserToken::getIssueTime));
-            SysUserToken updateEntity = userTokenList.get(0);
-            updateEntity.setToken(sysUserToken.getToken());
-            updateEntity.setIssueTime(sysUserToken.getIssueTime());
-            updateEntity.setExpireTime(sysUserToken.getExpireTime());
-            baseMapper.updateById(updateEntity);
+            sysUserToken.setId(userTokenList.get(0).getId());
+            // 覆盖最早的token
+            jwtUtils.expireToken(userTokenList.get(0).getToken());
+            baseMapper.updateById(sysUserToken);
         }
     }
 }

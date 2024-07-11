@@ -7,13 +7,16 @@
     <resultMap id="BaseResultMap" type="top.th1nk.easychat.domain.SysUserToken">
         <id property="id" column="id" jdbcType="INTEGER"/>
         <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="userAgent" column="user_agent" jdbcType="VARCHAR"/>
+        <result property="loginIp" column="login_ip" jdbcType="VARCHAR"/>
         <result property="token" column="token" jdbcType="VARCHAR"/>
         <result property="issueTime" column="issue_time" jdbcType="TIMESTAMP"/>
         <result property="expireTime" column="expire_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,user_id,token,
+        id,user_id,user_agent,
+        login_ip,token,
         issue_time,expire_time
     </sql>
     <update id="updateExpireTimeByToken">

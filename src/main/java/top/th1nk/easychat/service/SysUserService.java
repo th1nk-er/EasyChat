@@ -2,9 +2,9 @@ package top.th1nk.easychat.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import top.th1nk.easychat.domain.SysUser;
-import top.th1nk.easychat.domain.SysUserToken;
 import top.th1nk.easychat.domain.dto.LoginDto;
 import top.th1nk.easychat.domain.dto.RegisterDto;
+import top.th1nk.easychat.domain.dto.UserTokenDto;
 import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.exception.LoginException;
 import top.th1nk.easychat.exception.RegisterException;
@@ -29,8 +29,8 @@ public interface SysUserService extends IService<SysUser> {
      * 用户登录
      *
      * @param loginDto 用户登录信息
-     * @return 用户信息Vo
+     * @return 用户Token
      * @throws LoginException 登录异常
      */
-    SysUserToken login(LoginDto loginDto) throws LoginException;
+    UserTokenDto login(LoginDto loginDto) throws LoginException;
 }

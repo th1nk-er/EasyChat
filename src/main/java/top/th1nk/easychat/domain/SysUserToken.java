@@ -30,7 +30,17 @@ public class SysUserToken implements Serializable {
      */
     @Schema(description = "用户ID")
     private Integer userId;
+    /**
+     * 设备UA
+     */
+    @Schema(description = "设备UA")
+    private String userAgent;
 
+    /**
+     * 登录IP
+     */
+    @Schema(description = "登录IP")
+    private String loginIp;
     /**
      * 用户Token
      */

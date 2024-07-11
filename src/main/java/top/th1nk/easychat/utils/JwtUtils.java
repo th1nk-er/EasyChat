@@ -10,7 +10,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import top.th1nk.easychat.domain.SysUserToken;
 import top.th1nk.easychat.domain.vo.UserVo;
-import top.th1nk.easychat.service.SysUserTokenService;
 
 import javax.crypto.SecretKey;
 import java.security.Key;
@@ -33,9 +32,6 @@ public class JwtUtils {
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
 
-    @Resource
-    private SysUserTokenService sysUserTokenService;
-
     /**
      * 生成token
      *
@@ -48,6 +44,8 @@ public class JwtUtils {
         userToken.setUserId(userVo.getId());
         userToken.setIssueTime(now);
         userToken.setExpireTime(now.plusSeconds(expireSeconds));
+        userToken.setLoginIp(RequestUtils.getClientIp());
+        userToken.setUserAgent(RequestUtils.getUserAgent());
         userToken.setToken(Jwts.builder()
                 .subject(userVo.getUsername())
                 .issuedAt(Date.from(now.atZone(ZoneId.systemDefault()).toInstant()))
@@ -89,12 +87,22 @@ public class JwtUtils {
         return userVo;
     }
 
+
+    /**
+     * 强制过期token
+     *
+     * @param token token字符串
+     */
+    public void expireToken(String token) {
+        redisTemplate.delete(TOKEN_PREFIX + token);
+    }
+
     private Key getKey() {
         return Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secret));
     }
 
     private void saveToken(SysUserToken userToken, UserVo userVo) {
         redisTemplate.opsForValue().set(TOKEN_PREFIX + userToken.getToken(), userVo, Duration.ofSeconds(expireSeconds));
-        sysUserTokenService.saveUserToken(userToken);
     }
+
 }
