@@ -38,6 +38,11 @@ mybatis-plus:
     log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
   mapper-locations: classpath*:mapper/*.xml
 easy-chat:
+  security:
+    permitAll-urls:
+      - /user/login
+      - /user/register
+      - /user/verify-email
   jwt:
     secret: =====================EASYCHAT=====================
     expireSeconds: 3600
@@ -49,3 +54,6 @@ easy-chat:
       expire: 15
       template:
         path: classpath:static/email-code.html # 模板文件
+        application-name-placeholder: { APPLICATION_NAME }
+        code-placeholder: { VERIFY_CODE }
+        expire-placeholder: { EXPIRE_TIME }

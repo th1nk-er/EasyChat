@@ -30,3 +30,13 @@ springdoc:
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+easy-chat:
+  security:
+    permit-all-urls:
+      - /user/login
+      - /user/register
+      - /user/verify-email
+      # 开发时配置
+      - /swagger-ui/**
+      - /v3/api-docs/**
+      - /druid/**

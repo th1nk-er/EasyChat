@@ -1,6 +1,7 @@
 package top.th1nk.easychat.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -43,6 +44,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoResourceFoundException.class)
     public Response noResourceFoundException(NoResourceFoundException e) {
         return Response.error(CommonExceptionEnum.RESOURCE_NOT_FOUND.getCode(), CommonExceptionEnum.RESOURCE_NOT_FOUND.getMessage());
+    }
+
+    /**
+     * 不支持的Method
+     */
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public Response httpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+        return Response.error(CommonExceptionEnum.METHOD_NOT_ALLOWED.getCode(), CommonExceptionEnum.METHOD_NOT_ALLOWED.getMessage());
     }
 
     /**

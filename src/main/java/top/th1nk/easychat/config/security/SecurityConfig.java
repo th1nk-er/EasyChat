@@ -15,6 +15,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import top.th1nk.easychat.config.easychat.EasyChatConfiguration;
+
+import java.util.List;
 
 /*
  配置Spring Security
@@ -27,6 +30,9 @@ public class SecurityConfig {
     private JwtAuthenticationFilter jwtAuthenticationFilter;
     @Resource
     private EmailAuthenticationProvider emailAuthenticationProvider;
+
+    @Resource
+    private EasyChatConfiguration easyChatConfiguration;
 
     @Bean
     public AuthenticationManager authenticationManager(PasswordEncoder passwordEncoder) {
@@ -43,6 +49,16 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        List<String> permitAllUrls = easyChatConfiguration.getSecurity().getPermitAllUrls();
+        List<String> authorizeUrls = easyChatConfiguration.getSecurity().getAuthorizeUrls();
+        String[] perms;
+        String[] auths;
+        if (permitAllUrls != null)
+            perms = permitAllUrls.toArray(new String[0]);
+        else perms = new String[0];
+        if (authorizeUrls != null)
+            auths = authorizeUrls.toArray(new String[0]);
+        else auths = new String[0];
         http
                 .csrf(AbstractHttpConfigurer::disable) // 关闭CSRF
                 .cors(config -> {
@@ -56,21 +72,10 @@ public class SecurityConfig {
                     config.configurationSource(source);
 
                 }) // 配置跨域
-                .authorizeHttpRequests(authorize -> {
-                    authorize
-                            // spring-doc
-                            .requestMatchers("/v3/api-docs/**").permitAll()
-                            .requestMatchers("/swagger-ui/**").permitAll()
-                            // 用户注册
-                            .requestMatchers("/user/register").permitAll()
-                            // 邮箱验证码
-                            .requestMatchers("/user/verify-email").permitAll()
-                            // 用户登录
-                            .requestMatchers("/user/login").permitAll()
-                            // druid
-                            .requestMatchers("/druid/**").permitAll()
-                            .anyRequest().authenticated();
-                });
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(perms).permitAll()
+                        .requestMatchers(auths).authenticated()
+                        .anyRequest().authenticated());
 
         // JWT过滤器
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

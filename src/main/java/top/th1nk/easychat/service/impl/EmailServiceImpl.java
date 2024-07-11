@@ -11,6 +11,7 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import top.th1nk.easychat.config.easychat.EasyChatConfiguration;
 import top.th1nk.easychat.enums.CommonExceptionEnum;
 import top.th1nk.easychat.exception.CommonException;
 import top.th1nk.easychat.service.EmailService;
@@ -25,29 +26,42 @@ import java.time.Duration;
 @Slf4j
 @Service
 public class EmailServiceImpl implements EmailService {
-    private static final String APPLICATION_NAME = "${APPLICATION_NAME}";
-    private static final String VERIFY_CODE = "${VERIFY_CODE}";
-    private static final String EXPIRE_TIME = "${EXPIRE_TIME}";
     private static final String CODE_PREFIX = "email:code:";
+    @Resource
+    private EasyChatConfiguration easyChatConfiguration;
     @Resource
     private JavaMailSender javaMailSender;
     @Resource
     private ResourceLoader resourceLoader;
-    @Value("${easy-chat.mail.verify-code.template.path}")
-    private String templatePath;
-    @Value("${spring.application.name}")
-    private String applicationName;
-    @Value("${spring.mail.username}")
-    private String senderEmail;
-    @Value("${easy-chat.mail.sender.name}")
-    private String senderName;
-    @Value("${easy-chat.mail.verify-code.expire:15}")
-    private int expireTime;
     @Resource
     private StringRedisTemplate stringRedisTemplate;
 
+    @Value("${spring.mail.username}")
+    private String senderEmail;
+    @Value("${spring.application.name}")
+    private String applicationName;
+
+    private String senderName;
+    private String templatePath;
+    private String APPLICATION_NAME_PLACEHOLDER;
+    private String VERIFY_CODE_PLACEHOLDER;
+    private String EXPIRE_TIME_PLACEHOLDER;
+    private int expireTime;
+
+    private void readConfig() {
+        EasyChatConfiguration.Mail mail = easyChatConfiguration.getMail();
+        senderName = mail.getSender().getName();
+        templatePath = mail.getVerifyCode().getTemplate().getPath();
+        APPLICATION_NAME_PLACEHOLDER = mail.getVerifyCode().getTemplate().getApplicationNamePlaceholder();
+        VERIFY_CODE_PLACEHOLDER = mail.getVerifyCode().getTemplate().getCodePlaceholder();
+        EXPIRE_TIME_PLACEHOLDER = mail.getVerifyCode().getTemplate().getExpirePlaceholder();
+        expireTime = mail.getVerifyCode().getExpire();
+    }
+
     @Override
     public void sendVerifyCodeEmail(String sendTo, String verifyCode) throws CommonException {
+        readConfig();
+
         if (!UserUtils.isValidEmail(sendTo)) throw new CommonException(CommonExceptionEnum.EMAIL_INVALID);
         try {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -57,9 +71,9 @@ public class EmailServiceImpl implements EmailService {
             helper.setSubject(applicationName + "验证码:" + verifyCode);
             byte[] fileData = Files.readAllBytes(Paths.get(resourceLoader.getResource(templatePath).getURI()));
             String content = new String(fileData, StandardCharsets.UTF_8);
-            content = content.replace(APPLICATION_NAME, applicationName);
-            content = content.replace(VERIFY_CODE, verifyCode);
-            content = content.replace(EXPIRE_TIME, String.valueOf(expireTime));
+            content = content.replace(APPLICATION_NAME_PLACEHOLDER, applicationName);
+            content = content.replace(VERIFY_CODE_PLACEHOLDER, verifyCode);
+            content = content.replace(EXPIRE_TIME_PLACEHOLDER, String.valueOf(expireTime));
             helper.setText(content, true);
             log.info("发送验证码邮件:{},{}", sendTo, verifyCode);
             javaMailSender.send(mimeMessage);
@@ -77,6 +91,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void saveVerifyCode(String email, String verifyCode) {
+        readConfig();
         log.info("存储验证码:{},{}", email, verifyCode);
         stringRedisTemplate.opsForValue().set(CODE_PREFIX + email, verifyCode, Duration.ofMinutes(expireTime));
     }
