@@ -8,7 +8,7 @@ import top.th1nk.easychat.enums.LoginType;
 @Schema(description = "登录信息")
 public class LoginDto {
     @Schema(description = "登录类型")
-    private LoginType type;
+    private LoginType type = LoginType.PASSWORD;
     @Schema(description = "用户名")
     private String username;
     @Schema(description = "密码")

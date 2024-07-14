@@ -1,7 +1,9 @@
 package top.th1nk.easychat.config.redis;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONReader;
 import com.alibaba.fastjson2.JSONWriter;
+import com.alibaba.fastjson2.filter.Filter;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 
@@ -9,6 +11,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 public class FastJson2JsonRedisSerializer<T> implements RedisSerializer<T> {
+    private static final String[] JSON_WHITE_LIST = {"org.springframework", "top.th1nk"};
+    static final Filter AUTO_TYPE_FILTER = JSONReader.autoTypeFilter(JSON_WHITE_LIST);
     private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
     private final Class<T> clazz;
 
@@ -29,6 +33,6 @@ public class FastJson2JsonRedisSerializer<T> implements RedisSerializer<T> {
     public T deserialize(byte[] bytes) throws SerializationException {
         if (bytes == null || bytes.length == 0) return null;
         String str = new String(bytes, DEFAULT_CHARSET);
-        return JSON.parseObject(str, clazz);
+        return JSON.parseObject(str, clazz, AUTO_TYPE_FILTER);
     }
 }

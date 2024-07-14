@@ -95,8 +95,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             authenticationToken = new EmailAuthenticationToken(loginDto.getEmail(), loginDto.getVerifyCode());
         } else {
             // 密码登录
+            authenticationToken = new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
             user = baseMapper.getByUsername(loginDto.getUsername());
-            authenticationToken = new UsernamePasswordAuthenticationToken(user.getUsername(), loginDto.getPassword());
         }
         try {
             Authentication authenticate = authenticationManager.authenticate(authenticationToken);
@@ -106,7 +106,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             baseMapper.updateLoginIp(user.getUsername(), RequestUtils.getClientIp()); // 更新登录IP
             SecurityContextHolder.getContext().setAuthentication(authenticate);
         } catch (AuthenticationException e) {
-            log.info("登录失败 登陆方式:{} 用户名:{} 邮箱:{}", loginDto.getType().getDesc(), user.getUsername(), user.getEmail());
+            log.info("登录失败 登陆方式:{} 用户名:{} 邮箱:{}", loginDto.getType().getDesc(), loginDto.getUsername(), loginDto.getEmail());
             if (loginDto.getType() == LoginType.EMAIL)
                 throw new LoginException(LoginExceptionEnum.EMAIL_VERIFY_CODE_ERROR); // 邮箱验证码错误
             else

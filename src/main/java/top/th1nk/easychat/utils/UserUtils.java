@@ -29,7 +29,7 @@ public class UserUtils {
      * @return 合法-true 不合法-false
      */
     public static boolean isValidUsername(String username) {
-        return username != null && username.matches("^[a-zA-Z0-9_]{4,20}$");
+        return username != null && username.matches("^[a-zA-Z0-9_]{3,20}$");
     }
 
     /**
