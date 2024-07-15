@@ -32,4 +32,13 @@ public interface EmailService {
      * @throws CommonException 验证码过期时抛出异常
      */
     boolean verifyCode(String email, String verifyCode) throws CommonException;
+
+
+    /**
+     * 判断是否可以发送验证码
+     *
+     * @param email 邮箱
+     * @return 是否可以发送验证码
+     */
+    boolean canSendVerifyCode(String email);
 }

@@ -14,6 +14,7 @@ public enum CommonExceptionEnum {
     TOKEN_EXPIRE(1008, "令牌过期"),
     RESOURCE_NOT_FOUND(1009, "资源不存在"),
     METHOD_NOT_ALLOWED(1010, "请求方法不允许"),
+    EMAIL_VERIFY_CODE_SEND__FREQUENTLY(1011, "验证码发送太频繁"),
     ;
     private final String message;
     private final int code;

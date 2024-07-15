@@ -10,6 +10,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import top.th1nk.easychat.config.easychat.EasyChatConfiguration;
 import top.th1nk.easychat.enums.CommonExceptionEnum;
@@ -25,6 +27,7 @@ import java.time.Duration;
 
 @Slf4j
 @Service
+@EnableAsync
 public class EmailServiceImpl implements EmailService {
     private static final String CODE_PREFIX = "email:code:";
     @Resource
@@ -58,11 +61,14 @@ public class EmailServiceImpl implements EmailService {
         expireTime = mail.getVerifyCode().getExpire();
     }
 
+    @Async
     @Override
     public void sendVerifyCodeEmail(String sendTo, String verifyCode) throws CommonException {
         readConfig();
 
         if (!UserUtils.isValidEmail(sendTo)) throw new CommonException(CommonExceptionEnum.EMAIL_INVALID);
+        if (!canSendVerifyCode(sendTo))
+            throw new CommonException(CommonExceptionEnum.EMAIL_VERIFY_CODE_SEND__FREQUENTLY);
         try {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
@@ -107,5 +113,13 @@ public class EmailServiceImpl implements EmailService {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean canSendVerifyCode(String email) {
+        Long expire = stringRedisTemplate.getExpire(CODE_PREFIX + email);
+        if (expire == null) return true;
+        // 1分钟之内只能发送一次
+        return Duration.ofMinutes(expireTime).getSeconds() - Duration.ofMinutes(expire).getSeconds() >= Duration.ofMinutes(1).getSeconds();
     }
 }
