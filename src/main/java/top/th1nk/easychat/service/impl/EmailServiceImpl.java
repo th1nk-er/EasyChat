@@ -65,10 +65,6 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendVerifyCodeEmail(String sendTo, String verifyCode) throws CommonException {
         readConfig();
-
-        if (!UserUtils.isValidEmail(sendTo)) throw new CommonException(CommonExceptionEnum.EMAIL_INVALID);
-        if (!canSendVerifyCode(sendTo))
-            throw new CommonException(CommonExceptionEnum.EMAIL_VERIFY_CODE_SEND__FREQUENTLY);
         try {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
@@ -116,10 +112,13 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public boolean canSendVerifyCode(String email) {
+    public void beforeSendVerifyCode(String email) {
+        readConfig();
+        if (!UserUtils.isValidEmail(email)) throw new CommonException(CommonExceptionEnum.EMAIL_INVALID);
         Long expire = stringRedisTemplate.getExpire(CODE_PREFIX + email);
-        if (expire == null) return true;
+        if (expire == null || expire <= 0) return;
         // 1分钟之内只能发送一次
-        return Duration.ofMinutes(expireTime).getSeconds() - Duration.ofMinutes(expire).getSeconds() >= Duration.ofMinutes(1).getSeconds();
+        if (expireTime * 60L - expire >= 60L) return;
+        throw new CommonException(CommonExceptionEnum.EMAIL_VERIFY_CODE_SEND__FREQUENTLY);
     }
 }

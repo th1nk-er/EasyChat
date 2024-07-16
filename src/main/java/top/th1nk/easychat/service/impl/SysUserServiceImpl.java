@@ -59,9 +59,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             throw new CommonException(CommonExceptionEnum.PASSWORD_INVALID); // 密码不合法
         if (!UserUtils.isValidEmail(registerDto.getEmail()))
             throw new CommonException(CommonExceptionEnum.EMAIL_INVALID); // 邮箱不合法
-        if (baseMapper.getByUsername(registerDto.getUsername()) != null)
+        if (isUsernameExist(registerDto.getUsername()))
             throw new RegisterException(RegisterExceptionEnum.USERNAME_EXIST); // 用户名已存在
-        if (baseMapper.getByEmail(registerDto.getEmail()) != null)
+        if (isEmailExist(registerDto.getEmail()))
             throw new RegisterException(RegisterExceptionEnum.EMAIL_EXIST); // 邮箱已存在
         if (!emailService.verifyCode(registerDto.getEmail(), registerDto.getVerifyCode()))
             throw new RegisterException(RegisterExceptionEnum.EMAIL_VERIFY_CODE_ERROR); // 验证码错误
@@ -118,6 +118,16 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         UserTokenDto userTokenDto = new UserTokenDto();
         BeanUtils.copyProperties(sysUserToken, userTokenDto);
         return userTokenDto;
+    }
+
+    @Override
+    public boolean isUsernameExist(String username) {
+        return baseMapper.getByUsername(username) != null;
+    }
+
+    @Override
+    public boolean isEmailExist(String email) {
+        return baseMapper.getByEmail(email) != null;
     }
 
 }

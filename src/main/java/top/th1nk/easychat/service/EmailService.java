@@ -35,10 +35,9 @@ public interface EmailService {
 
 
     /**
-     * 判断是否可以发送验证码
+     * 在验证码发送之前进行的操作
      *
      * @param email 邮箱
-     * @return 是否可以发送验证码
      */
-    boolean canSendVerifyCode(String email);
+    void beforeSendVerifyCode(String email);
 }

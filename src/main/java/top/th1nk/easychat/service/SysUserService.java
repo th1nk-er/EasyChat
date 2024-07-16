@@ -33,4 +33,20 @@ public interface SysUserService extends IService<SysUser> {
      * @throws LoginException 登录异常
      */
     UserTokenDto login(LoginDto loginDto) throws LoginException;
+
+    /**
+     * 判断用户名是否已注册
+     *
+     * @param username 用户名
+     * @return 是否已注册
+     */
+    boolean isUsernameExist(String username);
+
+    /**
+     * 判断邮箱是否已注册
+     *
+     * @param email 邮箱
+     * @return 是否已注册
+     */
+    boolean isEmailExist(String email);
 }
