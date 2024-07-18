@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.th1nk.easychat.mapper.SysUserAddFriendMapper">
+
+    <resultMap id="BaseResultMap" type="top.th1nk.easychat.domain.SysUserAddFriend">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="uid" column="uid" jdbcType="INTEGER"/>
+            <result property="strangerId" column="stranger_id" jdbcType="INTEGER"/>
+            <result property="addInfo" column="add_info" jdbcType="VARCHAR"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="status" column="status" jdbcType="TINYINT"/>
+            <result property="addType" column="add_type" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,uid,stranger_id,
+        add_info,create_time,status,
+        add_type
+    </sql>
+</mapper>
