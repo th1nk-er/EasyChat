@@ -1,19 +1,14 @@
 package top.th1nk.easychat.domain;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
-
-import java.io.Serial;
-import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.Date;
-
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import top.th1nk.easychat.enums.AddUserStatus;
 import top.th1nk.easychat.enums.AddUserType;
+
+import java.io.Serial;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * @TableName ec_user_add_friend
@@ -25,7 +20,7 @@ public class SysUserAddFriend implements Serializable {
     /**
      * 主键ID
      */
-    @TableId
+    @TableId(type = IdType.AUTO)
     @Schema(description = "主键ID")
     private Integer id;
 
@@ -50,6 +45,7 @@ public class SysUserAddFriend implements Serializable {
     /**
      * 添加时间
      */
+    @TableField(fill = FieldFill.INSERT)
     @Schema(description = "添加时间")
     private LocalDateTime createTime;
 

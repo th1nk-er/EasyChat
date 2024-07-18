@@ -5,12 +5,12 @@
 <mapper namespace="top.th1nk.easychat.mapper.SysUserFriendMapper">
 
     <resultMap id="BaseResultMap" type="top.th1nk.easychat.domain.SysUserFriend">
-            <id property="id" column="id" jdbcType="INTEGER"/>
-            <result property="uid" column="uid" jdbcType="INTEGER"/>
-            <result property="friendId" column="friend_id" jdbcType="INTEGER"/>
-            <result property="remark" column="remark" jdbcType="VARCHAR"/>
-            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
-            <result property="deleted" column="deleted" jdbcType="TINYINT"/>
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="uid" column="uid" jdbcType="INTEGER"/>
+        <result property="friendId" column="friend_id" jdbcType="INTEGER"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
