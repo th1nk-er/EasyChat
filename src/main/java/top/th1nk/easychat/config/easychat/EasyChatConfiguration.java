@@ -4,6 +4,7 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,6 +27,11 @@ public class EasyChatConfiguration {
      * 邮件配置
      */
     private Mail mail;
+
+    /**
+     * WebSocket配置
+     */
+    private WebSocket webSocket;
 
     @Data
     public static class Security {
@@ -113,5 +119,28 @@ public class EasyChatConfiguration {
                 private String expirePlaceholder = "{EXPIRE_TIME}";
             }
         }
+    }
+
+    @Data
+    public static class WebSocket {
+        /**
+         * WebSocket端点
+         */
+        private String endpoint = "/chat/ws";
+
+        /**
+         * 应用前缀
+         */
+        private String appDesPrefix = "/app";
+
+        /**
+         * 用户前缀
+         */
+        private String userDesPrefix = "/user";
+
+        /**
+         * 主题
+         */
+        private List<String> topicPrefix = new ArrayList<>();
     }
 }
