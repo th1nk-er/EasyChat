@@ -17,4 +17,11 @@
         id,uid,friend_id,
         remark,create_time,deleted
     </sql>
+    <select id="isFriend" resultType="java.lang.Boolean">
+        select count(*) > 0
+        from ec_user_friend
+        where uid = #{userId}
+          and friend_id = #{friendId}
+          and deleted = 0
+    </select>
 </mapper>

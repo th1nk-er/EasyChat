@@ -2,6 +2,7 @@ package top.th1nk.easychat.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import top.th1nk.easychat.domain.SysUserFriend;
+import top.th1nk.easychat.domain.dto.AddFriendDto;
 
 /**
  * @author vinka
@@ -10,4 +11,11 @@ import top.th1nk.easychat.domain.SysUserFriend;
  */
 public interface SysUserFriendService extends IService<SysUserFriend> {
 
+    /**
+     * 发送好友申请
+     *
+     * @param addFriendDto 好友申请信息
+     * @return 是否发送成功
+     */
+    boolean sendAddRequest(AddFriendDto addFriendDto);
 }

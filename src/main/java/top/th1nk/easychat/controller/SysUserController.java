@@ -71,4 +71,11 @@ public class SysUserController {
     public Response login(@RequestBody LoginDto loginDto) {
         return Response.ok(sysUserService.login(loginDto));
     }
+
+
+    @Operation(summary = "用户搜索", description = "根据关键字搜索用户")
+    @GetMapping("/search")
+    public Response search(@RequestParam("keyword") String keyword) {
+        return Response.ok(sysUserService.searchUser(keyword));
+    }
 }

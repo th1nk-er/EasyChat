@@ -55,10 +55,27 @@ public class RequestUtils {
         return getClientIp(currentRequest);
     }
 
+    /**
+     * 获取客户端User-Agent
+     *
+     * @return 客户端User-Agent
+     */
     public static String getUserAgent() {
         HttpServletRequest currentRequest = getCurrentRequest();
         if (currentRequest == null) return "";
         String ua = currentRequest.getHeader("User-Agent");
         return ua != null ? ua : "";
+    }
+
+    /**
+     * 获取客户端token
+     *
+     * @return token字符串
+     */
+    public static String getUserTokenString() {
+        HttpServletRequest currentRequest = getCurrentRequest();
+        if (currentRequest == null) return "";
+        String token = currentRequest.getHeader("Authorization");
+        return token != null ? token : "";
     }
 }

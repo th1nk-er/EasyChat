@@ -1,5 +1,6 @@
 package top.th1nk.easychat.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import top.th1nk.easychat.domain.SysUserToken;
 import top.th1nk.easychat.domain.dto.LoginDto;
 import top.th1nk.easychat.domain.dto.RegisterDto;
 import top.th1nk.easychat.domain.dto.UserTokenDto;
+import top.th1nk.easychat.domain.vo.SearchUserVo;
 import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.enums.CommonExceptionEnum;
 import top.th1nk.easychat.enums.LoginExceptionEnum;
@@ -31,6 +33,9 @@ import top.th1nk.easychat.service.SysUserTokenService;
 import top.th1nk.easychat.utils.JwtUtils;
 import top.th1nk.easychat.utils.RequestUtils;
 import top.th1nk.easychat.utils.UserUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author th1nk
@@ -128,6 +133,22 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public boolean isEmailExist(String email) {
         return baseMapper.getByEmail(email) != null;
+    }
+
+    @Override
+    public List<SearchUserVo> searchUser(String keyword) {
+        if (keyword == null || keyword.isEmpty()) return List.of();
+        LambdaQueryWrapper<SysUser> qw = new LambdaQueryWrapper<>();
+        qw.like(SysUser::getUsername, keyword).or().like(SysUser::getNickname, keyword);
+        List<SysUser> sysUsers = baseMapper.selectList(qw);
+        if (sysUsers.isEmpty()) return List.of();
+        List<SearchUserVo> searchUserVos = new ArrayList<>();
+        sysUsers.forEach(sysUser -> {
+            SearchUserVo searchUserVo = new SearchUserVo();
+            BeanUtils.copyProperties(sysUser, searchUserVo);
+            searchUserVos.add(searchUserVo);
+        });
+        return searchUserVos;
     }
 
 }
