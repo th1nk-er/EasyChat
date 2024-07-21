@@ -75,7 +75,7 @@ public class SysUserController {
 
     @Operation(summary = "用户搜索", description = "根据关键字搜索用户")
     @GetMapping("/search")
-    public Response search(@RequestParam("keyword") String keyword) {
-        return Response.ok(sysUserService.searchUser(keyword));
+    public Response search(@RequestParam("keyword") String keyword, @RequestParam("page") int page) {
+        return Response.ok(sysUserService.searchUser(keyword, page));
     }
 }

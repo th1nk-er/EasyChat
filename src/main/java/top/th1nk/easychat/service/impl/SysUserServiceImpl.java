@@ -1,6 +1,8 @@
 package top.th1nk.easychat.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -136,19 +138,31 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    public List<SearchUserVo> searchUser(String keyword) {
-        if (keyword == null || keyword.isEmpty()) return List.of();
+    public SearchUserVo searchUser(String keyword, int page) {
+        SearchUserVo result = new SearchUserVo();
+        result.setPageSize(10L);
+        result.setTotal(0);
+        result.setRecords(List.of());
+        if (keyword == null || keyword.isEmpty()) return result;
+
         LambdaQueryWrapper<SysUser> qw = new LambdaQueryWrapper<>();
         qw.like(SysUser::getUsername, keyword).or().like(SysUser::getNickname, keyword);
-        List<SysUser> sysUsers = baseMapper.selectList(qw);
-        if (sysUsers.isEmpty()) return List.of();
-        List<SearchUserVo> searchUserVos = new ArrayList<>();
-        sysUsers.forEach(sysUser -> {
-            SearchUserVo searchUserVo = new SearchUserVo();
-            BeanUtils.copyProperties(sysUser, searchUserVo);
-            searchUserVos.add(searchUserVo);
+        IPage<SysUser> iPage = baseMapper.selectPage(new Page<>(page, result.getPageSize()), qw);
+
+        if (iPage.getTotal() == 0) return result;
+
+        List<SearchUserVo.Record> records = new ArrayList<>();
+        iPage.getRecords().forEach(sysUser -> {
+            SearchUserVo.Record record = new SearchUserVo.Record();
+            record.setId(sysUser.getId());
+            record.setSex(sysUser.getSex());
+            record.setUsername(sysUser.getUsername());
+            record.setNickname(sysUser.getNickname());
+            records.add(record);
         });
-        return searchUserVos;
+        result.setRecords(records);
+        result.setTotal(iPage.getTotal());
+        return result;
     }
 
 }

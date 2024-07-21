@@ -10,8 +10,6 @@ import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.exception.LoginException;
 import top.th1nk.easychat.exception.RegisterException;
 
-import java.util.List;
-
 /**
  * @author th1nk
  * @description 针对表【ec_user】的数据库操作Service
@@ -57,8 +55,9 @@ public interface SysUserService extends IService<SysUser> {
      * 通过关键词搜索用户，模糊匹配
      *
      * @param keyword 关键词
-     * @return 用户列表，无结果返回空列表
+     * @param page    页码
+     * @return 搜索结果
      */
-    List<SearchUserVo> searchUser(String keyword);
+    SearchUserVo searchUser(String keyword, int page);
 
 }
