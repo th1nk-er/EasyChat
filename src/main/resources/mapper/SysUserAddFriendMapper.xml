@@ -19,4 +19,11 @@
         add_info,create_time,status,
         add_type
     </sql>
+    <select id="isAddRequestPending" resultType="java.lang.Boolean">
+        select count(*) > 0
+        from ec_user_add_friend
+        where uid = #{uid}
+          and stranger_id = #{strangerId}
+          and status = 0
+    </select>
 </mapper>

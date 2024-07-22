@@ -50,6 +50,9 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
             throw new CommonException(CommonExceptionEnum.USER_NOT_FOUND);
         if (baseMapper.isFriend(userVo.getId(), addFriendDto.getAddId()))
             throw new UserFriendException(UserFriendExceptionEnum.ALREADY_FRIEND);
+        // 判断stranger是否已有未处理的申请
+        if (sysUserAddFriendMapper.isAddRequestPending(addFriendDto.getAddId(), userVo.getId()))
+            throw new UserFriendException(UserFriendExceptionEnum.ADD_REQUEST_EXIST);
         // 发送好友申请
         SysUserAddFriend addOther = new SysUserAddFriend();
         SysUserAddFriend addByOther = new SysUserAddFriend();
