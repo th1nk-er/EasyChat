@@ -3,14 +3,12 @@ package top.th1nk.easychat.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import top.th1nk.easychat.domain.Response;
 import top.th1nk.easychat.domain.dto.AddFriendDto;
 import top.th1nk.easychat.enums.UserFriendExceptionEnum;
 import top.th1nk.easychat.exception.UserFriendException;
+import top.th1nk.easychat.service.SysUserAddFriendService;
 import top.th1nk.easychat.service.SysUserFriendService;
 
 @RestController
@@ -20,6 +18,8 @@ public class SysUserFriendController {
 
     @Resource
     private SysUserFriendService sysUserFriendService;
+    @Resource
+    private SysUserAddFriendService sysUserAddFriendService;
 
     @Operation(summary = "发送好友申请", description = "向陌生人发送好友申请")
     @PostMapping("/request")
@@ -27,5 +27,11 @@ public class SysUserFriendController {
         if (!sysUserFriendService.sendAddRequest(addFriendDto))
             throw new UserFriendException(UserFriendExceptionEnum.ADD_FRIEND_FAILED);
         return Response.ok();
+    }
+
+    @Operation(summary = "获取好友申请列表", description = "获取好友申请列表")
+    @GetMapping("/request/{page}")
+    public Response request(@PathVariable int page) {
+        return Response.ok(sysUserAddFriendService.getFriendRequestList(page));
     }
 }

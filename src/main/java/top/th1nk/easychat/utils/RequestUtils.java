@@ -1,6 +1,7 @@
 package top.th1nk.easychat.utils;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -72,6 +73,7 @@ public class RequestUtils {
      *
      * @return token字符串
      */
+    @NotNull
     public static String getUserTokenString() {
         HttpServletRequest currentRequest = getCurrentRequest();
         if (currentRequest == null) return "";
