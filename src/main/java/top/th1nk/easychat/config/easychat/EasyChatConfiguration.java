@@ -4,9 +4,6 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * EasyChat配置
  */
@@ -17,130 +14,19 @@ public class EasyChatConfiguration {
     /**
      * Spring Security 配置
      */
-    private Security security;
+    private SecurityProperties security;
     /**
      * jwt配置
      */
-    private Jwt jwt;
+    private JwtProperties jwt;
 
     /**
      * 邮件配置
      */
-    private Mail mail;
+    private MailProperties mail;
 
     /**
      * WebSocket配置
      */
-    private WebSocket webSocket;
-
-    @Data
-    public static class Security {
-        /**
-         * 放行路径
-         */
-        private List<String> permitAllUrls = null;
-
-        /**
-         * 需要认证的路径
-         */
-        private List<String> authorizeUrls = null;
-    }
-
-    @Data
-    public static class Jwt {
-        /**
-         * 密钥
-         */
-        private String secret;
-
-        /**
-         * 有效时长 单位：秒
-         */
-        private long expireSeconds = 3600;
-
-        /**
-         * 用户最大Token数量
-         * 用于限制用户登录设备数目
-         */
-        private int maxToken = 3;
-    }
-
-    @Data
-    public static class Mail {
-        /**
-         * 发送者配置
-         */
-        private Sender sender;
-        /**
-         * 验证码配置
-         */
-        private VerifyCode verifyCode;
-
-        @Data
-        public static class Sender {
-            /**
-             * 发送者名称
-             */
-            private String name = "EasyChat";
-        }
-
-        @Data
-        public static class VerifyCode {
-            /**
-             * 有效时长 单位：分钟
-             */
-            private int expire = 15;
-
-            /**
-             * 模板
-             */
-            private Template template;
-
-            @Data
-            public static class Template {
-                /**
-                 * 模板路径
-                 */
-                private String path;
-
-                /**
-                 * 应用名称占位符
-                 */
-                private String applicationNamePlaceholder = "{APPLICATION_NAME}";
-
-                /**
-                 * 验证码占位符
-                 */
-                private String codePlaceholder = "{VERIFY_CODE}";
-
-                /**
-                 * 有效期占位符
-                 */
-                private String expirePlaceholder = "{EXPIRE_TIME}";
-            }
-        }
-    }
-
-    @Data
-    public static class WebSocket {
-        /**
-         * WebSocket端点
-         */
-        private String endpoint = "/chat/ws";
-
-        /**
-         * 应用前缀
-         */
-        private String appDesPrefix = "/app";
-
-        /**
-         * 用户前缀
-         */
-        private String userDesPrefix = "/user";
-
-        /**
-         * 主题
-         */
-        private List<String> topicPrefix = new ArrayList<>();
-    }
+    private WebSocketProperties webSocket;
 }

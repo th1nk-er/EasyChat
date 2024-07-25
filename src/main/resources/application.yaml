@@ -65,3 +65,8 @@ easy-chat:
     user-des-prefix: /user
     topic-prefix:
       - /notify
+  minio:
+    endpoint: http://127.0.0.1:9000
+    access-key: minioadmin
+    secret-key: minioadmin
+    bucket-name: bucket-ec

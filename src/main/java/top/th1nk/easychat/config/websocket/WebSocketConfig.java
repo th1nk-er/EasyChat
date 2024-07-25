@@ -6,11 +6,12 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import top.th1nk.easychat.config.easychat.EasyChatConfiguration;
+import top.th1nk.easychat.config.easychat.WebSocketProperties;
 
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-    private final EasyChatConfiguration.WebSocket webSocket;
+    private final WebSocketProperties webSocket;
 
     public WebSocketConfig(EasyChatConfiguration easyChatConfiguration) {
         this.webSocket = easyChatConfiguration.getWebSocket();

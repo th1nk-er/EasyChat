@@ -14,6 +14,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import top.th1nk.easychat.config.easychat.EasyChatConfiguration;
+import top.th1nk.easychat.config.easychat.MailProperties;
 import top.th1nk.easychat.enums.CommonExceptionEnum;
 import top.th1nk.easychat.exception.CommonException;
 import top.th1nk.easychat.service.EmailService;
@@ -52,7 +53,7 @@ public class EmailServiceImpl implements EmailService {
     private int expireTime;
 
     private void readConfig() {
-        EasyChatConfiguration.Mail mail = easyChatConfiguration.getMail();
+        MailProperties mail = easyChatConfiguration.getMail();
         senderName = mail.getSender().getName();
         templatePath = mail.getVerifyCode().getTemplate().getPath();
         APPLICATION_NAME_PLACEHOLDER = mail.getVerifyCode().getTemplate().getApplicationNamePlaceholder();

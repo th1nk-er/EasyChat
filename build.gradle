@@ -54,6 +54,7 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
 
     implementation group: 'com.alibaba.fastjson2', name: 'fastjson2', version: '2.0.51' // fastjson
+    implementation 'io.minio:minio:8.5.11' // minio
 
 }
 
