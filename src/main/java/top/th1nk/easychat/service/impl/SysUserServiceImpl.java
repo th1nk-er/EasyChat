@@ -78,7 +78,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         user.setPassword(UserUtils.encryptPassword(registerDto.getPassword()));
         user.setNickname(registerDto.getUsername());
         user.setRegisterIp(RequestUtils.getClientIp());
-//        user.setAvatar(""); // TODO 设置默认头像地址
+        user.setAvatar("/avatar/default.jpg");
         log.info("注册用户:{}", user);
         // 插入到数据库
         if (baseMapper.insert(user) != 1)

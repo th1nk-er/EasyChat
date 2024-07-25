@@ -29,4 +29,9 @@ public class EasyChatConfiguration {
      * WebSocket配置
      */
     private WebSocketProperties webSocket;
+
+    /**
+     * 用户配置
+     */
+    private UserProperties user;
 }

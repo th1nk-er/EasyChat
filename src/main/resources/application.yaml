@@ -44,6 +44,7 @@ easy-chat:
       - /user/register
       - /user/verify-email
       - /user/register/verify-email
+      - /upload/avatar/**
   jwt:
     secret: =====================EASYCHAT=====================
     expireSeconds: 3600
@@ -70,3 +71,5 @@ easy-chat:
     access-key: minioadmin
     secret-key: minioadmin
     bucket-name: bucket-ec
+  user:
+    default-avatar-path: classpath:static/img/avatar-default.jpg
