@@ -1,5 +1,6 @@
 package top.th1nk.easychat.utils;
 
+import jakarta.annotation.Nullable;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import top.th1nk.easychat.domain.SysUser;
@@ -15,7 +16,8 @@ public class UserUtils {
      * @param user 用户信息
      * @return 用户信息VO
      */
-    public static UserVo userToVo(SysUser user) {
+    @Nullable
+    public static UserVo userToVo(@Nullable SysUser user) {
         if (user == null) return null;
         UserVo userVo = new UserVo();
         BeanUtils.copyProperties(user, userVo);

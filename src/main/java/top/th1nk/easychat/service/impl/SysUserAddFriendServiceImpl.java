@@ -4,14 +4,19 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import top.th1nk.easychat.domain.SysUser;
 import top.th1nk.easychat.domain.SysUserAddFriend;
+import top.th1nk.easychat.domain.vo.FriendRequestListVo;
 import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.mapper.SysUserAddFriendMapper;
+import top.th1nk.easychat.mapper.SysUserMapper;
 import top.th1nk.easychat.service.SysUserAddFriendService;
 import top.th1nk.easychat.utils.JwtUtils;
 import top.th1nk.easychat.utils.RequestUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,20 +29,49 @@ public class SysUserAddFriendServiceImpl extends ServiceImpl<SysUserAddFriendMap
         implements SysUserAddFriendService {
 
     @Resource
+    private SysUserMapper sysUserMapper;
+    @Resource
     private JwtUtils jwtUtils;
 
     @Override
-    public List<SysUserAddFriend> getFriendRequestList(int page) {
+    public FriendRequestListVo getFriendRequestList(int page) {
+        FriendRequestListVo friendRequestListVo = new FriendRequestListVo();
+        friendRequestListVo.setTotal(0);
+        friendRequestListVo.setPageSize(10);
+        friendRequestListVo.setRecords(List.of());
+        // 获取token
         String tokenString = RequestUtils.getUserTokenString();
-        if (tokenString.isEmpty()) return List.of();
+        if (tokenString.isEmpty()) return friendRequestListVo;
+        // 解析token 获取用户ID
         UserVo userVo = jwtUtils.parseToken(tokenString);
         if (userVo == null || userVo.getId() == null)
-            return List.of();
+            return friendRequestListVo;
         // 开始查询
         LambdaQueryWrapper<SysUserAddFriend> qw = new LambdaQueryWrapper<>();
         qw.eq(SysUserAddFriend::getUid, userVo.getId());
         Page<SysUserAddFriend> selectedPage = baseMapper.selectPage(new Page<>(page, 10), qw);
-        return selectedPage.getRecords();
+        List<SysUserAddFriend> userAddFriendList = selectedPage.getRecords();
+        // 按添加时间排序
+        userAddFriendList.sort((o1, o2) -> o2.getCreateTime().compareTo(o1.getCreateTime()));
+        if (userAddFriendList.isEmpty()) return friendRequestListVo;
+        friendRequestListVo.setTotal(selectedPage.getTotal());
+        // 获取陌生人用户ID
+        List<Integer> strangerIds = userAddFriendList.stream().map(SysUserAddFriend::getStrangerId).toList();
+        // 查询对应的用户信息
+        List<SysUser> sysUsers = sysUserMapper.selectBatchIds(strangerIds);
+        // 将用户信息封装到vo中
+        List<FriendRequestListVo.Record> records = new ArrayList<>();
+        for (int i = 0; i < userAddFriendList.size(); i++) {
+            FriendRequestListVo.Record record = new FriendRequestListVo.Record();
+            BeanUtils.copyProperties(userAddFriendList.get(i), record);
+            record.setSex(sysUsers.get(i).getSex());
+            record.setAvatar(sysUsers.get(i).getAvatar());
+            record.setNickname(sysUsers.get(i).getNickname());
+            record.setUsername(sysUsers.get(i).getUsername());
+            records.add(record);
+        }
+        friendRequestListVo.setRecords(records);
+        return friendRequestListVo;
     }
 }
 

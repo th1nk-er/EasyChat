@@ -42,9 +42,9 @@ public class SysUserTokenServiceImpl extends ServiceImpl<SysUserTokenMapper, Sys
         else {
             // 根据token的issueTime排序，获取最早创建的token
             userTokenList.sort(Comparator.comparing(SysUserToken::getIssueTime));
-            sysUserToken.setId(userTokenList.get(0).getId());
+            sysUserToken.setId(userTokenList.getFirst().getId());
             // 覆盖最早的token
-            jwtUtils.expireToken(userTokenList.get(0).getToken());
+            jwtUtils.expireToken(userTokenList.getFirst().getToken());
             baseMapper.updateById(sysUserToken);
         }
     }

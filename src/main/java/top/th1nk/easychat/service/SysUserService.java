@@ -1,6 +1,7 @@
 package top.th1nk.easychat.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import jakarta.annotation.Nullable;
 import top.th1nk.easychat.domain.SysUser;
 import top.th1nk.easychat.domain.dto.LoginDto;
 import top.th1nk.easychat.domain.dto.RegisterDto;
@@ -17,12 +18,30 @@ import top.th1nk.easychat.exception.RegisterException;
  */
 public interface SysUserService extends IService<SysUser> {
     /**
+     * 通过用户名获取用户信息
+     *
+     * @param username 用户名
+     * @return 用户信息Vo
+     */
+    UserVo getByUsername(String username);
+
+    /**
+     * 通过邮箱获取用户信息
+     *
+     * @param email 邮箱
+     * @return 用户信息Vo
+     */
+    @Nullable
+    UserVo getByEmail(String email);
+
+    /**
      * 用户注册
      *
      * @param registerDto 用户注册信息
      * @return 用户信息Vo
      * @throws RegisterException 注册异常
      */
+    @Nullable
     UserVo register(RegisterDto registerDto) throws RegisterException;
 
 

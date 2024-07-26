@@ -58,6 +58,16 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     private SysUserTokenService sysUserTokenService;
 
     @Override
+    public UserVo getByUsername(String username) {
+        return UserUtils.userToVo(baseMapper.getByUsername(username));
+    }
+
+    @Override
+    public UserVo getByEmail(String email) {
+        return UserUtils.userToVo(baseMapper.getByEmail(email));
+    }
+
+    @Override
     public UserVo register(RegisterDto registerDto) {
         if (registerDto == null) throw new CommonException(CommonExceptionEnum.PARAM_INVALID);
         if (!UserUtils.isValidUsername(registerDto.getUsername()))
@@ -89,28 +99,29 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public UserTokenDto login(LoginDto loginDto) {
-        SysUser user;
         UserVo userVo;
         Authentication authenticationToken;
         if (loginDto.getType() == LoginType.EMAIL) {
             // 邮箱登录
             if (!UserUtils.isValidEmail(loginDto.getEmail()))
                 throw new CommonException(CommonExceptionEnum.EMAIL_INVALID);
-            user = baseMapper.getByEmail(loginDto.getEmail());
-            if (user == null)
+            userVo = this.getByEmail(loginDto.getEmail());
+            if (userVo == null)
                 throw new LoginException(LoginExceptionEnum.EMAIL_NOT_REGISTER); // 邮箱未注册
+            userVo.setLoginType(LoginType.EMAIL);
             authenticationToken = new EmailAuthenticationToken(loginDto.getEmail(), loginDto.getVerifyCode());
         } else {
             // 密码登录
             authenticationToken = new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
-            user = baseMapper.getByUsername(loginDto.getUsername());
+            userVo = this.getByUsername(loginDto.getUsername());
+            if (userVo == null)
+                throw new LoginException(LoginExceptionEnum.USERNAME_OR_PASSWORD_ERROR);
+            userVo.setLoginType(LoginType.PASSWORD);
         }
         try {
             Authentication authenticate = authenticationManager.authenticate(authenticationToken);
             // 登录成功
-            userVo = UserUtils.userToVo(user);
-            userVo.setLoginType(loginDto.getType());
-            baseMapper.updateLoginIp(user.getUsername(), RequestUtils.getClientIp()); // 更新登录IP
+            baseMapper.updateLoginIp(userVo.getUsername(), RequestUtils.getClientIp()); // 更新登录IP
             SecurityContextHolder.getContext().setAuthentication(authenticate);
         } catch (AuthenticationException e) {
             log.info("登录失败 登陆方式:{} 用户名:{} 邮箱:{}", loginDto.getType().getDesc(), loginDto.getUsername(), loginDto.getEmail());

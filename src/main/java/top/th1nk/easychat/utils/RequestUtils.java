@@ -1,5 +1,6 @@
 package top.th1nk.easychat.utils;
 
+import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -11,6 +12,7 @@ public class RequestUtils {
      *
      * @return HttpServletRequest null则表示当前线程没有绑定 HttpServletRequest
      */
+    @Nullable
     public static HttpServletRequest getCurrentRequest() {
         try {
             return ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
@@ -19,7 +21,7 @@ public class RequestUtils {
         }
     }
 
-    private static String getClientIp(HttpServletRequest request) {
+    private static String getClientIp(@NotNull HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");
         if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
             ip = request.getHeader("Proxy-Client-IP");
@@ -61,6 +63,7 @@ public class RequestUtils {
      *
      * @return 客户端User-Agent
      */
+    @NotNull
     public static String getUserAgent() {
         HttpServletRequest currentRequest = getCurrentRequest();
         if (currentRequest == null) return "";

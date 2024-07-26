@@ -1,8 +1,7 @@
 package top.th1nk.easychat.service;
 
 import io.minio.GetObjectResponse;
-
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * minio服务

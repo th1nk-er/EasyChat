@@ -21,7 +21,7 @@ public class GlobalExceptionHandler {
      * 用户好友异常
      */
     @ExceptionHandler(UserFriendException.class)
-    public Response userFriendException(UserFriendException e) {
+    public Response<?> userFriendException(UserFriendException e) {
         return Response.error(e.getCode(), e.getMessage());
     }
 
@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
      * 登录异常
      */
     @ExceptionHandler(LoginException.class)
-    public Response loginException(LoginException e) {
+    public Response<?> loginException(LoginException e) {
         return Response.error(e.getCode(), e.getMessage());
     }
 
@@ -37,7 +37,7 @@ public class GlobalExceptionHandler {
      * 注册异常
      */
     @ExceptionHandler(RegisterException.class)
-    public Response registerException(RegisterException e) {
+    public Response<?> registerException(RegisterException e) {
         return Response.error(e.getCode(), e.getMessage());
     }
 
@@ -45,7 +45,7 @@ public class GlobalExceptionHandler {
      * 普通异常
      */
     @ExceptionHandler(CommonException.class)
-    public Response commonException(CommonException e) {
+    public Response<?> commonException(CommonException e) {
         return Response.error(e.getCode(), e.getMessage());
     }
 
@@ -58,7 +58,7 @@ public class GlobalExceptionHandler {
                     MissingServletRequestParameterException.class,
                     HttpMessageNotReadableException.class
             })
-    public Response parameterException() {
+    public Response<?> parameterException() {
         return Response.error("参数错误");
     }
 
@@ -66,7 +66,7 @@ public class GlobalExceptionHandler {
      * 404
      */
     @ExceptionHandler(NoResourceFoundException.class)
-    public Response noResourceFoundException() {
+    public Response<?> noResourceFoundException() {
         return Response.error(CommonExceptionEnum.RESOURCE_NOT_FOUND.getCode(), CommonExceptionEnum.RESOURCE_NOT_FOUND.getMessage());
     }
 
@@ -74,7 +74,7 @@ public class GlobalExceptionHandler {
      * 不支持的Method
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public Response httpRequestMethodNotSupportedException() {
+    public Response<?> httpRequestMethodNotSupportedException() {
         return Response.error(CommonExceptionEnum.METHOD_NOT_ALLOWED.getCode(), CommonExceptionEnum.METHOD_NOT_ALLOWED.getMessage());
     }
 
@@ -82,7 +82,7 @@ public class GlobalExceptionHandler {
      * 未知异常
      */
     @ExceptionHandler(Exception.class)
-    public Response exception(Exception e) {
+    public Response<?> exception(Exception e) {
         log.error("内部异常", e);
         return Response.error("Unknown error");
     }

@@ -3,6 +3,8 @@ package top.th1nk.easychat.utils;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SecurityException;
+import jakarta.annotation.Nullable;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,7 +65,8 @@ public class JwtUtils {
      * @param tokenString token字符串
      * @return UserVo实体类 解析失败返回null
      */
-    public UserVo parseToken(String tokenString) {
+    @Nullable
+    public UserVo parseToken(@Nullable String tokenString) {
         if (tokenString == null || tokenString.isEmpty() || tokenString.isBlank())
             return null;
         UserVo userVo;
@@ -74,6 +77,9 @@ public class JwtUtils {
                     .parse(tokenString)
                     .getPayload();
             userVo = (UserVo) redisTemplate.opsForValue().get(TOKEN_PREFIX + tokenString);
+        } catch (SecurityException e) {
+            // 签名错误
+            return null;
         } catch (MalformedJwtException e) {
             // 无效Token
             return null;

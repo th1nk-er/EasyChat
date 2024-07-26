@@ -3,8 +3,7 @@ package top.th1nk.easychat.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import jakarta.validation.constraints.NotNull;
 import top.th1nk.easychat.domain.SysUserAddFriend;
-
-import java.util.List;
+import top.th1nk.easychat.domain.vo.FriendRequestListVo;
 
 /**
  * @author vinka
@@ -17,8 +16,8 @@ public interface SysUserAddFriendService extends IService<SysUserAddFriend> {
      * 获取好友申请列表
      *
      * @param page 页码
-     * @return 好友申请列表
+     * @return 好友申请列表Vo
      */
     @NotNull
-    List<SysUserAddFriend> getFriendRequestList(int page);
+    FriendRequestListVo getFriendRequestList(int page);
 }
