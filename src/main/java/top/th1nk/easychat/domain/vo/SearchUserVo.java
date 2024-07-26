@@ -26,5 +26,7 @@ public class SearchUserVo {
         private String nickname;
         @Schema(description = "用户性别")
         private UserSex sex;
+        @Schema(description = "用户头像")
+        private String avatar;
     }
 }

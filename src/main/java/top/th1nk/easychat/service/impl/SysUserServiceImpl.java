@@ -154,10 +154,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         List<SearchUserVo.Record> records = new ArrayList<>();
         iPage.getRecords().forEach(sysUser -> {
             SearchUserVo.Record record = new SearchUserVo.Record();
-            record.setId(sysUser.getId());
-            record.setSex(sysUser.getSex());
-            record.setUsername(sysUser.getUsername());
-            record.setNickname(sysUser.getNickname());
+            BeanUtils.copyProperties(sysUser, record);
             records.add(record);
         });
         result.setRecords(records);
