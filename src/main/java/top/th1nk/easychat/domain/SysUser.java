@@ -85,13 +85,13 @@ public class SysUser implements UserDetails {
      * 是否锁定 0-正常 1-锁定
      */
     @Schema(description = "是否锁定 0-正常 1-锁定")
-    private Integer locked;
+    private boolean locked;
 
     /**
      * 是否删除 0-正常 1-已删除
      */
     @Schema(description = "是否删除 0-正常 1-已删除")
-    private Integer deleted;
+    private boolean deleted;
 
     /**
      * 注册时间

@@ -61,7 +61,7 @@ public class UserVo implements Serializable {
      * 是否锁定 0-正常 1-锁定
      */
     @Schema(description = "是否锁定 0-正常 1-锁定")
-    private Integer locked;
+    private boolean locked;
 
 
     /**

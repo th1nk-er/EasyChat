@@ -51,7 +51,7 @@ public class SysUserFriend implements Serializable {
      * 是否已删除 0-未删除 1-已删除
      */
     @Schema(description = "是否已删除 0-未删除 1-已删除")
-    private Integer deleted;
+    private boolean deleted;
 
     @Serial
     @TableField(exist = false)
