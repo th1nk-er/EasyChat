@@ -4,12 +4,15 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import top.th1nk.easychat.domain.SysUser;
 import top.th1nk.easychat.domain.SysUserAddFriend;
 import top.th1nk.easychat.domain.vo.FriendRequestListVo;
 import top.th1nk.easychat.domain.vo.UserVo;
+import top.th1nk.easychat.enums.AddUserStatus;
+import top.th1nk.easychat.enums.AddUserType;
 import top.th1nk.easychat.mapper.SysUserAddFriendMapper;
 import top.th1nk.easychat.mapper.SysUserMapper;
 import top.th1nk.easychat.service.SysUserAddFriendService;
@@ -58,7 +61,10 @@ public class SysUserAddFriendServiceImpl extends ServiceImpl<SysUserAddFriendMap
         // 获取陌生人用户ID
         List<Integer> strangerIds = userAddFriendList.stream().map(SysUserAddFriend::getStrangerId).toList();
         // 查询对应的用户信息
-        List<SysUser> sysUsers = sysUserMapper.selectBatchIds(strangerIds);
+        List<SysUser> sysUsers = strangerIds
+                .stream()
+                .map(id -> sysUserMapper.selectById(id))
+                .toList();
         // 将用户信息封装到vo中
         List<FriendRequestListVo.Record> records = new ArrayList<>();
         for (int i = 0; i < userAddFriendList.size(); i++) {
@@ -72,6 +78,21 @@ public class SysUserAddFriendServiceImpl extends ServiceImpl<SysUserAddFriendMap
         }
         friendRequestListVo.setRecords(records);
         return friendRequestListVo;
+    }
+
+    @Nullable
+    @Override
+    public SysUserAddFriend getStrangerRequestById(int id) {
+        SysUserAddFriend friendRequest = baseMapper.selectById(id);
+        if (friendRequest == null) return null;
+        LambdaQueryWrapper<SysUserAddFriend> qw = new LambdaQueryWrapper<>();
+        qw.eq(SysUserAddFriend::getStrangerId, friendRequest.getUid());
+        qw.eq(SysUserAddFriend::getUid, friendRequest.getStrangerId());
+        qw.eq(SysUserAddFriend::getStatus, AddUserStatus.PENDING);
+        qw.eq(SysUserAddFriend::getAddType, AddUserType.ADD_OTHER);
+        qw.eq(SysUserAddFriend::getAddInfo, friendRequest.getAddInfo());
+        qw.between(SysUserAddFriend::getCreateTime, friendRequest.getCreateTime().minusSeconds(1), friendRequest.getCreateTime().plusSeconds(1));
+        return baseMapper.selectOne(qw);
     }
 }
 
