@@ -54,6 +54,8 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
         UserVo userVo = jwtUtils.parseToken(userTokenString);
         if (userVo == null) return false;
         if (userVo.getId() == null) return false;
+        if (userVo.getId().equals(addFriendDto.getAddId()))
+            throw new UserFriendException(UserFriendExceptionEnum.CANNOT_ADD_SELF); // 禁止添加自己
         if (sysUserMapper.selectById(addFriendDto.getAddId()) == null)
             throw new CommonException(CommonExceptionEnum.USER_NOT_FOUND);
         if (baseMapper.isFriend(userVo.getId(), addFriendDto.getAddId()))
@@ -90,6 +92,8 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
         if (userVo == null) return false;
         SysUserAddFriend friendRequest = sysUserAddFriendMapper.selectById(friendRequestHandleDto.getId());
         if (friendRequest == null) return false;
+        if (friendRequest.getUid().equals(friendRequest.getStrangerId()))
+            throw new UserFriendException(UserFriendExceptionEnum.CANNOT_ADD_SELF); // 禁止添加自己
         if (!friendRequest.getUid().equals(userVo.getId()))
             return false; // 防止恶意操作，只有自己发送的请求才能处理
         if (friendRequest.getAddType() == AddUserType.ADD_OTHER)
