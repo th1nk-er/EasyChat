@@ -39,7 +39,7 @@ public class SysUserFriendController {
 
     @Operation(summary = "处理好友申请", description = "处理好友申请")
     @PutMapping("/request")
-    public Response<?> handleFriendRequest(FriendRequestHandleDto friendRequestHandleDto) {
+    public Response<?> handleFriendRequest(@RequestBody FriendRequestHandleDto friendRequestHandleDto) {
         if (sysUserFriendService.handleAddRequest(friendRequestHandleDto))
             return Response.ok();
         throw new UserFriendException(UserFriendExceptionEnum.ADD_FRIEND_FAILED);

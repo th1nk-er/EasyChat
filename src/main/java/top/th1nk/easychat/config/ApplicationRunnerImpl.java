@@ -18,7 +18,7 @@ public class ApplicationRunnerImpl implements ApplicationRunner {
         if (minioService.initBucket()) {
             log.info("Minio存储桶初始化成功");
         } else {
-            throw new RuntimeException("Minio存储桶初始化失败");
+            log.error("Minio存储桶初始化失败，请检查服务状态以及配置参数");
         }
     }
 }
