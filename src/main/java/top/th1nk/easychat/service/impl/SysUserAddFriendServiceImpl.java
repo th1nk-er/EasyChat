@@ -19,6 +19,7 @@ import top.th1nk.easychat.service.SysUserAddFriendService;
 import top.th1nk.easychat.utils.JwtUtils;
 import top.th1nk.easychat.utils.RequestUtils;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +31,7 @@ import java.util.List;
 @Service
 public class SysUserAddFriendServiceImpl extends ServiceImpl<SysUserAddFriendMapper, SysUserAddFriend>
         implements SysUserAddFriendService {
-
+    private static final long REQUEST_EXPIRE_TIME = 60 * 60 * 24 * 7; // 好友申请有效期：7天 单位：秒
     @Resource
     private SysUserMapper sysUserMapper;
     @Resource
@@ -88,11 +89,38 @@ public class SysUserAddFriendServiceImpl extends ServiceImpl<SysUserAddFriendMap
         LambdaQueryWrapper<SysUserAddFriend> qw = new LambdaQueryWrapper<>();
         qw.eq(SysUserAddFriend::getStrangerId, friendRequest.getUid());
         qw.eq(SysUserAddFriend::getUid, friendRequest.getStrangerId());
-        qw.eq(SysUserAddFriend::getStatus, AddUserStatus.PENDING);
+        if (friendRequest.getStatus() == AddUserStatus.IGNORED)
+            qw.eq(SysUserAddFriend::getStatus, AddUserStatus.PENDING);
+        else qw.eq(SysUserAddFriend::getStatus, friendRequest.getStatus());
         qw.eq(SysUserAddFriend::getAddType, AddUserType.ADD_OTHER);
         qw.eq(SysUserAddFriend::getAddInfo, friendRequest.getAddInfo());
         qw.between(SysUserAddFriend::getCreateTime, friendRequest.getCreateTime().minusSeconds(1), friendRequest.getCreateTime().plusSeconds(1));
         return baseMapper.selectOne(qw);
+    }
+
+    @Nullable
+    @Override
+    public SysUserAddFriend getPendingRequest(int uid, int strangerId) {
+        if (!baseMapper.isAddRequestPending(uid, strangerId))
+            return null;
+        LambdaQueryWrapper<SysUserAddFriend> qw = new LambdaQueryWrapper<>();
+        qw.eq(SysUserAddFriend::getUid, uid)
+                .eq(SysUserAddFriend::getStrangerId, strangerId)
+                .eq(SysUserAddFriend::getStatus, AddUserStatus.PENDING)
+                .eq(SysUserAddFriend::getAddType, AddUserType.ADD_OTHER);
+        List<SysUserAddFriend> requestList = baseMapper.selectList(qw);
+        if (requestList.isEmpty())
+            return null;
+        for (SysUserAddFriend request : requestList) {
+            if (!isRequestExpired(request))
+                return request;
+        }
+        return null;
+    }
+
+    @Override
+    public boolean isRequestExpired(SysUserAddFriend sysUserAddFriend) {
+        return sysUserAddFriend.getCreateTime().plusSeconds(REQUEST_EXPIRE_TIME).isBefore(LocalDateTime.now());
     }
 }
 

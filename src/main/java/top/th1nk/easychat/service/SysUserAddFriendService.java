@@ -30,4 +30,23 @@ public interface SysUserAddFriendService extends IService<SysUserAddFriend> {
      */
     @Nullable
     SysUserAddFriend getStrangerRequestById(int id);
+
+    /**
+     * 获取待处理的好友申请
+     * 返回用户ID向陌生人ID发起的待处理的请求
+     *
+     * @param uid        用户ID
+     * @param strangerId 陌生人ID
+     * @return 待处理的好友申请
+     */
+    @Nullable
+    SysUserAddFriend getPendingRequest(int uid, int strangerId);
+
+    /**
+     * 判断好友申请是否过期
+     *
+     * @param sysUserAddFriend 好友申请
+     * @return 是否过期
+     */
+    boolean isRequestExpired(SysUserAddFriend sysUserAddFriend);
 }

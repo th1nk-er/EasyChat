@@ -25,8 +25,6 @@ import top.th1nk.easychat.service.SysUserFriendService;
 import top.th1nk.easychat.utils.JwtUtils;
 import top.th1nk.easychat.utils.RequestUtils;
 
-import java.time.LocalDateTime;
-
 /**
  * @author vinka
  * @description 针对表【ec_user_friend】的数据库操作Service实现
@@ -35,7 +33,6 @@ import java.time.LocalDateTime;
 @Service
 public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, SysUserFriend>
         implements SysUserFriendService {
-    private static final long REQUEST_EXPIRE_TIME = 60 * 60 * 24 * 7; // 好友申请有效期：7天 单位：秒
     @Resource
     private SysUserMapper sysUserMapper;
     @Resource
@@ -60,8 +57,8 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
             throw new CommonException(CommonExceptionEnum.USER_NOT_FOUND);
         if (baseMapper.isFriend(userVo.getId(), addFriendDto.getAddId()))
             throw new UserFriendException(UserFriendExceptionEnum.ALREADY_FRIEND);
-        // 判断stranger是否已有未处理的申请
-        if (sysUserAddFriendMapper.isAddRequestPending(addFriendDto.getAddId(), userVo.getId()))
+        // 判断是否已有未处理的申请
+        if (sysUserAddFriendService.getPendingRequest(userVo.getId(), addFriendDto.getAddId()) != null)
             throw new UserFriendException(UserFriendExceptionEnum.ADD_REQUEST_EXIST);
         // 发送好友申请
         SysUserAddFriend addOther = new SysUserAddFriend();
@@ -100,7 +97,7 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
             return false; // 防止恶意操作，只有被他人添加的请求才能处理
         if (baseMapper.isFriend(userVo.getId(), friendRequest.getId()))
             throw new UserFriendException(UserFriendExceptionEnum.ALREADY_FRIEND);
-        if (friendRequest.getStatus() != AddUserStatus.PENDING || friendRequest.getCreateTime().plusSeconds(REQUEST_EXPIRE_TIME).isBefore(LocalDateTime.now()))
+        if (friendRequest.getStatus() != AddUserStatus.PENDING || sysUserAddFriendService.isRequestExpired(friendRequest))
             throw new UserFriendException(UserFriendExceptionEnum.ADD_REQUEST_EXPIRED);
         SysUserAddFriend other = sysUserAddFriendService.getStrangerRequestById(friendRequestHandleDto.getId());
         if (friendRequestHandleDto.getStatus() == AddUserStatus.AGREED) {
