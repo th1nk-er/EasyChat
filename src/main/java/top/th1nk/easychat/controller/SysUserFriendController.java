@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import top.th1nk.easychat.domain.Response;
 import top.th1nk.easychat.domain.dto.AddFriendDto;
 import top.th1nk.easychat.domain.dto.FriendRequestHandleDto;
+import top.th1nk.easychat.domain.vo.FriendListVo;
 import top.th1nk.easychat.domain.vo.FriendRequestListVo;
 import top.th1nk.easychat.enums.UserFriendExceptionEnum;
 import top.th1nk.easychat.exception.UserFriendException;
@@ -43,5 +44,11 @@ public class SysUserFriendController {
         if (sysUserFriendService.handleAddRequest(friendRequestHandleDto))
             return Response.ok();
         throw new UserFriendException(UserFriendExceptionEnum.ADD_FRIEND_FAILED);
+    }
+
+    @Operation(summary = "获取好友列表", description = "获取好友列表")
+    @GetMapping("/list/{page}")
+    public Response<FriendListVo> getFriendList(@PathVariable int page) {
+        return Response.ok(sysUserFriendService.getFriendList(page));
     }
 }

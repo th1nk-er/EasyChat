@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import top.th1nk.easychat.domain.SysUserFriend;
 import top.th1nk.easychat.domain.dto.AddFriendDto;
 import top.th1nk.easychat.domain.dto.FriendRequestHandleDto;
+import top.th1nk.easychat.domain.vo.FriendListVo;
 
 /**
  * @author vinka
@@ -27,4 +28,12 @@ public interface SysUserFriendService extends IService<SysUserFriend> {
      * @return 是否处理成功
      */
     boolean handleAddRequest(FriendRequestHandleDto friendRequestHandleDto);
+
+    /**
+     * 获取好友列表
+     *
+     * @param page 页码
+     * @return 好友列表
+     */
+    FriendListVo getFriendList(int page);
 }

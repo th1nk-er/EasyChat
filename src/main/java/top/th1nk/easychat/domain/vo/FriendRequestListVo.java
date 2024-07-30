@@ -16,7 +16,7 @@ public class FriendRequestListVo {
     private long total;
     @Schema(description = "页码大小")
     private long pageSize;
-    @Schema(description = "搜索结果")
+    @Schema(description = "申请列表")
     private List<Record> records;
 
     @EqualsAndHashCode(callSuper = true)

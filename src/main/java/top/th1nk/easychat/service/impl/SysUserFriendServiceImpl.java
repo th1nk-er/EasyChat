@@ -1,5 +1,7 @@
 package top.th1nk.easychat.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
@@ -10,6 +12,7 @@ import top.th1nk.easychat.domain.SysUserAddFriend;
 import top.th1nk.easychat.domain.SysUserFriend;
 import top.th1nk.easychat.domain.dto.AddFriendDto;
 import top.th1nk.easychat.domain.dto.FriendRequestHandleDto;
+import top.th1nk.easychat.domain.vo.FriendListVo;
 import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.enums.AddUserStatus;
 import top.th1nk.easychat.enums.AddUserType;
@@ -24,6 +27,8 @@ import top.th1nk.easychat.service.SysUserAddFriendService;
 import top.th1nk.easychat.service.SysUserFriendService;
 import top.th1nk.easychat.utils.JwtUtils;
 import top.th1nk.easychat.utils.RequestUtils;
+
+import java.util.List;
 
 /**
  * @author vinka
@@ -142,6 +147,23 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
             return sysUserAddFriendMapper.updateById(friendRequest) == 1;
         }
         return false;
+    }
+
+    @Override
+    public FriendListVo getFriendList(int page) {
+        FriendListVo friendListVo = new FriendListVo();
+        friendListVo.setTotal(0);
+        friendListVo.setPageSize(10);
+        friendListVo.setRecords(List.of());
+        UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
+        if (userVo == null || userVo.getId() == null)
+            return friendListVo;
+        LambdaQueryWrapper<SysUserFriend> qw = new LambdaQueryWrapper<>();
+        qw.eq(SysUserFriend::getUid, userVo.getId());
+        Page<SysUserFriend> ipage = baseMapper.selectPage(new Page<>(page, friendListVo.getPageSize()), qw);
+        friendListVo.setTotal(ipage.getTotal());
+        friendListVo.setRecords(ipage.getRecords());
+        return friendListVo;
     }
 }
 
