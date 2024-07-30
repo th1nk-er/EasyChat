@@ -1,10 +1,12 @@
 package top.th1nk.easychat.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import jakarta.annotation.Nullable;
 import top.th1nk.easychat.domain.SysUserFriend;
 import top.th1nk.easychat.domain.dto.AddFriendDto;
 import top.th1nk.easychat.domain.dto.FriendRequestHandleDto;
 import top.th1nk.easychat.domain.vo.FriendListVo;
+import top.th1nk.easychat.domain.vo.UserFriendVo;
 
 /**
  * @author vinka
@@ -36,4 +38,13 @@ public interface SysUserFriendService extends IService<SysUserFriend> {
      * @return 好友列表
      */
     FriendListVo getFriendList(int page);
+
+    /**
+     * 获取好友信息
+     *
+     * @param friendId 好友ID
+     * @return 好友信息
+     */
+    @Nullable
+    UserFriendVo getFriendInfo(int friendId);
 }

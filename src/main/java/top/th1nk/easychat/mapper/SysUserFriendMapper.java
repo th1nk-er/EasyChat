@@ -2,6 +2,7 @@ package top.th1nk.easychat.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import top.th1nk.easychat.domain.SysUserFriend;
+import top.th1nk.easychat.domain.vo.UserFriendVo;
 
 /**
  * @author vinka
@@ -18,6 +19,15 @@ public interface SysUserFriendMapper extends BaseMapper<SysUserFriend> {
      * @return 是否为好友
      */
     boolean isFriend(Integer userId, Integer friendId);
+
+    /**
+     * 获取好友信息
+     *
+     * @param userId   用户ID
+     * @param friendId 好友ID
+     * @return 好友信息Vo
+     */
+    UserFriendVo selectUserFriend(Integer userId, Integer friendId);
 }
 
 

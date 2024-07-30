@@ -2,7 +2,6 @@ package top.th1nk.easychat.domain.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import top.th1nk.easychat.domain.SysUserFriend;
 
 import java.util.List;
 
@@ -14,5 +13,5 @@ public class FriendListVo {
     @Schema(description = "页码大小")
     private long pageSize;
     @Schema(description = "好友列表")
-    private List<SysUserFriend> records;
+    private List<UserFriendVo> records;
 }
