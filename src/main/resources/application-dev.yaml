@@ -38,6 +38,7 @@ easy-chat:
       - /user/verify-email
       - /user/register/verify-email
       - /upload/avatar/**
+      - /chat/ws/**
       # 开发时配置
       - /swagger-ui/**
       - /v3/api-docs/**

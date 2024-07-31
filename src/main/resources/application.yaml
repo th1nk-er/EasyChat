@@ -45,6 +45,7 @@ easy-chat:
       - /user/verify-email
       - /user/register/verify-email
       - /upload/avatar/**
+      - /chat/ws/**
   jwt:
     secret: =====================EASYCHAT=====================
     expireSeconds: 3600

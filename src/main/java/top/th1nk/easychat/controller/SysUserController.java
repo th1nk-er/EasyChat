@@ -18,8 +18,8 @@ import top.th1nk.easychat.exception.RegisterException;
 import top.th1nk.easychat.service.EmailService;
 import top.th1nk.easychat.service.SysUserService;
 import top.th1nk.easychat.utils.JwtUtils;
-import top.th1nk.easychat.utils.RandomUtils;
 import top.th1nk.easychat.utils.RequestUtils;
+import top.th1nk.easychat.utils.StringUtils;
 
 
 @RestController
@@ -51,7 +51,7 @@ public class SysUserController {
     @Operation(summary = "发送登录验证码邮件", description = "发送登录验证码邮件")
     @PostMapping("/verify-email")
     public Response<?> sendLoginVerifyCodeEmail(@RequestBody VerifyEmailDto verifyEmailDto) {
-        String code = RandomUtils.getRandomString(6).toUpperCase();
+        String code = StringUtils.getRandomString(6).toUpperCase();
         if (!sysUserService.isEmailExist(verifyEmailDto.getEmail()))
             throw new LoginException(LoginExceptionEnum.EMAIL_NOT_REGISTER);
         emailService.beforeSendVerifyCode(verifyEmailDto.getEmail());
@@ -63,7 +63,7 @@ public class SysUserController {
     @Operation(summary = "发送注册验证码邮件", description = "发送注册验证码邮件")
     @PostMapping("/register/verify-email")
     public Response<?> sendRegisterVerifyCodeEmail(@RequestBody VerifyEmailDto verifyEmailDto) {
-        String code = RandomUtils.getRandomString(6).toUpperCase();
+        String code = StringUtils.getRandomString(6).toUpperCase();
         if (sysUserService.isEmailExist(verifyEmailDto.getEmail()))
             throw new RegisterException(RegisterExceptionEnum.EMAIL_EXIST);
         emailService.beforeSendVerifyCode(verifyEmailDto.getEmail());

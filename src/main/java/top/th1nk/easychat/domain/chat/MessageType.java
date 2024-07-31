@@ -8,8 +8,9 @@ public enum MessageType {
     IMAGE(1, "图片"),
     FILE(2, "文件"),
     SYSTEM(3, "系统"),
+    ERROR(4, "错误"),
+    COMMAND(5, "命令"),
     ;
-
     private final int code;
     private final String desc;
 

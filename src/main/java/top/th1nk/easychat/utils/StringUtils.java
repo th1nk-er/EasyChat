@@ -1,8 +1,11 @@
 package top.th1nk.easychat.utils;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
-public class RandomUtils {
+public class StringUtils {
     private static final String CHARACTERS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     /**
@@ -56,5 +59,34 @@ public class RandomUtils {
      */
     public static String getRandomNumber(int length) {
         return getRandomString(length, 2);
+    }
+
+    /**
+     * 计算SHA-256哈希值
+     *
+     * @param text 文本
+     * @return 哈希值
+     */
+    public static String getSHA256Hash(String text) {
+        try {
+            // 创建MessageDigest实例并初始化为SHA-256算法
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+
+            // 计算哈希值
+            byte[] hashBytes = digest.digest(text.getBytes(StandardCharsets.UTF_8));
+
+            // 将字节数组转换为十六进制字符串
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hashBytes) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) {
+                    hexString.append('0');
+                }
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
