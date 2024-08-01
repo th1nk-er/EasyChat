@@ -6,11 +6,13 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import top.th1nk.easychat.config.easychat.JwtProperties;
 import top.th1nk.easychat.domain.chat.ChatMessage;
 import top.th1nk.easychat.domain.chat.MessageCommand;
 import top.th1nk.easychat.service.WebSocketService;
 import top.th1nk.easychat.utils.StringUtils;
 
+import java.time.Duration;
 import java.util.Set;
 
 @Service
@@ -21,6 +23,8 @@ public class WebSocketServiceImpl implements WebSocketService {
     private SimpMessagingTemplate simpMessagingTemplate;
     @Resource
     private RedisTemplate<String, String> redisTemplate;
+    @Resource
+    private JwtProperties jwtProperties;
 
     @Override
     public void sendMessage(ChatMessage message) {
@@ -29,8 +33,10 @@ public class WebSocketServiceImpl implements WebSocketService {
 
     @Override
     public void handleUserConnected(Authentication authentication) {
+        log.info("WebSocket User connect:{}", authentication.getPrincipal().toString());
         // 将token存入 redis
         redisTemplate.opsForSet().add(WS_PREFIX + authentication.getPrincipal().toString(), authentication.getCredentials().toString());
+        redisTemplate.expire(WS_PREFIX + authentication.getPrincipal().toString(), Duration.ofSeconds(jwtProperties.getExpireSeconds()));
         // 发送已连接消息
         this.sendMessage(ChatMessage.command(authentication.getPrincipal().toString(), MessageCommand.CONNECTED));
     }
@@ -67,5 +73,12 @@ public class WebSocketServiceImpl implements WebSocketService {
                 return;
             }
         }
+    }
+
+    @Override
+    public void handleUserDisconnected(Authentication authentication) {
+        log.info("WebSocket User disconnect:{}", authentication.getPrincipal().toString());
+        String key = WS_PREFIX + authentication.getPrincipal().toString();
+        redisTemplate.opsForSet().remove(key, authentication.getCredentials().toString());
     }
 }

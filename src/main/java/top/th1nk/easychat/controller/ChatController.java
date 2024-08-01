@@ -25,13 +25,11 @@ public class ChatController {
         if (user == null)
             return;
         webSocketService.handleUserConnected(user);
-        log.info("WebSocket User connect:{}", user.getPrincipal().toString());
     }
 
     @Operation(summary = "用户发送消息", description = "用户发送消息")
     @MessageMapping("/message/chat.send")
     public void sendMessage(ChatMessage message, SimpMessageHeaderAccessor accessor) {
-        // 验证fromId有效性
         Authentication user = (Authentication) accessor.getUser();
         if (user == null)
             return;
