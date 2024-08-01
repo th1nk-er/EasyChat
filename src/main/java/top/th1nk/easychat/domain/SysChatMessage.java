@@ -4,15 +4,13 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+import top.th1nk.easychat.domain.chat.MessageType;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Date;
-
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import top.th1nk.easychat.domain.chat.MessageType;
 
 /**
  * @TableName ec_chat_message

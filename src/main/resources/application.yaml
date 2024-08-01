@@ -67,6 +67,7 @@ easy-chat:
     user-des-prefix: /user
     topic-prefix:
       - /notify
+      - /message
   minio:
     endpoint: http://127.0.0.1:9000
     access-key: minioadmin

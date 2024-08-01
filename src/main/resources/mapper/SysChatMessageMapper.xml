@@ -5,13 +5,13 @@
 <mapper namespace="top.th1nk.easychat.mapper.SysChatMessageMapper">
 
     <resultMap id="BaseResultMap" type="top.th1nk.easychat.domain.SysChatMessage">
-            <id property="id" column="id" jdbcType="INTEGER"/>
-            <result property="senderId" column="sender_id" jdbcType="INTEGER"/>
-            <result property="senderGroupId" column="sender_group_id" jdbcType="INTEGER"/>
-            <result property="receiverId" column="receiver_id" jdbcType="INTEGER"/>
-            <result property="type" column="type" jdbcType="INTEGER"/>
-            <result property="content" column="content" jdbcType="VARCHAR"/>
-            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="senderId" column="sender_id" jdbcType="INTEGER"/>
+        <result property="senderGroupId" column="sender_group_id" jdbcType="INTEGER"/>
+        <result property="receiverId" column="receiver_id" jdbcType="INTEGER"/>
+        <result property="type" column="type" jdbcType="INTEGER"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">

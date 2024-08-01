@@ -2,7 +2,6 @@ package top.th1nk.easychat.domain.chat;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import top.th1nk.easychat.utils.StringUtils;
 
 @Data
 @Schema(description = "用户发送的消息")
@@ -15,39 +14,51 @@ public class ChatMessage {
     private String fromId;
     @Schema(description = "接收者id")
     private String toId;
+    @Schema(description = "群组id")
+    private String groupId;
 
-    public static ChatMessage success(String tokenString) {
-        return success(tokenString, "success");
+    public boolean isValid() {
+        if (type == null)
+            return false;
+        else if (content == null || content.isEmpty())
+            return false;
+        else if (toId == null && groupId == null)
+            return false;
+        else return fromId != null;
     }
 
-    public static ChatMessage success(String tokenString, String content) {
+    public static ChatMessage success(String toId) {
+        return success(toId, "success");
+    }
+
+    public static ChatMessage success(String toId, String content) {
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setType(MessageType.SYSTEM);
         chatMessage.setFromId("");
         chatMessage.setContent(content);
-        chatMessage.setToId(StringUtils.getSHA256Hash(tokenString));
+        chatMessage.setToId(toId);
         return chatMessage;
     }
 
-    public static ChatMessage error(String tokenString) {
-        return error(tokenString, "error");
+    public static ChatMessage error(String toId) {
+        return error(toId, "error");
     }
 
-    public static ChatMessage error(String tokenString, String errMsg) {
+    public static ChatMessage error(String toId, String errMsg) {
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setType(MessageType.ERROR);
-        chatMessage.setFromId("");
+        chatMessage.setFromId(toId);
         chatMessage.setContent(errMsg);
-        chatMessage.setToId(StringUtils.getSHA256Hash(tokenString));
+        chatMessage.setToId(toId);
         return chatMessage;
     }
 
-    public static ChatMessage command(String tokenString, MessageCommand command) {
+    public static ChatMessage command(String toId, MessageCommand command) {
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setType(MessageType.COMMAND);
         chatMessage.setFromId("");
         chatMessage.setContent(command.getDesc());
-        chatMessage.setToId(StringUtils.getSHA256Hash(tokenString));
+        chatMessage.setToId(toId);
         return chatMessage;
     }
 }
