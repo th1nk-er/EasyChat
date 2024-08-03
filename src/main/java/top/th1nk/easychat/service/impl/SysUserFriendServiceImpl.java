@@ -122,10 +122,12 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
             SysUserFriend userFriend = new SysUserFriend();
             userFriend.setUid(friendRequest.getUid());
             userFriend.setFriendId(friendRequest.getStrangerId());
+            userFriend.setMuted(false);
             baseMapper.insert(userFriend);
             userFriend = new SysUserFriend();
             userFriend.setUid(friendRequest.getStrangerId());
             userFriend.setFriendId(friendRequest.getUid());
+            userFriend.setMuted(false);
             baseMapper.insert(userFriend);
             return true;
         } else if (friendRequestHandleDto.getStatus() == AddUserStatus.REFUSED) {

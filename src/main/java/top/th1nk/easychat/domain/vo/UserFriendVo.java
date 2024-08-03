@@ -21,6 +21,8 @@ public class UserFriendVo {
     private String avatar;
     @Schema(description = "好友备注")
     private String remark;
+    @Schema(description = "是否免打扰")
+    private boolean muted;
     @Schema(description = "好友用户创建时间")
     private LocalDateTime createTime;
 }

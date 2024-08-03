@@ -9,12 +9,13 @@
         <result property="uid" column="uid" jdbcType="INTEGER"/>
         <result property="friendId" column="friend_id" jdbcType="INTEGER"/>
         <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="muted" column="muted" jdbcType="BOOLEAN"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
         <result property="deleted" column="deleted" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,uid,friend_id,
+        id,uid,friend_id,muted,
         remark,create_time,deleted
     </sql>
     <select id="isFriend" resultType="java.lang.Boolean">
@@ -32,6 +33,7 @@
                u.avatar,
                u.email,
                uf.remark,
+               uf.muted,
                u.create_time
         from ec_user_friend uf
                  left join ec_user u on uf.friend_id = u.id

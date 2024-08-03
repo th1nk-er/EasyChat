@@ -41,6 +41,11 @@ public class SysUserFriend implements Serializable {
     private String remark;
 
     /**
+     * 是否免打扰 0-否 1-是
+     */
+    @Schema(description = "是否免打扰 0-否 1-是")
+    private Boolean muted;
+    /**
      * 添加好友的时间
      */
     @TableField(fill = FieldFill.INSERT)
