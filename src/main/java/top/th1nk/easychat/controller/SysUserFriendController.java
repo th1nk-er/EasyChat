@@ -9,6 +9,7 @@ import top.th1nk.easychat.domain.dto.AddFriendDto;
 import top.th1nk.easychat.domain.dto.FriendRequestHandleDto;
 import top.th1nk.easychat.domain.vo.FriendListVo;
 import top.th1nk.easychat.domain.vo.FriendRequestListVo;
+import top.th1nk.easychat.domain.vo.UserFriendVo;
 import top.th1nk.easychat.enums.UserFriendExceptionEnum;
 import top.th1nk.easychat.exception.UserFriendException;
 import top.th1nk.easychat.service.SysUserAddFriendService;
@@ -50,5 +51,11 @@ public class SysUserFriendController {
     @GetMapping("/list/{page}")
     public Response<FriendListVo> getFriendList(@PathVariable int page) {
         return Response.ok(sysUserFriendService.getFriendList(page));
+    }
+
+    @Operation(summary = "获取好友信息", description = "获取好友信息")
+    @GetMapping("/info/{friendId}")
+    public Response<UserFriendVo> getFriendInfo(@PathVariable int friendId) {
+        return Response.ok(sysUserFriendService.getFriendInfo(friendId));
     }
 }
