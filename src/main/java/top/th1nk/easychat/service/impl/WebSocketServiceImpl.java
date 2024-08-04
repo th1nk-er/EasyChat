@@ -7,8 +7,10 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import top.th1nk.easychat.config.easychat.JwtProperties;
-import top.th1nk.easychat.domain.chat.ChatMessage;
 import top.th1nk.easychat.domain.chat.MessageCommand;
+import top.th1nk.easychat.domain.chat.WSMessage;
+import top.th1nk.easychat.mapper.SysUserFriendMapper;
+import top.th1nk.easychat.service.SysChatMessageService;
 import top.th1nk.easychat.service.WebSocketService;
 import top.th1nk.easychat.utils.StringUtils;
 
@@ -25,26 +27,35 @@ public class WebSocketServiceImpl implements WebSocketService {
     private RedisTemplate<String, String> redisTemplate;
     @Resource
     private JwtProperties jwtProperties;
+    @Resource
+    private SysUserFriendMapper sysUserFriendMapper;
+    @Resource
+    private SysChatMessageService sysChatMessageService;
 
     @Override
-    public void sendMessage(ChatMessage message) {
+    public void sendMessage(WSMessage message) {
         if (message.getToId() != null) {
+            if (message.getFromId() <= 0) {
+                // 系统发送给用户的消息
+                return;
+            }
             // 用户消息，从redis中取出toId对应的token，
             // 获取其token对应的sha256值，以sha256值为目的地发送ws消息
-            //TODO 当toId不为空时判断双方是否为好友关系
+            if (!sysUserFriendMapper.isFriend(message.getFromId(), message.getToId())) {
+                // 非好友关系
+                log.warn("用户 {} 试图在非好友状态下向用户 {} 发送消息", message.getFromId(), message.getToId());
+                return;
+            }
             // 从redis中取出toId对应的token
             Set<String> toTokens = redisTemplate.opsForSet().members(WS_PREFIX + message.getToId());
-            if (toTokens == null || toTokens.isEmpty()) {
-                //TODO 对方不在线发送离线消息
-            } else {
+            if (toTokens != null && toTokens.isEmpty()) {
                 log.info("用户 {} 向用户 {} 发送消息", message.getFromId(), message.getToId());
-                // 对方有在线设备
                 for (String toToken : toTokens) {
-                    // 对每一个设备发送消息
                     String shaID = StringUtils.getSHA256Hash(toToken);
                     simpMessagingTemplate.convertAndSend("/notify/message/" + shaID, message);
                 }
             }
+            sysChatMessageService.saveMessage(message);
         } else if (message.getGroupId() != null) {
             //群组消息
             //TODO 当groupId不为空时判断用户是否为群组成员
@@ -59,11 +70,11 @@ public class WebSocketServiceImpl implements WebSocketService {
         redisTemplate.opsForSet().add(WS_PREFIX + authentication.getPrincipal().toString(), authentication.getCredentials().toString());
         redisTemplate.expire(WS_PREFIX + authentication.getPrincipal().toString(), Duration.ofSeconds(jwtProperties.getExpireSeconds()));
         // 发送已连接消息
-        this.sendMessage(ChatMessage.command((Integer) authentication.getPrincipal(), MessageCommand.CONNECTED));
+        this.sendMessage(WSMessage.command((Integer) authentication.getPrincipal(), MessageCommand.CONNECTED));
     }
 
     @Override
-    public void sendUserMessage(Authentication authentication, ChatMessage message) {
+    public void sendUserMessage(Authentication authentication, WSMessage message) {
         // 验证message是否合法
         message.setFromId((Integer) authentication.getPrincipal()); // 重新设置一遍fromId，防止恶意修改
         if (!message.isValid()) {

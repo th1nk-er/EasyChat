@@ -19,4 +19,12 @@
         receiver_id,type,content,
         create_time
     </sql>
+    <select id="getChatMessageList" resultType="top.th1nk.easychat.domain.SysChatMessage">
+        SELECT *
+        FROM ec_chat_message
+        WHERE (sender_id = #{uid1} AND receiver_id = #{uid2})
+           OR (sender_id = #{uid2} AND receiver_id = #{uid1})
+        ORDER BY ec_chat_message.create_time
+        LIMIT #{currentPage}, #{pageSize};
+    </select>
 </mapper>

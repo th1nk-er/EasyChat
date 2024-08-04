@@ -8,7 +8,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import top.th1nk.easychat.domain.chat.ChatMessage;
+import top.th1nk.easychat.domain.chat.WSMessage;
 import top.th1nk.easychat.service.WebSocketService;
 
 @Controller
@@ -29,7 +29,7 @@ public class ChatController {
 
     @Operation(summary = "用户发送消息", description = "用户发送消息")
     @MessageMapping("/message/chat.send")
-    public void sendMessage(ChatMessage message, SimpMessageHeaderAccessor accessor) {
+    public void sendMessage(WSMessage message, SimpMessageHeaderAccessor accessor) {
         Authentication user = (Authentication) accessor.getUser();
         if (user == null)
             return;

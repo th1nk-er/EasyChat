@@ -2,7 +2,7 @@ package top.th1nk.easychat.service;
 
 import jakarta.validation.constraints.NotNull;
 import org.springframework.security.core.Authentication;
-import top.th1nk.easychat.domain.chat.ChatMessage;
+import top.th1nk.easychat.domain.chat.WSMessage;
 
 public interface WebSocketService {
 
@@ -11,7 +11,7 @@ public interface WebSocketService {
      *
      * @param message 消息
      */
-    void sendMessage(ChatMessage message);
+    void sendMessage(WSMessage message);
 
     /**
      * 处理用户连接
@@ -25,7 +25,7 @@ public interface WebSocketService {
      *
      * @param message 消息
      */
-    void sendUserMessage(Authentication authentication, ChatMessage message);
+    void sendUserMessage(Authentication authentication, WSMessage message);
 
     /**
      * 处理用户断开连接

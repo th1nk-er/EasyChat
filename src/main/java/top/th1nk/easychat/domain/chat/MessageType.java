@@ -1,5 +1,6 @@
 package top.th1nk.easychat.domain.chat;
 
+import com.baomidou.mybatisplus.annotation.EnumValue;
 import lombok.Getter;
 
 @Getter
@@ -11,6 +12,7 @@ public enum MessageType {
     ERROR(4, "错误"),
     COMMAND(5, "命令"),
     ;
+    @EnumValue
     private final int code;
     private final String desc;
 
