@@ -48,7 +48,7 @@ public class WebSocketServiceImpl implements WebSocketService {
             }
             // 从redis中取出toId对应的token
             Set<String> toTokens = redisTemplate.opsForSet().members(WS_PREFIX + message.getToId());
-            if (toTokens != null && toTokens.isEmpty()) {
+            if (toTokens != null && !toTokens.isEmpty()) {
                 log.info("用户 {} 向用户 {} 发送消息", message.getFromId(), message.getToId());
                 for (String toToken : toTokens) {
                     String shaID = StringUtils.getSHA256Hash(toToken);

@@ -13,6 +13,7 @@ import top.th1nk.easychat.utils.JwtUtils;
 import top.th1nk.easychat.utils.RequestUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -45,6 +46,7 @@ public class SysChatMessageServiceImpl extends ServiceImpl<SysChatMessageMapper,
         int senderId = userVo.getId();
         List<SysChatMessage> messages = messageRedisService.getMessages(senderId, receiverId);
         List<SysChatMessage> dbMessages = baseMapper.getChatMessageList(senderId, receiverId, currentPage, 15);
+        Collections.reverse(dbMessages);
         if (dbMessages.isEmpty()) {
             return messages;
         } else {

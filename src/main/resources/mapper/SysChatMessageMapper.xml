@@ -24,7 +24,7 @@
         FROM ec_chat_message
         WHERE (sender_id = #{uid1} AND receiver_id = #{uid2})
            OR (sender_id = #{uid2} AND receiver_id = #{uid1})
-        ORDER BY ec_chat_message.create_time
+        ORDER BY ec_chat_message.create_time DESC
         LIMIT #{currentPage}, #{pageSize};
     </select>
 </mapper>

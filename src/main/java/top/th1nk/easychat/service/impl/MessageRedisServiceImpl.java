@@ -46,7 +46,7 @@ public class MessageRedisServiceImpl implements MessageRedisService {
         if (senderId < receiverId) {
             chatKey = CHAT_PRIVATE_MESSAGE_KEY + senderId + "-" + receiverId;
         } else {
-            chatKey = CHAT_PRIVATE_MESSAGE_KEY + receiverId + "-" + receiverId;
+            chatKey = CHAT_PRIVATE_MESSAGE_KEY + receiverId + "-" + senderId;
         }
         return redisTemplate.opsForList().range(chatKey, 0, -1);
     }
@@ -57,7 +57,7 @@ public class MessageRedisServiceImpl implements MessageRedisService {
         if (senderId < receiverId) {
             chatKey = CHAT_PRIVATE_MESSAGE_KEY + senderId + "-" + receiverId;
         } else {
-            chatKey = CHAT_PRIVATE_MESSAGE_KEY + receiverId + "-" + receiverId;
+            chatKey = CHAT_PRIVATE_MESSAGE_KEY + receiverId + "-" + senderId;
         }
         redisTemplate.delete(chatKey);
     }
