@@ -5,6 +5,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import top.th1nk.easychat.domain.SysChatMessage;
 import top.th1nk.easychat.domain.chat.WSMessage;
+import top.th1nk.easychat.service.ConversationRedisService;
 import top.th1nk.easychat.service.MessageRedisService;
 
 import java.time.LocalDateTime;
@@ -19,6 +20,16 @@ public class MessageRedisServiceImpl implements MessageRedisService {
     @Resource
     private RedisTemplate<String, SysChatMessage> redisTemplate;
 
+    @Resource
+    private ConversationRedisService conversationRedisService;
+
+    private String getRedisKey(int senderId, int receiverId) {
+        if (senderId < receiverId)
+            return CHAT_PRIVATE_MESSAGE_KEY + senderId + "-" + receiverId;
+        else
+            return CHAT_PRIVATE_MESSAGE_KEY + receiverId + "-" + senderId;
+    }
+
     @Override
     public int saveMessage(WSMessage wsMessage) {
         SysChatMessage message = new SysChatMessage();
@@ -29,36 +40,24 @@ public class MessageRedisServiceImpl implements MessageRedisService {
         message.setCreateTime(LocalDateTime.now());
         String chatKey;
         if (wsMessage.getToId() != null) {
-            if (message.getSenderId() < message.getReceiverId()) {
-                chatKey = CHAT_PRIVATE_MESSAGE_KEY + message.getSenderId() + "-" + message.getReceiverId();
-            } else {
-                chatKey = CHAT_PRIVATE_MESSAGE_KEY + message.getReceiverId() + "-" + message.getSenderId();
-            }
+            chatKey = getRedisKey(message.getSenderId(), message.getReceiverId());
         } else
             chatKey = CHAT_PRIVATE_MESSAGE_KEY + message.getSenderId() + "-" + message.getReceiverId();
         redisTemplate.opsForList().rightPush(chatKey, message);
         Long size = redisTemplate.opsForList().size(chatKey);
+        conversationRedisService.handleMessageReceived(message);
         return size == null ? 0 : size.intValue();
     }
 
+    @Override
     public List<SysChatMessage> getMessages(int senderId, int receiverId) {
-        String chatKey;
-        if (senderId < receiverId) {
-            chatKey = CHAT_PRIVATE_MESSAGE_KEY + senderId + "-" + receiverId;
-        } else {
-            chatKey = CHAT_PRIVATE_MESSAGE_KEY + receiverId + "-" + senderId;
-        }
+        String chatKey = getRedisKey(senderId, receiverId);
         return redisTemplate.opsForList().range(chatKey, 0, -1);
     }
 
     @Override
     public void removeMessage(int senderId, int receiverId) {
-        String chatKey;
-        if (senderId < receiverId) {
-            chatKey = CHAT_PRIVATE_MESSAGE_KEY + senderId + "-" + receiverId;
-        } else {
-            chatKey = CHAT_PRIVATE_MESSAGE_KEY + receiverId + "-" + senderId;
-        }
+        String chatKey = getRedisKey(senderId, receiverId);
         redisTemplate.delete(chatKey);
     }
 

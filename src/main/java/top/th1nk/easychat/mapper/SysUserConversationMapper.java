@@ -1,7 +1,7 @@
 package top.th1nk.easychat.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import top.th1nk.easychat.domain.SysUserChatHistory;
+import top.th1nk.easychat.domain.SysUserConversation;
 
 /**
  * @author vinka
@@ -9,7 +9,7 @@ import top.th1nk.easychat.domain.SysUserChatHistory;
  * @createDate 2024-08-01 18:08:50
  * @Entity top.th1nk.easychat.domain.SysUserChatHistory
  */
-public interface SysUserChatHistoryMapper extends BaseMapper<SysUserChatHistory> {
+public interface SysUserConversationMapper extends BaseMapper<SysUserConversation> {
 
 }
 

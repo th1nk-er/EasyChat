@@ -3,18 +3,19 @@ package top.th1nk.easychat.domain;
 import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import top.th1nk.easychat.domain.chat.MessageType;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * @TableName ec_user_chat_history
+ * @TableName ec_user_conversation
  */
-@TableName(value = "ec_user_chat_history")
+@TableName(value = "ec_user_conversation")
 @Data
 @Schema(description = "用户聊天列表")
-public class SysUserChatHistory implements Serializable {
+public class SysUserConversation implements Serializable {
     /**
      * 主键ID
      */
@@ -49,8 +50,14 @@ public class SysUserChatHistory implements Serializable {
     /**
      * 最后一条消息的ID
      */
-    @Schema(description = "最后消息的ID")
-    private Integer lastMessage;
+    @Schema(description = "最后消息内容")
+    private String lastMessage;
+
+    /**
+     * 最后一条消息的类型
+     */
+    @Schema(description = "最后消息类型")
+    private MessageType messageType;
 
     /**
      * 最后消息时间
