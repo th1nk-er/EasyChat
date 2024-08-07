@@ -1,5 +1,6 @@
 package top.th1nk.easychat.config;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
@@ -47,7 +48,22 @@ public class ChatMessageSaveTask {
     @EventListener(ContextClosedEvent.class)
     public void userConversationSave() {
         List<SysUserConversation> userConversations = conversationRedisService.getAllUserConversations();
-        sysUserConversationMapper.insertOrUpdate(userConversations);
+        for (SysUserConversation conversation : userConversations) {
+            LambdaQueryWrapper<SysUserConversation> qw = new LambdaQueryWrapper<>();
+            qw.eq(SysUserConversation::getUid, conversation.getUid())
+                    .eq(SysUserConversation::getFriendId, conversation.getFriendId());
+            SysUserConversation userConversation = sysUserConversationMapper.selectOne(qw);
+            if (userConversation == null)
+                sysUserConversationMapper.insert(conversation);
+            else {
+                userConversation.setUnreadCount(conversation.getUnreadCount());
+                userConversation.setMessageType(conversation.getMessageType());
+                userConversation.setLastMessage(conversation.getLastMessage());
+                userConversation.setUpdateTime(conversation.getUpdateTime());
+                sysUserConversationMapper.updateById(userConversation);
+            }
+
+        }
         log.info("定时任务：保存[{}]条用户对话", userConversations.size());
     }
 }

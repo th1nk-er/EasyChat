@@ -5,10 +5,16 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import top.th1nk.easychat.domain.SysUser;
 import top.th1nk.easychat.domain.SysUserConversation;
+import top.th1nk.easychat.domain.vo.UserConversationVo;
+import top.th1nk.easychat.domain.vo.UserFriendVo;
 import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.mapper.SysUserConversationMapper;
+import top.th1nk.easychat.mapper.SysUserFriendMapper;
+import top.th1nk.easychat.mapper.SysUserMapper;
 import top.th1nk.easychat.service.ConversationRedisService;
 import top.th1nk.easychat.service.SysUserConversationService;
 import top.th1nk.easychat.utils.JwtUtils;
@@ -32,9 +38,37 @@ public class SysUserConversationServiceImpl extends ServiceImpl<SysUserConversat
 
     @Resource
     private ConversationRedisService conversationRedisService;
+    @Resource
+    private SysUserMapper sysUserMapper;
+    @Resource
+    private SysUserFriendMapper sysUserFriendMapper;
+
+    private UserConversationVo transformToVo(SysUserConversation sysUserConversation) {
+        UserConversationVo vo = new UserConversationVo();
+        BeanUtils.copyProperties(sysUserConversation, vo);
+        if (sysUserConversation.getFriendId() != null) {
+            SysUser sysUser = sysUserMapper.selectById(sysUserConversation.getFriendId());
+            vo.setAvatar(sysUser.getAvatar());
+            vo.setNickname(sysUser.getNickname());
+            UserFriendVo userFriendVo = sysUserFriendMapper.selectUserFriend(sysUserConversation.getUid(), sysUserConversation.getFriendId());
+            if (userFriendVo != null) {
+                vo.setRemark(userFriendVo.getRemark());
+                vo.setMuted(userFriendVo.isMuted());
+            }
+        }
+        return vo;
+    }
+
+    private List<UserConversationVo> transformToVo(List<SysUserConversation> sysUserConversations) {
+        List<UserConversationVo> result = new ArrayList<>();
+        for (SysUserConversation sysUserConversation : sysUserConversations) {
+            result.add(transformToVo(sysUserConversation));
+        }
+        return result;
+    }
 
     @Override
-    public List<SysUserConversation> getChatHistory(int pageNum) {
+    public List<UserConversationVo> getConversations(int pageNum) {
         UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
         if (userVo == null || userVo.getId() == null) return List.of();
         // 查询用户聊天列表
@@ -43,19 +77,24 @@ public class SysUserConversationServiceImpl extends ServiceImpl<SysUserConversat
         qw.eq(SysUserConversation::getUid, userVo.getId())
                 .orderByAsc(SysUserConversation::getUpdateTime);
         Page<SysUserConversation> pages = baseMapper.selectPage(new Page<>(pageNum, 15), qw);
-        List<SysUserConversation> redisHistory = conversationRedisService.getUserConversations(userVo.getId());
-        if (pages.getRecords().isEmpty()) return redisHistory;
-        if (redisHistory.isEmpty()) return pages.getRecords();
-        List<SysUserConversation> result = new ArrayList<>();
+        List<SysUserConversation> redisHistory;
+        // 仅当页码为1时，将redis数据一并返回
+        if (pageNum == 1)
+            redisHistory = conversationRedisService.getUserConversations(userVo.getId());
+        else
+            redisHistory = List.of();
+        if (pages.getRecords().isEmpty()) return transformToVo(redisHistory);
+        if (redisHistory.isEmpty()) return transformToVo(pages.getRecords());
+        List<UserConversationVo> result = new ArrayList<>();
         // 将redis中较新数据替换数据库中数据
         for (SysUserConversation redisRecord : redisHistory) {
             for (SysUserConversation pageRecord : pages.getRecords()) {
                 if (redisRecord.getFriendId() != null && redisRecord.getFriendId().equals(pageRecord.getFriendId())) {
-                    result.add(redisRecord);
+                    result.add(transformToVo(redisRecord));
                 } else if (redisRecord.getGroupId() != null && redisRecord.getGroupId().equals(pageRecord.getGroupId())) {
-                    result.add(redisRecord);
+                    result.add(transformToVo(redisRecord));
                 } else {
-                    result.add(pageRecord);
+                    result.add(transformToVo(pageRecord));
                 }
             }
         }

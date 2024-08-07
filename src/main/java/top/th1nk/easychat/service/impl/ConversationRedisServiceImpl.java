@@ -14,7 +14,7 @@ import java.util.Set;
 
 @Service
 public class ConversationRedisServiceImpl implements ConversationRedisService {
-    private static final String CHAT_HISTORY_KEY = "chat:history:";
+    private static final String CHAT_CONVERSATION_KEY = "chat:conversation:";
     @Resource
     private RedisTemplate<String, SysUserConversation> redisTemplate;
 
@@ -26,55 +26,55 @@ public class ConversationRedisServiceImpl implements ConversationRedisService {
     private void handleMessageSent(SysChatMessage message) {
         // receiverId 收到消息，将 senderId 的对话记录 readCount 设为 0 表明已读
         HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
-        String redisKey = CHAT_HISTORY_KEY + message.getSenderId();
+        String redisKey = CHAT_CONVERSATION_KEY + message.getSenderId();
         String hashKey = String.valueOf(message.getReceiverId());
-        SysUserConversation chatHistory = hashOperations.get(redisKey, hashKey);
-        if (chatHistory == null) {
-            chatHistory = new SysUserConversation();
-            chatHistory.setUid(message.getSenderId());
-            chatHistory.setFriendId(message.getReceiverId());
-            chatHistory.setGroupId(message.getSenderGroupId());
-            chatHistory.setUpdateTime(message.getCreateTime());
-            chatHistory.setLastMessage(message.getContent());
-            chatHistory.setMessageType(message.getType());
+        SysUserConversation userConversation = hashOperations.get(redisKey, hashKey);
+        if (userConversation == null) {
+            userConversation = new SysUserConversation();
+            userConversation.setUid(message.getSenderId());
+            userConversation.setFriendId(message.getReceiverId());
+            userConversation.setGroupId(message.getSenderGroupId());
         }
-        chatHistory.setUnreadCount(0);
-        hashOperations.put(redisKey, hashKey, chatHistory);
+        userConversation.setUnreadCount(0);
+        userConversation.setUpdateTime(message.getCreateTime());
+        userConversation.setLastMessage(message.getContent());
+        userConversation.setMessageType(message.getType());
+        hashOperations.put(redisKey, hashKey, userConversation);
     }
 
     @Override
     public void handleMessageReceived(SysChatMessage message) {
         // receiverId 收到消息，将 receiverId 的对话记录 readCount + 1
         HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
-        String redisKey = CHAT_HISTORY_KEY + message.getReceiverId();
+        String redisKey = CHAT_CONVERSATION_KEY + message.getReceiverId();
         String hashKey = String.valueOf(message.getSenderId());
-        SysUserConversation chatHistory = hashOperations.get(redisKey, hashKey);
-        if (chatHistory == null) {
-            chatHistory = new SysUserConversation();
-            chatHistory.setUid(message.getReceiverId());
-            chatHistory.setFriendId(message.getSenderId());
-            chatHistory.setGroupId(message.getSenderGroupId());
-            chatHistory.setUpdateTime(message.getCreateTime());
-            chatHistory.setLastMessage(message.getContent());
-            chatHistory.setMessageType(message.getType());
-            chatHistory.setUnreadCount(1);
+        SysUserConversation userConversation = hashOperations.get(redisKey, hashKey);
+        if (userConversation == null) {
+            userConversation = new SysUserConversation();
+            userConversation.setUid(message.getReceiverId());
+            userConversation.setFriendId(message.getSenderId());
+            userConversation.setGroupId(message.getSenderGroupId());
+            userConversation.setUnreadCount(1);
         } else {
-            chatHistory.setUnreadCount(chatHistory.getUnreadCount() + 1);
+            userConversation.setUnreadCount(userConversation.getUnreadCount() + 1);
         }
-        hashOperations.put(redisKey, hashKey, chatHistory);
+        userConversation.setUpdateTime(message.getCreateTime());
+        userConversation.setLastMessage(message.getContent());
+        userConversation.setMessageType(message.getType());
+        hashOperations.put(redisKey, hashKey, userConversation);
         handleMessageSent(message);
     }
 
     @Override
     public List<SysUserConversation> getUserConversations(int uid) {
         HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
-        return hashOperations.values(CHAT_HISTORY_KEY + uid);
+        return hashOperations.values(CHAT_CONVERSATION_KEY + uid);
     }
 
     @Override
     public List<SysUserConversation> getAllUserConversations() {
         HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
-        Set<String> keys = redisTemplate.keys(CHAT_HISTORY_KEY + "*");
+        Set<String> keys = redisTemplate.keys(CHAT_CONVERSATION_KEY + "*");
         if (keys == null || keys.isEmpty()) return List.of();
         List<SysUserConversation> result = new ArrayList<>();
         for (String key : keys) {
@@ -86,7 +86,7 @@ public class ConversationRedisServiceImpl implements ConversationRedisService {
     @Override
     public boolean setConversationRead(int senderId, int receiverId) {
         HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
-        String redisKey = CHAT_HISTORY_KEY + senderId;
+        String redisKey = CHAT_CONVERSATION_KEY + senderId;
         String hashKey = String.valueOf(receiverId);
         SysUserConversation sysUserConversation = hashOperations.get(redisKey, hashKey);
         if (sysUserConversation == null) return false;
@@ -100,7 +100,7 @@ public class ConversationRedisServiceImpl implements ConversationRedisService {
         if (conversation == null || conversation.isEmpty()) return;
         HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
         for (SysUserConversation userConversation : conversation) {
-            String redisKey = CHAT_HISTORY_KEY + userConversation.getUid();
+            String redisKey = CHAT_CONVERSATION_KEY + userConversation.getUid();
             String hashKey = String.valueOf(userConversation.getFriendId());
             hashOperations.put(redisKey, hashKey, userConversation);
         }

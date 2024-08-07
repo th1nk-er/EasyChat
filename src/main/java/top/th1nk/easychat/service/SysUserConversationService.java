@@ -2,6 +2,7 @@ package top.th1nk.easychat.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import top.th1nk.easychat.domain.SysUserConversation;
+import top.th1nk.easychat.domain.vo.UserConversationVo;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ public interface SysUserConversationService extends IService<SysUserConversation
      * @param pageNum 页码
      * @return 聊天列表
      */
-    List<SysUserConversation> getChatHistory(int pageNum);
+    List<UserConversationVo> getConversations(int pageNum);
 
     /**
      * 将对话设为已读
