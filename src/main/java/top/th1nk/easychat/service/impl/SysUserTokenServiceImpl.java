@@ -1,5 +1,6 @@
 package top.th1nk.easychat.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,8 @@ public class SysUserTokenServiceImpl extends ServiceImpl<SysUserTokenMapper, Sys
     @Override
     public void expireToken(String token) {
         if (token == null || token.isEmpty()) return;
-        baseMapper.updateExpireTimeByToken(token, LocalDateTime.now());
+        if (baseMapper.updateExpireTimeByToken(token, LocalDateTime.now()) == 1)
+            jwtUtils.expireToken(token);
     }
 
     @Override
@@ -47,6 +49,13 @@ public class SysUserTokenServiceImpl extends ServiceImpl<SysUserTokenMapper, Sys
             jwtUtils.expireToken(userTokenList.getFirst().getToken());
             baseMapper.updateById(sysUserToken);
         }
+    }
+
+    @Override
+    public List<SysUserToken> getUserTokenList(Integer userId) {
+        LambdaQueryWrapper<SysUserToken> qw = new LambdaQueryWrapper<>();
+        qw.eq(SysUserToken::getUserId, userId);
+        return baseMapper.selectList(qw);
     }
 }
 

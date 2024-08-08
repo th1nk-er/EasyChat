@@ -7,6 +7,14 @@ import top.th1nk.easychat.exception.CommonException;
  */
 public interface EmailService {
     /**
+     * 判断是否发送验证码太频繁
+     *
+     * @param email 邮箱
+     * @return 是否频繁
+     */
+    boolean isEmailSendFrequently(String email);
+
+    /**
      * 发送验证码邮件
      *
      * @param sendTo     收件人
@@ -32,12 +40,4 @@ public interface EmailService {
      * @throws CommonException 验证码过期时抛出异常
      */
     boolean verifyCode(String email, String verifyCode) throws CommonException;
-
-
-    /**
-     * 在验证码发送之前进行的操作
-     *
-     * @param email 邮箱
-     */
-    void beforeSendVerifyCode(String email);
 }

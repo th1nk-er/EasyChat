@@ -18,6 +18,7 @@ import top.th1nk.easychat.domain.SysUser;
 import top.th1nk.easychat.domain.SysUserToken;
 import top.th1nk.easychat.domain.dto.LoginDto;
 import top.th1nk.easychat.domain.dto.RegisterDto;
+import top.th1nk.easychat.domain.dto.UpdatePasswordDto;
 import top.th1nk.easychat.domain.dto.UserTokenDto;
 import top.th1nk.easychat.domain.vo.SearchUserVo;
 import top.th1nk.easychat.domain.vo.UserVo;
@@ -173,4 +174,22 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         return result;
     }
 
+    @Override
+    public boolean updatePassword(UpdatePasswordDto updatePasswordDto) {
+        UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
+        if (userVo == null) return false;
+        SysUser user = baseMapper.getByUsername(userVo.getUsername());
+        if (user == null) return false;
+        if (!UserUtils.isValidPassword(updatePasswordDto.getNewPassword()))
+            throw new CommonException(CommonExceptionEnum.PASSWORD_INVALID);
+        // 判断验证码是否正确
+        if (emailService.verifyCode(userVo.getEmail(), updatePasswordDto.getCode())) {
+            user.setPassword(UserUtils.encryptPassword(updatePasswordDto.getNewPassword()));
+            baseMapper.updateById(user);
+            // 强制过期所有token
+            List<SysUserToken> userTokenList = sysUserTokenService.getUserTokenList(userVo.getId());
+            userTokenList.forEach(token -> sysUserTokenService.expireToken(token.getToken()));
+        }
+        return false;
+    }
 }

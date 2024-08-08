@@ -5,14 +5,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 import top.th1nk.easychat.domain.Response;
-import top.th1nk.easychat.domain.dto.LoginDto;
-import top.th1nk.easychat.domain.dto.RegisterDto;
-import top.th1nk.easychat.domain.dto.UserTokenDto;
-import top.th1nk.easychat.domain.dto.VerifyEmailDto;
+import top.th1nk.easychat.domain.dto.*;
 import top.th1nk.easychat.domain.vo.SearchUserVo;
 import top.th1nk.easychat.domain.vo.UserVo;
+import top.th1nk.easychat.enums.CommonExceptionEnum;
 import top.th1nk.easychat.enums.LoginExceptionEnum;
 import top.th1nk.easychat.enums.RegisterExceptionEnum;
+import top.th1nk.easychat.exception.CommonException;
 import top.th1nk.easychat.exception.LoginException;
 import top.th1nk.easychat.exception.RegisterException;
 import top.th1nk.easychat.service.EmailService;
@@ -54,7 +53,9 @@ public class SysUserController {
         String code = StringUtils.getRandomString(6).toUpperCase();
         if (!sysUserService.isEmailExist(verifyEmailDto.getEmail()))
             throw new LoginException(LoginExceptionEnum.EMAIL_NOT_REGISTER);
-        emailService.beforeSendVerifyCode(verifyEmailDto.getEmail());
+        if (emailService.isEmailSendFrequently(verifyEmailDto.getEmail())) {
+            throw new CommonException(CommonExceptionEnum.EMAIL_VERIFY_CODE_SEND__FREQUENTLY);
+        }
         emailService.sendVerifyCodeEmail(verifyEmailDto.getEmail(), code);
         emailService.saveVerifyCode(verifyEmailDto.getEmail(), code);
         return Response.ok();
@@ -66,7 +67,9 @@ public class SysUserController {
         String code = StringUtils.getRandomString(6).toUpperCase();
         if (sysUserService.isEmailExist(verifyEmailDto.getEmail()))
             throw new RegisterException(RegisterExceptionEnum.EMAIL_EXIST);
-        emailService.beforeSendVerifyCode(verifyEmailDto.getEmail());
+        if (emailService.isEmailSendFrequently(verifyEmailDto.getEmail())) {
+            throw new CommonException(CommonExceptionEnum.EMAIL_VERIFY_CODE_SEND__FREQUENTLY);
+        }
         emailService.sendVerifyCodeEmail(verifyEmailDto.getEmail(), code);
         emailService.saveVerifyCode(verifyEmailDto.getEmail(), code);
         return Response.ok();
@@ -82,5 +85,14 @@ public class SysUserController {
     @GetMapping("/search")
     public Response<SearchUserVo> search(@RequestParam("keyword") String keyword, @RequestParam("page") int page) {
         return Response.ok(sysUserService.searchUser(keyword, page));
+    }
+
+    @Operation(summary = "修改密码", description = "修改密码")
+    @PutMapping("/password")
+    public Response<?> updatePassword(@RequestBody UpdatePasswordDto updatePasswordDto) {
+        if (sysUserService.updatePassword(updatePasswordDto)) {
+            return Response.ok();
+        }
+        return Response.error("密码修改失败");
     }
 }

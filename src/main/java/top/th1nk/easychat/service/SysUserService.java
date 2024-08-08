@@ -5,6 +5,7 @@ import jakarta.annotation.Nullable;
 import top.th1nk.easychat.domain.SysUser;
 import top.th1nk.easychat.domain.dto.LoginDto;
 import top.th1nk.easychat.domain.dto.RegisterDto;
+import top.th1nk.easychat.domain.dto.UpdatePasswordDto;
 import top.th1nk.easychat.domain.dto.UserTokenDto;
 import top.th1nk.easychat.domain.vo.SearchUserVo;
 import top.th1nk.easychat.domain.vo.UserVo;
@@ -78,5 +79,13 @@ public interface SysUserService extends IService<SysUser> {
      * @return 搜索结果
      */
     SearchUserVo searchUser(String keyword, int page);
+
+    /**
+     * 修改密码
+     *
+     * @param updatePasswordDto 修改密码信息
+     * @return 修改结果
+     */
+    boolean updatePassword(UpdatePasswordDto updatePasswordDto);
 
 }

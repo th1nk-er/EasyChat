@@ -62,6 +62,16 @@ public class EmailServiceImpl implements EmailService {
         expireTime = mail.getVerifyCode().getExpire();
     }
 
+    @Override
+    public boolean isEmailSendFrequently(String email) {
+        readConfig();
+        if (!UserUtils.isValidEmail(email)) throw new CommonException(CommonExceptionEnum.EMAIL_INVALID);
+        Long expire = stringRedisTemplate.getExpire(CODE_PREFIX + email);
+        if (expire == null || expire <= 0) return false;
+        // 1分钟之内只能发送一次
+        return expireTime * 60L - expire < 60L;
+    }
+
     @Async
     @Override
     public void sendVerifyCodeEmail(String sendTo, String verifyCode) throws CommonException {
@@ -110,16 +120,5 @@ public class EmailServiceImpl implements EmailService {
             return true;
         }
         return false;
-    }
-
-    @Override
-    public void beforeSendVerifyCode(String email) {
-        readConfig();
-        if (!UserUtils.isValidEmail(email)) throw new CommonException(CommonExceptionEnum.EMAIL_INVALID);
-        Long expire = stringRedisTemplate.getExpire(CODE_PREFIX + email);
-        if (expire == null || expire <= 0) return;
-        // 1分钟之内只能发送一次
-        if (expireTime * 60L - expire >= 60L) return;
-        throw new CommonException(CommonExceptionEnum.EMAIL_VERIFY_CODE_SEND__FREQUENTLY);
     }
 }

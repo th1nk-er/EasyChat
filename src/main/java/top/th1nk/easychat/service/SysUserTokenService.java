@@ -3,6 +3,8 @@ package top.th1nk.easychat.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import top.th1nk.easychat.domain.SysUserToken;
 
+import java.util.List;
+
 /**
  * @author vinka
  * @description 针对表【ec_user_token】的数据库操作Service
@@ -23,4 +25,12 @@ public interface SysUserTokenService extends IService<SysUserToken> {
      * @param sysUserToken token
      */
     void saveUserToken(SysUserToken sysUserToken);
+
+    /**
+     * 获取用户token列表
+     *
+     * @param userId 用户id
+     * @return token列表
+     */
+    List<SysUserToken> getUserTokenList(Integer userId);
 }
