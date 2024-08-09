@@ -12,4 +12,14 @@ public class UserProperties {
      * 默认头像
      */
     private String defaultAvatarPath = "classpath:static/img/avatar-default.jpg";
+
+    /**
+     * 最大头像大小，单位：KB
+     */
+    private Integer avatarMaxSize = 1024 * 5;
+
+    /**
+     * minio中头像文件夹名称
+     */
+    private String avatarDir = "avatar";
 }

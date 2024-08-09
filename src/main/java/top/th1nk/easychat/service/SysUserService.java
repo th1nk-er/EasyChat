@@ -2,6 +2,7 @@ package top.th1nk.easychat.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import jakarta.annotation.Nullable;
+import org.springframework.web.multipart.MultipartFile;
 import top.th1nk.easychat.domain.SysUser;
 import top.th1nk.easychat.domain.dto.LoginDto;
 import top.th1nk.easychat.domain.dto.RegisterDto;
@@ -88,4 +89,11 @@ public interface SysUserService extends IService<SysUser> {
      */
     boolean updatePassword(UpdatePasswordDto updatePasswordDto);
 
+    /**
+     * 修改头像
+     *
+     * @param file 头像文件
+     * @return 是否修改成功
+     */
+    boolean updateAvatar(MultipartFile file);
 }

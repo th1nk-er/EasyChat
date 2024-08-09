@@ -74,19 +74,27 @@ public class StringUtils {
 
             // 计算哈希值
             byte[] hashBytes = digest.digest(text.getBytes(StandardCharsets.UTF_8));
-
-            // 将字节数组转换为十六进制字符串
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : hashBytes) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) {
-                    hexString.append('0');
-                }
-                hexString.append(hex);
-            }
-            return hexString.toString();
+            return bytesToHex(hashBytes);
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * 将byte数组转换为十六进制字符串
+     *
+     * @param bytes byte数组
+     * @return 十六进制字符串
+     */
+    public static String bytesToHex(byte[] bytes) {
+        StringBuilder hexString = new StringBuilder(2 * bytes.length);
+        for (byte b : bytes) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 }

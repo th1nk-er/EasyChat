@@ -32,7 +32,15 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      * @param username 用户名
      * @param ip       ip
      */
-    void updateLoginIp(String username, String ip);
+    int updateLoginIp(String username, String ip);
+
+    /**
+     * 更新头像
+     *
+     * @param username 用户名
+     * @param avatar   头像地址
+     */
+    int updateAvatar(String username, String avatar);
 }
 
 

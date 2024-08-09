@@ -60,7 +60,7 @@ public class MinioServiceImpl implements MinioService {
             if (!found)
                 minioClient.makeBucket(MakeBucketArgs.builder().bucket(minioProperties.getBucketName()).build());
             byte[] fileData = Files.readAllBytes(Paths.get(resourceLoader.getResource(userProperties.getDefaultAvatarPath()).getURI()));
-            return upload(fileData, "avatar/default.jpg");
+            return upload(fileData, userProperties.getAvatarDir() + "/default.jpg");
         } catch (Exception e) {
             log.error("初始化Minio失败", e);
             return false;

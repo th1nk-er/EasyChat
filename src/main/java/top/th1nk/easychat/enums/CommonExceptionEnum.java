@@ -16,6 +16,9 @@ public enum CommonExceptionEnum {
     METHOD_NOT_ALLOWED(1010, "请求方法不允许"),
     EMAIL_VERIFY_CODE_SEND__FREQUENTLY(1011, "验证码发送太频繁"),
     USER_NOT_FOUND(1012, "用户不存在"),
+    FILE_TYPE_NOT_SUPPORTED(1013, "文件类型不支持"),
+    FILE_SIZE_EXCEEDED(1014, "文件大小超出限制"),
+    FILE_UPLOAD_FAILED(1015, "文件上传失败"),
     ;
     private final String message;
     private final int code;

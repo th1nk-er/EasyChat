@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import top.th1nk.easychat.config.easychat.UserProperties;
 import top.th1nk.easychat.service.MinioService;
 
 @Slf4j
@@ -21,11 +22,13 @@ import top.th1nk.easychat.service.MinioService;
 public class FileController {
     @Resource
     private MinioService minioService;
+    @Resource
+    private UserProperties userProperties;
 
     @Operation(summary = "获取头像", description = "以文件形式返回用户头像")
     @GetMapping("/avatar/{imgName}")
     public ResponseEntity<byte[]> getAvatar(@PathVariable String imgName) {
-        GetObjectResponse objectResponse = minioService.getObject("avatar/" + imgName);
+        GetObjectResponse objectResponse = minioService.getObject(userProperties.getAvatarDir() + "/" + imgName);
         if (objectResponse == null) return ResponseEntity.notFound().build();
         String contentType = objectResponse.headers().get("Content-Type");
         if (contentType == null) contentType = "image/jpeg";

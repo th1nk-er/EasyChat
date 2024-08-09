@@ -13,6 +13,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import top.th1nk.easychat.config.easychat.UserProperties;
 import top.th1nk.easychat.config.security.EmailAuthenticationToken;
 import top.th1nk.easychat.domain.SysUser;
 import top.th1nk.easychat.domain.SysUserToken;
@@ -31,12 +33,15 @@ import top.th1nk.easychat.exception.LoginException;
 import top.th1nk.easychat.exception.RegisterException;
 import top.th1nk.easychat.mapper.SysUserMapper;
 import top.th1nk.easychat.service.EmailService;
+import top.th1nk.easychat.service.MinioService;
 import top.th1nk.easychat.service.SysUserService;
 import top.th1nk.easychat.service.SysUserTokenService;
+import top.th1nk.easychat.utils.FileUtils;
 import top.th1nk.easychat.utils.JwtUtils;
 import top.th1nk.easychat.utils.RequestUtils;
 import top.th1nk.easychat.utils.UserUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,6 +62,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     private JwtUtils jwtUtils;
     @Resource
     private SysUserTokenService sysUserTokenService;
+    @Resource
+    private UserProperties userProperties;
+    @Resource
+    private MinioService minioService;
 
     @Override
     public UserVo getByUsername(String username) {
@@ -191,5 +200,43 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             userTokenList.forEach(token -> sysUserTokenService.expireToken(token.getToken()));
         }
         return false;
+    }
+
+    @Override
+    public boolean updateAvatar(MultipartFile file) {
+        if (file == null) return false;
+        if (!FileUtils.isImage(file.getOriginalFilename()))
+            throw new CommonException(CommonExceptionEnum.FILE_TYPE_NOT_SUPPORTED); // 文件类型不支持
+        if ((file.getSize() / 1024) > userProperties.getAvatarMaxSize())
+            throw new CommonException(CommonExceptionEnum.FILE_SIZE_EXCEEDED); // 头像文件过大
+        UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
+        if (userVo == null || userVo.getId() == null) return false;
+        log.info("用户修改头像，用户ID：{}", userVo.getId());
+        String fileType = FileUtils.getFileType(file.getOriginalFilename());
+        try {
+            byte[] bytes = file.getInputStream().readAllBytes();
+            String checkSum = FileUtils.getCheckSum(bytes);
+            if (checkSum.isEmpty())
+                throw new CommonException(CommonExceptionEnum.FILE_UPLOAD_FAILED);
+            String avatarPath = userProperties.getAvatarDir() + "/" + checkSum + "." + fileType;
+            if (minioService.getObject(avatarPath) != null) {
+                // 文件存在,更新数据库
+                baseMapper.updateAvatar(userVo.getUsername(), avatarPath);
+                //TODO 更新redis中userVo缓存
+                return true;
+            } else {
+                // 文件不存在,上传文件
+                if (minioService.upload(bytes, avatarPath)) {
+                    // 上传成功
+                    baseMapper.updateAvatar(userVo.getUsername(), avatarPath);
+                    //TODO 更新redis中userVo缓存
+                    return true;
+                } else
+                    return false;
+            }
+        } catch (IOException e) {
+            log.error("文件上传异常", e);
+            return false;
+        }
     }
 }

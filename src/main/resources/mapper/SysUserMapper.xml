@@ -34,6 +34,12 @@
         WHERE username = #{username}
           and deleted = 0
     </update>
+    <update id="updateAvatar">
+        UPDATE ec_user
+        SET avatar = #{avatar}
+        WHERE username = #{username}
+          and deleted = 0
+    </update>
     <select id="getByUsername" resultType="top.th1nk.easychat.domain.SysUser">
         SELECT *
         FROM ec_user

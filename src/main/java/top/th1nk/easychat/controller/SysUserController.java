@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import top.th1nk.easychat.domain.Response;
 import top.th1nk.easychat.domain.dto.*;
 import top.th1nk.easychat.domain.vo.SearchUserVo;
@@ -94,5 +95,14 @@ public class SysUserController {
             return Response.ok();
         }
         return Response.error("密码修改失败");
+    }
+
+    @Operation(summary = "修改头像", description = "修改头像")
+    @PutMapping("/avatar")
+    public Response<?> updateAvatar(@RequestParam("file") MultipartFile file) {
+        if (sysUserService.updateAvatar(file))
+            return Response.ok();
+        else
+            throw new CommonException(CommonExceptionEnum.FILE_UPLOAD_FAILED);
     }
 }
