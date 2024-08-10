@@ -98,7 +98,7 @@ public class SysUserController {
     }
 
     @Operation(summary = "修改头像", description = "修改头像")
-    @PutMapping("/avatar")
+    @PostMapping("/avatar")
     public Response<?> updateAvatar(@RequestParam("file") MultipartFile file) {
         if (sysUserService.updateAvatar(file))
             return Response.ok();
