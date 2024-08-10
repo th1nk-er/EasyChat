@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
-import top.th1nk.easychat.config.easychat.EasyChatConfiguration;
+import top.th1nk.easychat.config.easychat.JwtProperties;
 import top.th1nk.easychat.domain.SysUserToken;
 import top.th1nk.easychat.mapper.SysUserTokenMapper;
 import top.th1nk.easychat.service.SysUserTokenService;
@@ -24,7 +24,7 @@ public class SysUserTokenServiceImpl extends ServiceImpl<SysUserTokenMapper, Sys
         implements SysUserTokenService {
 
     @Resource
-    private EasyChatConfiguration easyChatConfiguration;
+    private JwtProperties jwtProperties;
     @Resource
     private JwtUtils jwtUtils;
 
@@ -37,7 +37,7 @@ public class SysUserTokenServiceImpl extends ServiceImpl<SysUserTokenMapper, Sys
 
     @Override
     public void saveUserToken(SysUserToken sysUserToken) {
-        int max = easyChatConfiguration.getJwt().getMaxToken();
+        int max = jwtProperties.getMaxToken();
         List<SysUserToken> userTokenList = baseMapper.getByUserId(sysUserToken.getUserId());
         if (userTokenList.isEmpty() || userTokenList.size() < max)
             baseMapper.insert(sysUserToken);

@@ -13,7 +13,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
-import top.th1nk.easychat.config.easychat.EasyChatConfiguration;
 import top.th1nk.easychat.config.easychat.MailProperties;
 import top.th1nk.easychat.enums.CommonExceptionEnum;
 import top.th1nk.easychat.exception.CommonException;
@@ -32,7 +31,7 @@ import java.time.Duration;
 public class EmailServiceImpl implements EmailService {
     private static final String CODE_PREFIX = "email:code:";
     @Resource
-    private EasyChatConfiguration easyChatConfiguration;
+    private MailProperties mailProperties;
     @Resource
     private JavaMailSender javaMailSender;
     @Resource
@@ -45,48 +44,30 @@ public class EmailServiceImpl implements EmailService {
     @Value("${spring.application.name}")
     private String applicationName;
 
-    private String senderName;
-    private String templatePath;
-    private String APPLICATION_NAME_PLACEHOLDER;
-    private String VERIFY_CODE_PLACEHOLDER;
-    private String EXPIRE_TIME_PLACEHOLDER;
-    private int expireTime;
-
-    private void readConfig() {
-        MailProperties mail = easyChatConfiguration.getMail();
-        senderName = mail.getSender().getName();
-        templatePath = mail.getVerifyCode().getTemplate().getPath();
-        APPLICATION_NAME_PLACEHOLDER = mail.getVerifyCode().getTemplate().getApplicationNamePlaceholder();
-        VERIFY_CODE_PLACEHOLDER = mail.getVerifyCode().getTemplate().getCodePlaceholder();
-        EXPIRE_TIME_PLACEHOLDER = mail.getVerifyCode().getTemplate().getExpirePlaceholder();
-        expireTime = mail.getVerifyCode().getExpire();
-    }
 
     @Override
     public boolean isEmailSendFrequently(String email) {
-        readConfig();
         if (!UserUtils.isValidEmail(email)) throw new CommonException(CommonExceptionEnum.EMAIL_INVALID);
         Long expire = stringRedisTemplate.getExpire(CODE_PREFIX + email);
         if (expire == null || expire <= 0) return false;
         // 1分钟之内只能发送一次
-        return expireTime * 60L - expire < 60L;
+        return mailProperties.getVerifyCode().getExpire() * 60L - expire < 60L;
     }
 
     @Async
     @Override
     public void sendVerifyCodeEmail(String sendTo, String verifyCode) throws CommonException {
-        readConfig();
         try {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-            helper.setFrom(senderEmail, senderName);
+            helper.setFrom(senderEmail, mailProperties.getSender().getName());
             helper.setTo(sendTo);
             helper.setSubject(applicationName + "验证码:" + verifyCode);
-            byte[] fileData = Files.readAllBytes(Paths.get(resourceLoader.getResource(templatePath).getURI()));
+            byte[] fileData = Files.readAllBytes(Paths.get(resourceLoader.getResource(mailProperties.getVerifyCode().getTemplate().getPath()).getURI()));
             String content = new String(fileData, StandardCharsets.UTF_8);
-            content = content.replace(APPLICATION_NAME_PLACEHOLDER, applicationName);
-            content = content.replace(VERIFY_CODE_PLACEHOLDER, verifyCode);
-            content = content.replace(EXPIRE_TIME_PLACEHOLDER, String.valueOf(expireTime));
+            content = content.replace(mailProperties.getVerifyCode().getTemplate().getApplicationNamePlaceholder(), applicationName);
+            content = content.replace(mailProperties.getVerifyCode().getTemplate().getCodePlaceholder(), verifyCode);
+            content = content.replace(mailProperties.getVerifyCode().getTemplate().getExpirePlaceholder(), String.valueOf(mailProperties.getVerifyCode().getExpire()));
             helper.setText(content, true);
             log.info("发送验证码邮件:{},{}", sendTo, verifyCode);
             javaMailSender.send(mimeMessage);
@@ -104,9 +85,8 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void saveVerifyCode(String email, String verifyCode) {
-        readConfig();
         log.info("存储验证码:{},{}", email, verifyCode);
-        stringRedisTemplate.opsForValue().set(CODE_PREFIX + email, verifyCode, Duration.ofMinutes(expireTime));
+        stringRedisTemplate.opsForValue().set(CODE_PREFIX + email, verifyCode, Duration.ofMinutes(mailProperties.getVerifyCode().getExpire()));
     }
 
     @Override

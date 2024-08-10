@@ -15,7 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import top.th1nk.easychat.config.easychat.EasyChatConfiguration;
+import top.th1nk.easychat.config.easychat.SecurityProperties;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ public class SecurityConfig {
     private EmailAuthenticationProvider emailAuthenticationProvider;
 
     @Resource
-    private EasyChatConfiguration easyChatConfiguration;
+    private SecurityProperties securityProperties;
 
     @Bean
     public AuthenticationManager authenticationManager(PasswordEncoder passwordEncoder) {
@@ -49,8 +49,8 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        List<String> permitAllUrls = easyChatConfiguration.getSecurity().getPermitAllUrls();
-        List<String> authorizeUrls = easyChatConfiguration.getSecurity().getAuthorizeUrls();
+        List<String> permitAllUrls = securityProperties.getPermitAllUrls();
+        List<String> authorizeUrls = securityProperties.getAuthorizeUrls();
         String[] perms;
         String[] auths;
         if (permitAllUrls != null)

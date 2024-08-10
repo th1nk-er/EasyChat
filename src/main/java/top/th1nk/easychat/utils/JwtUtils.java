@@ -1,15 +1,18 @@
 package top.th1nk.easychat.utils;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
 import jakarta.annotation.Nullable;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import top.th1nk.easychat.config.easychat.JwtProperties;
 import top.th1nk.easychat.domain.SysUserToken;
 import top.th1nk.easychat.domain.vo.UserVo;
 
@@ -27,10 +30,8 @@ import java.util.Date;
 @Component
 public class JwtUtils {
     private static final String TOKEN_PREFIX = "user:token:";
-    @Value("${easy-chat.jwt.secret}")
-    private String secret;
-    @Value("${easy-chat.jwt.expireSeconds:3600}")
-    private long expireSeconds;
+    @Resource
+    private JwtProperties jwtProperties;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
 
@@ -45,7 +46,7 @@ public class JwtUtils {
         LocalDateTime now = LocalDateTime.now();
         userToken.setUserId(userVo.getId());
         userToken.setIssueTime(now);
-        userToken.setExpireTime(now.plusSeconds(expireSeconds));
+        userToken.setExpireTime(now.plusSeconds(jwtProperties.getExpireSeconds()));
         userToken.setLoginIp(RequestUtils.getClientIp());
         userToken.setUserAgent(RequestUtils.getUserAgent());
         userToken.setToken(Jwts.builder()
@@ -71,11 +72,10 @@ public class JwtUtils {
             return null;
         UserVo userVo;
         try {
-            Claims claims = (Claims) Jwts.parser()
+            Jwts.parser()
                     .verifyWith((SecretKey) this.getKey())
                     .build()
-                    .parse(tokenString)
-                    .getPayload();
+                    .parse(tokenString);
             userVo = (UserVo) redisTemplate.opsForValue().get(TOKEN_PREFIX + tokenString);
         } catch (SecurityException e) {
             // 签名错误
@@ -104,11 +104,11 @@ public class JwtUtils {
     }
 
     private Key getKey() {
-        return Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(secret));
+        return Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(jwtProperties.getSecret()));
     }
 
     private void saveToken(SysUserToken userToken, UserVo userVo) {
-        redisTemplate.opsForValue().set(TOKEN_PREFIX + userToken.getToken(), userVo, Duration.ofSeconds(expireSeconds));
+        redisTemplate.opsForValue().set(TOKEN_PREFIX + userToken.getToken(), userVo, Duration.ofSeconds(jwtProperties.getExpireSeconds()));
     }
 
 }
