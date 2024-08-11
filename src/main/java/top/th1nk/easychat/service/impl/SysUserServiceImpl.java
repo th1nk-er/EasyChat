@@ -222,14 +222,18 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             if (minioService.getObject(avatarPath) != null) {
                 // 文件存在,更新数据库
                 baseMapper.updateAvatar(userVo.getUsername(), avatarPath);
-                //TODO 更新redis中userVo缓存
+                //更新redis中userVo缓存
+                userVo.setAvatar(avatarPath);
+                jwtUtils.generateToken(userVo);
                 return true;
             } else {
                 // 文件不存在,上传文件
                 if (minioService.upload(bytes, avatarPath)) {
                     // 上传成功
                     baseMapper.updateAvatar(userVo.getUsername(), avatarPath);
-                    //TODO 更新redis中userVo缓存
+                    // 更新redis中userVo缓存
+                    userVo.setAvatar(avatarPath);
+                    jwtUtils.generateToken(userVo);
                     return true;
                 } else
                     return false;

@@ -108,7 +108,12 @@ public class JwtUtils {
     }
 
     private void saveToken(SysUserToken userToken, UserVo userVo) {
-        redisTemplate.opsForValue().set(TOKEN_PREFIX + userToken.getToken(), userVo, Duration.ofSeconds(jwtProperties.getExpireSeconds()));
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(TOKEN_PREFIX + userToken.getToken()))) {
+            // 当原key存在时，仅更新userVo，不刷新ttl
+            Long expire = redisTemplate.getExpire(TOKEN_PREFIX + userToken.getToken());
+            if (expire != null)
+                redisTemplate.opsForValue().set(TOKEN_PREFIX + userToken.getToken(), userVo, expire);
+        } else
+            redisTemplate.opsForValue().set(TOKEN_PREFIX + userToken.getToken(), userVo, Duration.ofSeconds(jwtProperties.getExpireSeconds()));
     }
-
 }
