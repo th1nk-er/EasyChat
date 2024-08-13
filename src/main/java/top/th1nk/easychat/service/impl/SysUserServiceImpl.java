@@ -218,26 +218,34 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             String checkSum = FileUtils.getCheckSum(bytes);
             if (checkSum.isEmpty())
                 throw new CommonException(CommonExceptionEnum.FILE_UPLOAD_FAILED);
-            String avatarPath = userProperties.getAvatarDir() + "/" + checkSum + "." + fileType;
+            String avatarPath = "/" + userProperties.getAvatarDir() + "/" + checkSum + "." + fileType;
             if (minioService.getObject(avatarPath) != null) {
                 // 文件存在,更新数据库
                 baseMapper.updateAvatar(userVo.getUsername(), avatarPath);
-                //更新redis中userVo缓存
-                userVo.setAvatar(avatarPath);
-                jwtUtils.generateToken(userVo);
-                return true;
             } else {
                 // 文件不存在,上传文件
                 if (minioService.upload(bytes, avatarPath)) {
                     // 上传成功
                     baseMapper.updateAvatar(userVo.getUsername(), avatarPath);
-                    // 更新redis中userVo缓存
-                    userVo.setAvatar(avatarPath);
-                    jwtUtils.generateToken(userVo);
-                    return true;
                 } else
                     return false;
             }
+            // 删除历史头像
+            if (baseMapper.getSameAvatarCount(userVo.getAvatar()) == 0) {
+                // 该头像没有其他用户正在使用，可以删除
+                if (minioService.deleteObject(userVo.getAvatar())) {
+                    log.info("删除用户历史头像成功，文件路径：{}", userVo.getAvatar());
+                } else {
+                    log.error("删除用户历史头像失败，文件路径：{}", userVo.getAvatar());
+                }
+            }
+            //更新redis中userVo缓存
+            userVo.setAvatar(avatarPath);
+            List<SysUserToken> userTokenList = sysUserTokenService.getUserTokenList(userVo.getId());
+            for (SysUserToken userToken : userTokenList) {
+                jwtUtils.updateUserVo(userToken.getToken(), userVo);
+            }
+            return true;
         } catch (IOException e) {
             log.error("文件上传异常", e);
             return false;

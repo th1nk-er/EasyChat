@@ -41,6 +41,14 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      * @param avatar   头像地址
      */
     int updateAvatar(String username, String avatar);
+
+    /**
+     * 获取相同头像的用户数量
+     *
+     * @param avatar 头像
+     * @return 用户数量
+     */
+    int getSameAvatarCount(String avatar);
 }
 
 

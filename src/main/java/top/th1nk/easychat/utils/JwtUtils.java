@@ -107,13 +107,23 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(jwtProperties.getSecret()));
     }
 
-    private void saveToken(SysUserToken userToken, UserVo userVo) {
-        if (Boolean.TRUE.equals(redisTemplate.hasKey(TOKEN_PREFIX + userToken.getToken()))) {
-            // 当原key存在时，仅更新userVo，不刷新ttl
-            Long expire = redisTemplate.getExpire(TOKEN_PREFIX + userToken.getToken());
+    /**
+     * 刷新token对应的userVo
+     *
+     * @param tokenString token字符串
+     * @param userVo      userVo
+     */
+    public void updateUserVo(String tokenString, UserVo userVo) {
+        if (tokenString == null || tokenString.isEmpty() || userVo == null) return;
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(TOKEN_PREFIX + tokenString))) {
+            // 当原key存在时，更新userVo
+            Long expire = redisTemplate.getExpire(TOKEN_PREFIX + tokenString);
             if (expire != null)
-                redisTemplate.opsForValue().set(TOKEN_PREFIX + userToken.getToken(), userVo, expire);
-        } else
-            redisTemplate.opsForValue().set(TOKEN_PREFIX + userToken.getToken(), userVo, Duration.ofSeconds(jwtProperties.getExpireSeconds()));
+                redisTemplate.opsForValue().set(TOKEN_PREFIX + tokenString, userVo, Duration.ofSeconds(expire));
+        }
+    }
+
+    private void saveToken(SysUserToken userToken, UserVo userVo) {
+        redisTemplate.opsForValue().set(TOKEN_PREFIX + userToken.getToken(), userVo, Duration.ofSeconds(jwtProperties.getExpireSeconds()));
     }
 }

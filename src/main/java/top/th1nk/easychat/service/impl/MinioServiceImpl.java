@@ -67,6 +67,18 @@ public class MinioServiceImpl implements MinioService {
         }
     }
 
+    @Override
+    public boolean deleteObject(String filePath) {
+        try (MinioClient minioClient = getMinioClient()) {
+            minioClient.removeObject(RemoveObjectArgs.builder()
+                    .bucket(minioProperties.getBucketName())
+                    .object(filePath).build());
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private MinioClient getMinioClient() {
         return MinioClient.builder()
                 .endpoint(minioProperties.getEndpoint())

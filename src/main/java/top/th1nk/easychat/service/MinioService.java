@@ -31,4 +31,11 @@ public interface MinioService {
      * @return 是否初始化成功
      */
     boolean initBucket();
+
+    /**
+     * 删除文件
+     * @param filePath 文件路径
+     * @return 是否删除成功
+     */
+    boolean deleteObject(String filePath);
 }
