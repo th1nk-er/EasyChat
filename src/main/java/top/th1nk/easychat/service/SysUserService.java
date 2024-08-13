@@ -93,7 +93,8 @@ public interface SysUserService extends IService<SysUser> {
      * 修改头像
      *
      * @param file 头像文件
-     * @return 是否修改成功
+     * @return 上传后的头像路径, null 表示上传失败
      */
-    boolean updateAvatar(MultipartFile file);
+    @Nullable
+    String updateAvatar(MultipartFile file);
 }

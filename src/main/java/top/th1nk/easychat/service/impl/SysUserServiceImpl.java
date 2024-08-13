@@ -203,14 +203,14 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    public boolean updateAvatar(MultipartFile file) {
-        if (file == null) return false;
+    public String updateAvatar(MultipartFile file) {
+        if (file == null) return null;
         if (!FileUtils.isImage(file.getOriginalFilename()))
             throw new CommonException(CommonExceptionEnum.FILE_TYPE_NOT_SUPPORTED); // 文件类型不支持
         if ((file.getSize() / 1024) > userProperties.getAvatarMaxSize())
             throw new CommonException(CommonExceptionEnum.FILE_SIZE_EXCEEDED); // 头像文件过大
         UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
-        if (userVo == null || userVo.getId() == null) return false;
+        if (userVo == null || userVo.getId() == null) return null;
         log.info("用户修改头像，用户ID：{}", userVo.getId());
         String fileType = FileUtils.getFileType(file.getOriginalFilename());
         try {
@@ -228,7 +228,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                     // 上传成功
                     baseMapper.updateAvatar(userVo.getUsername(), avatarPath);
                 } else
-                    return false;
+                    return null;
             }
             // 删除历史头像
             if (baseMapper.getSameAvatarCount(userVo.getAvatar()) == 0) {
@@ -245,10 +245,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             for (SysUserToken userToken : userTokenList) {
                 jwtUtils.updateUserVo(userToken.getToken(), userVo);
             }
-            return true;
+            return avatarPath;
         } catch (IOException e) {
             log.error("文件上传异常", e);
-            return false;
+            return null;
         }
     }
 }

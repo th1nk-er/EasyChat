@@ -100,8 +100,9 @@ public class SysUserController {
     @Operation(summary = "修改头像", description = "修改头像")
     @PostMapping("/avatar")
     public Response<?> updateAvatar(@RequestParam("file") MultipartFile file) {
-        if (sysUserService.updateAvatar(file))
-            return Response.ok();
+        String avatarPath = sysUserService.updateAvatar(file);
+        if (avatarPath != null)
+            return Response.ok(avatarPath);
         else
             throw new CommonException(CommonExceptionEnum.FILE_UPLOAD_FAILED);
     }
