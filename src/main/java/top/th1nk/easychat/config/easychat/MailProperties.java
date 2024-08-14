@@ -58,6 +58,11 @@ public class MailProperties {
              * 有效期占位符
              */
             private String expirePlaceholder = "{EXPIRE_TIME}";
+
+            /**
+             * 操作名称占位符
+             */
+            private String actionPlaceholder = "{ACTION}";
         }
     }
 }

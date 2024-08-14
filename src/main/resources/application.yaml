@@ -61,6 +61,7 @@ easy-chat:
         application-name-placeholder: { APPLICATION_NAME }
         code-placeholder: { VERIFY_CODE }
         expire-placeholder: { EXPIRE_TIME }
+        action-placeholder: { ACTION }
   web-socket:
     endpoint: /chat/ws
     app-des-prefix: /app

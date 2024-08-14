@@ -10,6 +10,7 @@ import top.th1nk.easychat.domain.dto.*;
 import top.th1nk.easychat.domain.vo.SearchUserVo;
 import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.enums.CommonExceptionEnum;
+import top.th1nk.easychat.enums.EmailActionEnum;
 import top.th1nk.easychat.enums.LoginExceptionEnum;
 import top.th1nk.easychat.enums.RegisterExceptionEnum;
 import top.th1nk.easychat.exception.CommonException;
@@ -49,30 +50,30 @@ public class SysUserController {
     }
 
     @Operation(summary = "发送登录验证码邮件", description = "发送登录验证码邮件")
-    @PostMapping("/verify-email")
+    @PostMapping("/email/login")
     public Response<?> sendLoginVerifyCodeEmail(@RequestBody VerifyEmailDto verifyEmailDto) {
         String code = StringUtils.getRandomString(6).toUpperCase();
         if (!sysUserService.isEmailExist(verifyEmailDto.getEmail()))
             throw new LoginException(LoginExceptionEnum.EMAIL_NOT_REGISTER);
-        if (emailService.isEmailSendFrequently(verifyEmailDto.getEmail())) {
+        if (emailService.isEmailSendFrequently(verifyEmailDto.getEmail(), EmailActionEnum.ACTION_LOGIN)) {
             throw new CommonException(CommonExceptionEnum.EMAIL_VERIFY_CODE_SEND__FREQUENTLY);
         }
-        emailService.sendVerifyCodeEmail(verifyEmailDto.getEmail(), code);
-        emailService.saveVerifyCode(verifyEmailDto.getEmail(), code);
+        emailService.sendVerifyCodeEmail(verifyEmailDto.getEmail(), code, EmailActionEnum.ACTION_LOGIN);
+        emailService.saveVerifyCode(verifyEmailDto.getEmail(), code, EmailActionEnum.ACTION_LOGIN);
         return Response.ok();
     }
 
     @Operation(summary = "发送注册验证码邮件", description = "发送注册验证码邮件")
-    @PostMapping("/register/verify-email")
+    @PostMapping("/email/register")
     public Response<?> sendRegisterVerifyCodeEmail(@RequestBody VerifyEmailDto verifyEmailDto) {
         String code = StringUtils.getRandomString(6).toUpperCase();
         if (sysUserService.isEmailExist(verifyEmailDto.getEmail()))
             throw new RegisterException(RegisterExceptionEnum.EMAIL_EXIST);
-        if (emailService.isEmailSendFrequently(verifyEmailDto.getEmail())) {
+        if (emailService.isEmailSendFrequently(verifyEmailDto.getEmail(), EmailActionEnum.ACTION_REGISTER)) {
             throw new CommonException(CommonExceptionEnum.EMAIL_VERIFY_CODE_SEND__FREQUENTLY);
         }
-        emailService.sendVerifyCodeEmail(verifyEmailDto.getEmail(), code);
-        emailService.saveVerifyCode(verifyEmailDto.getEmail(), code);
+        emailService.sendVerifyCodeEmail(verifyEmailDto.getEmail(), code, EmailActionEnum.ACTION_REGISTER);
+        emailService.saveVerifyCode(verifyEmailDto.getEmail(), code, EmailActionEnum.ACTION_REGISTER);
         return Response.ok();
     }
 
@@ -86,6 +87,23 @@ public class SysUserController {
     @GetMapping("/search")
     public Response<SearchUserVo> search(@RequestParam("keyword") String keyword, @RequestParam("page") int page) {
         return Response.ok(sysUserService.searchUser(keyword, page));
+    }
+
+    @Operation(summary = "发送修改密码验证码邮件", description = "发送修改密码验证码邮件")
+    @PostMapping("/email/change-password")
+    public Response<?> sendChangePasswordVerifyCodeEmail() {
+        String code = StringUtils.getRandomString(6).toUpperCase();
+        UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
+        if (userVo == null || userVo.getEmail() == null)
+            throw new CommonException(CommonExceptionEnum.USER_NOT_FOUND);
+        if (!sysUserService.isEmailExist(userVo.getEmail()))
+            throw new CommonException(CommonExceptionEnum.USER_NOT_FOUND);
+        if (emailService.isEmailSendFrequently(userVo.getEmail(), EmailActionEnum.ACTION_CHANGE_PASSWORD)) {
+            throw new CommonException(CommonExceptionEnum.EMAIL_VERIFY_CODE_SEND__FREQUENTLY);
+        }
+        emailService.sendVerifyCodeEmail(userVo.getEmail(), code, EmailActionEnum.ACTION_CHANGE_PASSWORD);
+        emailService.saveVerifyCode(userVo.getEmail(), code, EmailActionEnum.ACTION_CHANGE_PASSWORD);
+        return Response.ok();
     }
 
     @Operation(summary = "修改密码", description = "修改密码")
