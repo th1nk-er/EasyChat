@@ -46,6 +46,16 @@ public class EmailServiceImpl implements EmailService {
     private String applicationName;
 
 
+    private String generateEmailContent(String verifyCode, EmailActionEnum emailAction) throws IOException {
+        byte[] fileData = Files.readAllBytes(Paths.get(resourceLoader.getResource(mailProperties.getVerifyCode().getTemplate().getPath()).getURI()));
+        String content = new String(fileData, StandardCharsets.UTF_8);
+        content = content.replace(mailProperties.getVerifyCode().getTemplate().getApplicationNamePlaceholder(), applicationName);
+        content = content.replace(mailProperties.getVerifyCode().getTemplate().getCodePlaceholder(), verifyCode);
+        content = content.replace(mailProperties.getVerifyCode().getTemplate().getExpirePlaceholder(), String.valueOf(mailProperties.getVerifyCode().getExpire()));
+        content = content.replace(mailProperties.getVerifyCode().getTemplate().getActionPlaceholder(), emailAction.getDesc());
+        return content;
+    }
+
     @Override
     public boolean isEmailSendFrequently(String email, EmailActionEnum emailAction) {
         if (!UserUtils.isValidEmail(email)) throw new CommonException(CommonExceptionEnum.EMAIL_INVALID);
@@ -64,12 +74,7 @@ public class EmailServiceImpl implements EmailService {
             helper.setFrom(senderEmail, mailProperties.getSender().getName());
             helper.setTo(sendTo);
             helper.setSubject(applicationName + "验证码:" + verifyCode);
-            byte[] fileData = Files.readAllBytes(Paths.get(resourceLoader.getResource(mailProperties.getVerifyCode().getTemplate().getPath()).getURI()));
-            String content = new String(fileData, StandardCharsets.UTF_8);
-            content = content.replace(mailProperties.getVerifyCode().getTemplate().getApplicationNamePlaceholder(), applicationName);
-            content = content.replace(mailProperties.getVerifyCode().getTemplate().getCodePlaceholder(), verifyCode);
-            content = content.replace(mailProperties.getVerifyCode().getTemplate().getExpirePlaceholder(), String.valueOf(mailProperties.getVerifyCode().getExpire()));
-            content = content.replace(mailProperties.getVerifyCode().getTemplate().getActionPlaceholder(), emailAction.getDesc());
+            String content = generateEmailContent(verifyCode, emailAction);
             helper.setText(content, true);
             log.info("发送验证码邮件:{},{}", sendTo, verifyCode);
             javaMailSender.send(mimeMessage);
@@ -98,7 +103,7 @@ public class EmailServiceImpl implements EmailService {
         if (code == null) throw new CommonException(CommonExceptionEnum.EMAIL_VERIFY_CODE_EXPIRE);
         if (code.equals(verifyCode)) {
             // 验证成功，删除验证码
-            stringRedisTemplate.delete(CODE_PREFIX + email);
+            stringRedisTemplate.delete(CODE_PREFIX + emailAction.getCode() + ":" + email);
             return true;
         }
         return false;
