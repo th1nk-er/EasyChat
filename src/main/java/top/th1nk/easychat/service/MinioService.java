@@ -34,6 +34,7 @@ public interface MinioService {
 
     /**
      * 删除文件
+     *
      * @param filePath 文件路径
      * @return 是否删除成功
      */

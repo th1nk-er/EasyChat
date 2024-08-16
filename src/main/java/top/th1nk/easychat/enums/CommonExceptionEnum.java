@@ -20,6 +20,7 @@ public enum CommonExceptionEnum {
     FILE_SIZE_EXCEEDED(1014, "文件大小超出限制"),
     FILE_UPLOAD_FAILED(1015, "文件上传失败"),
     VERIFY_CODE_ERROR(1016, "验证码错误"),
+    NICKNAME_INVALID(1017, "昵称不合法"),
     ;
     private final String message;
     private final int code;

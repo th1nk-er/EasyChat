@@ -18,10 +18,7 @@ import top.th1nk.easychat.config.easychat.UserProperties;
 import top.th1nk.easychat.config.security.EmailAuthenticationToken;
 import top.th1nk.easychat.domain.SysUser;
 import top.th1nk.easychat.domain.SysUserToken;
-import top.th1nk.easychat.domain.dto.LoginDto;
-import top.th1nk.easychat.domain.dto.RegisterDto;
-import top.th1nk.easychat.domain.dto.UpdatePasswordDto;
-import top.th1nk.easychat.domain.dto.UserTokenDto;
+import top.th1nk.easychat.domain.dto.*;
 import top.th1nk.easychat.domain.vo.SearchUserVo;
 import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.enums.*;
@@ -250,5 +247,32 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             log.error("文件上传异常", e);
             return null;
         }
+    }
+
+    @Override
+    public boolean updateUserInfo(UpdateUserInfoDto updateUserInfoDto) {
+        if (updateUserInfoDto == null) return false;
+        if (updateUserInfoDto.getNickname() == null || updateUserInfoDto.getNickname().isEmpty()) return false;
+        if (!UserUtils.isValidUsername(updateUserInfoDto.getNickname()))
+            throw new CommonException(CommonExceptionEnum.NICKNAME_INVALID);
+        if (updateUserInfoDto.getSex() == null) return false;
+        UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
+        if (userVo == null || userVo.getId() == null) return false;
+        SysUser sysUser = baseMapper.selectById(userVo.getId());
+        if (sysUser == null) return false;
+        if (sysUser.getNickname().equals(updateUserInfoDto.getNickname()) && sysUser.getSex() == updateUserInfoDto.getSex())
+            return true;
+        // 更新数据
+        sysUser.setNickname(updateUserInfoDto.getNickname());
+        sysUser.setSex(updateUserInfoDto.getSex());
+        if (baseMapper.updateById(sysUser) == 0) return false;
+        // 更新redis中的userVo
+        userVo.setNickname(updateUserInfoDto.getNickname());
+        userVo.setSex(updateUserInfoDto.getSex());
+        List<SysUserToken> userTokenList = sysUserTokenService.getUserTokenList(userVo.getId());
+        for (SysUserToken userToken : userTokenList) {
+            jwtUtils.updateUserVo(userToken.getToken(), userVo);
+        }
+        return true;
     }
 }

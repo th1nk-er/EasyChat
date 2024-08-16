@@ -124,4 +124,13 @@ public class SysUserController {
         else
             throw new CommonException(CommonExceptionEnum.FILE_UPLOAD_FAILED);
     }
+
+    @Operation(summary = "修改用户信息", description = "修改用户信息")
+    @PutMapping("/info")
+    public Response<?> updateUserInfo(@RequestBody UpdateUserInfoDto updateUserInfoDto) {
+        if (sysUserService.updateUserInfo(updateUserInfoDto)) {
+            return Response.ok();
+        }
+        return Response.error("用户信息修改失败");
+    }
 }

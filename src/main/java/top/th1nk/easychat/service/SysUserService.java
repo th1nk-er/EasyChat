@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import jakarta.annotation.Nullable;
 import org.springframework.web.multipart.MultipartFile;
 import top.th1nk.easychat.domain.SysUser;
-import top.th1nk.easychat.domain.dto.LoginDto;
-import top.th1nk.easychat.domain.dto.RegisterDto;
-import top.th1nk.easychat.domain.dto.UpdatePasswordDto;
-import top.th1nk.easychat.domain.dto.UserTokenDto;
+import top.th1nk.easychat.domain.dto.*;
 import top.th1nk.easychat.domain.vo.SearchUserVo;
 import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.exception.LoginException;
@@ -97,4 +94,12 @@ public interface SysUserService extends IService<SysUser> {
      */
     @Nullable
     String updateAvatar(MultipartFile file);
+
+    /**
+     * 修改用户信息
+     *
+     * @param updateUserInfoDto 用户信息
+     * @return 修改结果
+     */
+    boolean updateUserInfo(UpdateUserInfoDto updateUserInfoDto);
 }

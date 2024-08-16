@@ -55,6 +55,16 @@ public class UserUtils {
     }
 
     /**
+     * 验证昵称是否合法
+     *
+     * @param nickname 用户昵称
+     * @return 合法-true 不合法-false
+     */
+    public static boolean isValidNickname(String nickname) {
+        return nickname != null && nickname.length() >= 3 && nickname.length() <= 20;
+    }
+
+    /**
      * 加密密码
      *
      * @param password 密码
