@@ -253,7 +253,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public boolean updateUserInfo(UpdateUserInfoDto updateUserInfoDto) {
         if (updateUserInfoDto == null) return false;
         if (updateUserInfoDto.getNickname() == null || updateUserInfoDto.getNickname().isEmpty()) return false;
-        if (!UserUtils.isValidUsername(updateUserInfoDto.getNickname()))
+        if (!UserUtils.isValidNickname(updateUserInfoDto.getNickname()))
             throw new CommonException(CommonExceptionEnum.NICKNAME_INVALID);
         if (updateUserInfoDto.getSex() == null) return false;
         UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
