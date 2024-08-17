@@ -21,13 +21,22 @@ public interface SysUserFriendMapper extends BaseMapper<SysUserFriend> {
     boolean isFriend(Integer userId, Integer friendId);
 
     /**
-     * 获取好友信息
+     * 获取好友信息Vo
      *
      * @param userId   用户ID
      * @param friendId 好友ID
      * @return 好友信息Vo
      */
-    UserFriendVo selectUserFriend(Integer userId, Integer friendId);
+    UserFriendVo selectUserFriendVo(Integer userId, Integer friendId);
+
+    /**
+     * 根据用户ID和好友ID查询好友信息
+     *
+     * @param userId   用户ID
+     * @param friendId 好友ID
+     * @return 好友信息
+     */
+    SysUserFriend selectByUserIdAndFriendId(Integer userId, Integer friendId);
 }
 
 

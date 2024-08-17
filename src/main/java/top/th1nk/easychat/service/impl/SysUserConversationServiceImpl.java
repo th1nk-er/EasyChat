@@ -50,7 +50,7 @@ public class SysUserConversationServiceImpl extends ServiceImpl<SysUserConversat
             SysUser sysUser = sysUserMapper.selectById(sysUserConversation.getFriendId());
             vo.setAvatar(sysUser.getAvatar());
             vo.setNickname(sysUser.getNickname());
-            UserFriendVo userFriendVo = sysUserFriendMapper.selectUserFriend(sysUserConversation.getUid(), sysUserConversation.getFriendId());
+            UserFriendVo userFriendVo = sysUserFriendMapper.selectUserFriendVo(sysUserConversation.getUid(), sysUserConversation.getFriendId());
             if (userFriendVo != null) {
                 vo.setRemark(userFriendVo.getRemark());
                 vo.setMuted(userFriendVo.isMuted());

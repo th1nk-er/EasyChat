@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import top.th1nk.easychat.domain.Response;
 import top.th1nk.easychat.domain.dto.AddFriendDto;
 import top.th1nk.easychat.domain.dto.FriendRequestHandleDto;
+import top.th1nk.easychat.domain.dto.UserFriendUpdateDto;
 import top.th1nk.easychat.domain.vo.FriendListVo;
 import top.th1nk.easychat.domain.vo.FriendRequestListVo;
 import top.th1nk.easychat.domain.vo.UserFriendVo;
@@ -57,5 +58,13 @@ public class SysUserFriendController {
     @GetMapping("/info/{friendId}")
     public Response<UserFriendVo> getFriendInfo(@PathVariable int friendId) {
         return Response.ok(sysUserFriendService.getFriendInfo(friendId));
+    }
+
+    @Operation(summary = "更新好友信息", description = "更新好友信息")
+    @PutMapping("/info")
+    public Response<?> updateFriendInfo(@RequestBody UserFriendUpdateDto userFriendUpdateDto) {
+        if (sysUserFriendService.updateFriendInfo(userFriendUpdateDto))
+            return Response.ok();
+        throw new UserFriendException(UserFriendExceptionEnum.UPDATE_FRIEND_FAILED);
     }
 }

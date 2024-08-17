@@ -12,6 +12,7 @@ import top.th1nk.easychat.domain.SysUserAddFriend;
 import top.th1nk.easychat.domain.SysUserFriend;
 import top.th1nk.easychat.domain.dto.AddFriendDto;
 import top.th1nk.easychat.domain.dto.FriendRequestHandleDto;
+import top.th1nk.easychat.domain.dto.UserFriendUpdateDto;
 import top.th1nk.easychat.domain.vo.FriendListVo;
 import top.th1nk.easychat.domain.vo.UserFriendVo;
 import top.th1nk.easychat.domain.vo.UserVo;
@@ -28,6 +29,7 @@ import top.th1nk.easychat.service.SysUserAddFriendService;
 import top.th1nk.easychat.service.SysUserFriendService;
 import top.th1nk.easychat.utils.JwtUtils;
 import top.th1nk.easychat.utils.RequestUtils;
+import top.th1nk.easychat.utils.UserUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -167,7 +169,7 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
         Page<SysUserFriend> ipage = baseMapper.selectPage(new Page<>(page, friendListVo.getPageSize()), qw);
         friendListVo.setTotal(ipage.getTotal());
         List<UserFriendVo> records = new ArrayList<>();
-        ipage.getRecords().forEach(userFriend -> records.add(baseMapper.selectUserFriend(userVo.getId(), userFriend.getFriendId())));
+        ipage.getRecords().forEach(userFriend -> records.add(baseMapper.selectUserFriendVo(userVo.getId(), userFriend.getFriendId())));
         friendListVo.setRecords(records);
         return friendListVo;
     }
@@ -177,7 +179,22 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
         UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
         if (userVo == null || userVo.getId() == null)
             return null;
-        return baseMapper.selectUserFriend(userVo.getId(), friendId);
+        return baseMapper.selectUserFriendVo(userVo.getId(), friendId);
+    }
+
+    @Override
+    public boolean updateFriendInfo(UserFriendUpdateDto userFriendUpdateDto) {
+        UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
+        if (userVo == null || userVo.getId() == null) return false;
+        if (!baseMapper.isFriend(userVo.getId(), userFriendUpdateDto.getFriendId()))
+            throw new UserFriendException(UserFriendExceptionEnum.NOT_FRIEND);
+        SysUserFriend sysUserFriend = baseMapper.selectByUserIdAndFriendId(userVo.getId(), userFriendUpdateDto.getFriendId());
+        if (userFriendUpdateDto.getRemark() != null)
+            if (UserUtils.isValidNickname(userFriendUpdateDto.getRemark()))
+                sysUserFriend.setRemark(userFriendUpdateDto.getRemark());
+            else throw new UserFriendException(UserFriendExceptionEnum.INVALID_REMARK);
+        sysUserFriend.setMuted(userFriendUpdateDto.isMuted());
+        return baseMapper.updateById(sysUserFriend) == 1;
     }
 }
 

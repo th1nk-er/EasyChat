@@ -5,6 +5,7 @@ import jakarta.annotation.Nullable;
 import top.th1nk.easychat.domain.SysUserFriend;
 import top.th1nk.easychat.domain.dto.AddFriendDto;
 import top.th1nk.easychat.domain.dto.FriendRequestHandleDto;
+import top.th1nk.easychat.domain.dto.UserFriendUpdateDto;
 import top.th1nk.easychat.domain.vo.FriendListVo;
 import top.th1nk.easychat.domain.vo.UserFriendVo;
 
@@ -47,4 +48,12 @@ public interface SysUserFriendService extends IService<SysUserFriend> {
      */
     @Nullable
     UserFriendVo getFriendInfo(int friendId);
+
+    /**
+     * 更新好友信息
+     *
+     * @param userFriendUpdateDto 更新信息
+     * @return 是否更新成功
+     */
+    boolean updateFriendInfo(UserFriendUpdateDto userFriendUpdateDto);
 }
