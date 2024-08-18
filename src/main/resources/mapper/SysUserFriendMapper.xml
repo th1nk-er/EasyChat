@@ -19,11 +19,14 @@
         remark,create_time,deleted
     </sql>
     <select id="isFriend" resultType="java.lang.Boolean">
-        select count(*) > 0
+        select count(*) = 2
         from ec_user_friend
-        where uid = #{userId}
-          and friend_id = #{friendId}
-          and deleted = 0
+        where (uid = #{userId}
+            and friend_id = #{friendId}
+            and deleted = 0)
+           or (uid = #{friendId}
+            and friend_id = #{userId}
+            and deleted = 0)
     </select>
     <select id="selectUserFriendVo" resultType="top.th1nk.easychat.domain.vo.UserFriendVo">
         select u.id as friendId,
