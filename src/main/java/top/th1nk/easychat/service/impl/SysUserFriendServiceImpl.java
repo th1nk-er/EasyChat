@@ -23,8 +23,10 @@ import top.th1nk.easychat.enums.UserFriendExceptionEnum;
 import top.th1nk.easychat.exception.CommonException;
 import top.th1nk.easychat.exception.UserFriendException;
 import top.th1nk.easychat.mapper.SysUserAddFriendMapper;
+import top.th1nk.easychat.mapper.SysUserConversationMapper;
 import top.th1nk.easychat.mapper.SysUserFriendMapper;
 import top.th1nk.easychat.mapper.SysUserMapper;
+import top.th1nk.easychat.service.ConversationRedisService;
 import top.th1nk.easychat.service.SysUserAddFriendService;
 import top.th1nk.easychat.service.SysUserFriendService;
 import top.th1nk.easychat.utils.JwtUtils;
@@ -48,6 +50,10 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
     private SysUserAddFriendMapper sysUserAddFriendMapper;
     @Resource
     private SysUserAddFriendService sysUserAddFriendService;
+    @Resource
+    private SysUserConversationMapper sysUserConversationMapper;
+    @Resource
+    private ConversationRedisService conversationRedisService;
 
     @Resource
     private JwtUtils jwtUtils;
@@ -64,7 +70,7 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
             throw new UserFriendException(UserFriendExceptionEnum.CANNOT_ADD_SELF); // 禁止添加自己
         if (sysUserMapper.selectById(addFriendDto.getAddId()) == null)
             throw new CommonException(CommonExceptionEnum.USER_NOT_FOUND);
-        if (baseMapper.isFriend(userVo.getId(), addFriendDto.getAddId()))
+        if (baseMapper.isOneWayFriend(userVo.getId(), addFriendDto.getAddId()))
             throw new UserFriendException(UserFriendExceptionEnum.ALREADY_FRIEND);
         // 判断是否已有未处理的申请
         if (sysUserAddFriendService.getPendingRequest(userVo.getId(), addFriendDto.getAddId()) != null)
@@ -125,7 +131,8 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
             userFriend.setUid(friendRequest.getUid());
             userFriend.setFriendId(friendRequest.getStrangerId());
             userFriend.setMuted(false);
-            baseMapper.insert(userFriend);
+            if (!baseMapper.isOneWayFriend(userVo.getId(), friendRequest.getStrangerId())) // 当没有好友关系时才保存数据
+                baseMapper.insert(userFriend);
             userFriend = new SysUserFriend();
             userFriend.setUid(friendRequest.getStrangerId());
             userFriend.setFriendId(friendRequest.getUid());
@@ -186,7 +193,7 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
     public boolean updateFriendInfo(UserFriendUpdateDto userFriendUpdateDto) {
         UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
         if (userVo == null || userVo.getId() == null) return false;
-        if (!baseMapper.isFriend(userVo.getId(), userFriendUpdateDto.getFriendId()))
+        if (!baseMapper.isOneWayFriend(userVo.getId(), userFriendUpdateDto.getFriendId()))
             throw new UserFriendException(UserFriendExceptionEnum.NOT_FRIEND);
         SysUserFriend sysUserFriend = baseMapper.selectByUserIdAndFriendId(userVo.getId(), userFriendUpdateDto.getFriendId());
         if (userFriendUpdateDto.getRemark() != null)
@@ -195,6 +202,22 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
             else throw new UserFriendException(UserFriendExceptionEnum.INVALID_REMARK);
         sysUserFriend.setMuted(userFriendUpdateDto.isMuted());
         return baseMapper.updateById(sysUserFriend) == 1;
+    }
+
+    @Override
+    public boolean deleteFriend(int friendId) {
+        UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
+        if (userVo == null || userVo.getId() == null) return false;
+        if (!baseMapper.isOneWayFriend(userVo.getId(), friendId))
+            throw new UserFriendException(UserFriendExceptionEnum.NOT_FRIEND);
+        // 删除对话列表中对应条目
+        sysUserConversationMapper.deleteByUidAndFriendId(userVo.getId(), friendId);
+        conversationRedisService.deleteFriendConversation(userVo.getId(), friendId);
+        // 删除好友
+        LambdaQueryWrapper<SysUserFriend> qw = new LambdaQueryWrapper<>();
+        qw.eq(SysUserFriend::getUid, userVo.getId())
+                .eq(SysUserFriend::getFriendId, friendId);
+        return baseMapper.delete(qw) == 1;
     }
 }
 

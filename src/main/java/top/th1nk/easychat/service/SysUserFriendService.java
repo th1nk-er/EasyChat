@@ -56,4 +56,12 @@ public interface SysUserFriendService extends IService<SysUserFriend> {
      * @return 是否更新成功
      */
     boolean updateFriendInfo(UserFriendUpdateDto userFriendUpdateDto);
+
+    /**
+     * 删除好友
+     *
+     * @param friendId 好友ID
+     * @return 是否删除成功
+     */
+    boolean deleteFriend(int friendId);
 }

@@ -12,6 +12,7 @@ public enum UserFriendExceptionEnum {
     NOT_FRIEND(4006, "不是好友关系"),
     UPDATE_FRIEND_FAILED(4007, "更新好友信息失败"),
     INVALID_REMARK(4008, "好友备注不合法"),
+    DELETE_FRIEND_FAILED(4009, "删除好友失败"),
     ;
     private final int code;
     private final String message;

@@ -33,7 +33,7 @@ public interface ConversationRedisService {
      *
      * @param senderId   发送者ID
      * @param receiverId 接收者ID
-     * @return 是否设置成功
+     * @return 是否设置成功, redis中不存在指定会话时返回false
      */
     boolean setConversationRead(int senderId, int receiverId);
 
@@ -43,4 +43,12 @@ public interface ConversationRedisService {
      * @param conversation 用户对话列表
      */
     void addToConversation(List<SysUserConversation> conversation);
+
+    /**
+     * 删除某个好友对话
+     *
+     * @param senderId   发送者ID
+     * @param receiverId 接收者ID
+     */
+    void deleteFriendConversation(int senderId, int receiverId);
 }

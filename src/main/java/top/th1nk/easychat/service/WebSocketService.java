@@ -9,9 +9,10 @@ public interface WebSocketService {
     /**
      * 发送消息
      *
+     * @param authentication 用户认证信息
      * @param message 消息
      */
-    void sendMessage(WSMessage message);
+    void sendMessage(Authentication authentication, WSMessage message);
 
     /**
      * 处理用户连接

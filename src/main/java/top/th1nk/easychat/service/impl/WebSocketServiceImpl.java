@@ -33,7 +33,7 @@ public class WebSocketServiceImpl implements WebSocketService {
     private SysChatMessageService sysChatMessageService;
 
     @Override
-    public void sendMessage(WSMessage message) {
+    public void sendMessage(Authentication authentication, WSMessage message) {
         if (message.getToId() != null) {
             if (message.getFromId() <= 0) {
                 // 系统发送给用户的消息
@@ -44,6 +44,8 @@ public class WebSocketServiceImpl implements WebSocketService {
             if (!sysUserFriendMapper.isFriend(message.getFromId(), message.getToId())) {
                 // 非好友关系
                 log.warn("用户 {} 试图在非好友状态下向用户 {} 发送消息", message.getFromId(), message.getToId());
+                //发送错误提示
+                simpMessagingTemplate.convertAndSend("/notify/message/" + StringUtils.getSHA256Hash(authentication.getCredentials().toString()), WSMessage.error(message.getFromId(), "对方不是你的好友"));
                 return;
             }
             // 从redis中取出toId对应的token
@@ -70,7 +72,7 @@ public class WebSocketServiceImpl implements WebSocketService {
         redisTemplate.opsForSet().add(WS_PREFIX + authentication.getPrincipal().toString(), authentication.getCredentials().toString());
         redisTemplate.expire(WS_PREFIX + authentication.getPrincipal().toString(), Duration.ofSeconds(jwtProperties.getExpireSeconds()));
         // 发送已连接消息
-        this.sendMessage(WSMessage.command((Integer) authentication.getPrincipal(), MessageCommand.CONNECTED));
+        this.sendMessage(authentication, WSMessage.command((Integer) authentication.getPrincipal(), MessageCommand.CONNECTED));
     }
 
     @Override
@@ -83,7 +85,7 @@ public class WebSocketServiceImpl implements WebSocketService {
         }
         // 判断发送者用户token是否存储在了redis
         if (Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(WS_PREFIX + authentication.getPrincipal().toString(), authentication.getCredentials().toString()))) {
-            this.sendMessage(message);
+            this.sendMessage(authentication, message);
         } else {
             // 发送者未通过认证
             return;

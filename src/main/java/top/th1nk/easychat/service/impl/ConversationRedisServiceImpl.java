@@ -106,4 +106,11 @@ public class ConversationRedisServiceImpl implements ConversationRedisService {
         }
     }
 
+    @Override
+    public void deleteFriendConversation(int senderId, int receiverId) {
+        List<SysUserConversation> userConversations = this.getUserConversations(senderId);
+        HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
+        hashOperations.delete(CHAT_CONVERSATION_KEY + senderId, String.valueOf(receiverId));
+    }
+
 }

@@ -20,4 +20,10 @@
         group_id,unread_count,last_message, message_type,
         update_time
     </sql>
+    <delete id="deleteByUidAndFriendId">
+        DELETE
+        FROM ec_user_conversation
+        WHERE friend_id = #{friendId}
+          AND uid = #{uid}
+    </delete>
 </mapper>

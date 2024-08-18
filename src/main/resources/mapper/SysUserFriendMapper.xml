@@ -53,4 +53,11 @@
           AND friend_id = #{friendId}
           AND deleted = 0
     </select>
+    <select id="isOneWayFriend" resultType="java.lang.Boolean">
+        SELECT count(*) = 1
+        FROM ec_user_friend
+        WHERE uid = #{userId}
+          AND friend_id = #{friendId}
+          AND deleted = 0
+    </select>
 </mapper>

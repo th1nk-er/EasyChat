@@ -67,4 +67,12 @@ public class SysUserFriendController {
             return Response.ok();
         throw new UserFriendException(UserFriendExceptionEnum.UPDATE_FRIEND_FAILED);
     }
+
+    @Operation(summary = "删除好友", description = "删除好友")
+    @DeleteMapping("/{friendId}")
+    public Response<?> deleteFriend(@PathVariable int friendId) {
+        if (sysUserFriendService.deleteFriend(friendId))
+            return Response.ok();
+        throw new UserFriendException(UserFriendExceptionEnum.DELETE_FRIEND_FAILED);
+    }
 }

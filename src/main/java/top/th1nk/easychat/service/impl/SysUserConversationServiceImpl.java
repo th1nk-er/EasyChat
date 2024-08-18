@@ -9,6 +9,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import top.th1nk.easychat.domain.SysUser;
 import top.th1nk.easychat.domain.SysUserConversation;
+import top.th1nk.easychat.domain.chat.MessageType;
 import top.th1nk.easychat.domain.vo.UserConversationVo;
 import top.th1nk.easychat.domain.vo.UserFriendVo;
 import top.th1nk.easychat.domain.vo.UserVo;
@@ -20,6 +21,7 @@ import top.th1nk.easychat.service.SysUserConversationService;
 import top.th1nk.easychat.utils.JwtUtils;
 import top.th1nk.easychat.utils.RequestUtils;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -114,6 +116,15 @@ public class SysUserConversationServiceImpl extends ServiceImpl<SysUserConversat
         if (conversation != null) {
             conversation.setUnreadCount(0);
             baseMapper.updateById(conversation);
+        } else {
+            // 保存新会话
+            conversation = new SysUserConversation();
+            conversation.setUpdateTime(LocalDateTime.now());
+            conversation.setMessageType(MessageType.TEXT);
+            conversation.setUid(userId);
+            conversation.setFriendId(receiverId);
+            conversation.setUnreadCount(0);
+            baseMapper.insert(conversation);
         }
     }
 

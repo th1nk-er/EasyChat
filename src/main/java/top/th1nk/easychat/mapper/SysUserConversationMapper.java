@@ -10,7 +10,14 @@ import top.th1nk.easychat.domain.SysUserConversation;
  * @Entity top.th1nk.easychat.domain.SysUserChatHistory
  */
 public interface SysUserConversationMapper extends BaseMapper<SysUserConversation> {
-
+    /**
+     * 根据uid和friendId删除会话
+     *
+     * @param uid      用户id
+     * @param friendId 好友id
+     * @return 影响的行数
+     */
+    int deleteByUidAndFriendId(Integer uid, Integer friendId);
 }
 
 
