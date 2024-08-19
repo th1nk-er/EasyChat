@@ -196,10 +196,13 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
         if (!baseMapper.isOneWayFriend(userVo.getId(), userFriendUpdateDto.getFriendId()))
             throw new UserFriendException(UserFriendExceptionEnum.NOT_FRIEND);
         SysUserFriend sysUserFriend = baseMapper.selectByUserIdAndFriendId(userVo.getId(), userFriendUpdateDto.getFriendId());
-        if (userFriendUpdateDto.getRemark() != null)
-            if (UserUtils.isValidNickname(userFriendUpdateDto.getRemark()))
+        if (userFriendUpdateDto.getRemark() != null) {
+            if (UserUtils.isValidRemark(userFriendUpdateDto.getRemark()))
                 sysUserFriend.setRemark(userFriendUpdateDto.getRemark());
             else throw new UserFriendException(UserFriendExceptionEnum.INVALID_REMARK);
+            if (userFriendUpdateDto.getRemark().trim().isEmpty())
+                sysUserFriend.setRemark(null);
+        }
         sysUserFriend.setMuted(userFriendUpdateDto.isMuted());
         return baseMapper.updateById(sysUserFriend) == 1;
     }

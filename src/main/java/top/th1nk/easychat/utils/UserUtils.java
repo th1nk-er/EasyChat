@@ -65,6 +65,16 @@ public class UserUtils {
     }
 
     /**
+     * 验证备注是否合法
+     *
+     * @param remark 备注
+     * @return 合法-true 不合法-false
+     */
+    public static boolean isValidRemark(String remark) {
+        return remark != null && remark.length() <= 20;
+    }
+
+    /**
      * 加密密码
      *
      * @param password 密码
