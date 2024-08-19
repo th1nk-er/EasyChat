@@ -20,10 +20,11 @@
         chat_type,unread_count,last_message, message_type,
         update_time
     </sql>
-    <delete id="deleteByUidAndFriendId">
+    <delete id="deleteConversation">
         DELETE
         FROM ec_user_conversation
-        WHERE friend_id = #{friendId}
+        WHERE sender_id = #{senderId}
           AND uid = #{uid}
+          AND chat_type = #{chatType}
     </delete>
 </mapper>

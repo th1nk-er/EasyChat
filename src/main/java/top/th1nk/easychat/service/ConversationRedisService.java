@@ -2,6 +2,7 @@ package top.th1nk.easychat.service;
 
 import top.th1nk.easychat.domain.SysChatMessage;
 import top.th1nk.easychat.domain.SysUserConversation;
+import top.th1nk.easychat.domain.chat.ChatType;
 
 import java.util.List;
 
@@ -33,9 +34,10 @@ public interface ConversationRedisService {
      *
      * @param senderId   发送者ID
      * @param receiverId 接收者ID
+     * @param chatType   聊天类型
      * @return 是否设置成功, redis中不存在指定会话时返回false
      */
-    boolean setConversationRead(int senderId, int receiverId);
+    boolean setConversationRead(int senderId, int receiverId, ChatType chatType);
 
     /**
      * 在redis中添加用户对话
@@ -47,8 +49,9 @@ public interface ConversationRedisService {
     /**
      * 删除某个好友对话
      *
-     * @param senderId   发送者ID
-     * @param receiverId 接收者ID
+     * @param userId   用户ID
+     * @param senderId 发送者ID
+     * @param chatType 聊天类型
      */
-    void deleteFriendConversation(int senderId, int receiverId);
+    void deleteConversation(int userId, int senderId, ChatType chatType);
 }

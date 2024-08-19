@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import top.th1nk.easychat.domain.SysUserAddFriend;
 import top.th1nk.easychat.domain.SysUserFriend;
+import top.th1nk.easychat.domain.chat.ChatType;
 import top.th1nk.easychat.domain.dto.AddFriendDto;
 import top.th1nk.easychat.domain.dto.FriendRequestHandleDto;
 import top.th1nk.easychat.domain.dto.UserFriendUpdateDto;
@@ -213,8 +214,8 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
         if (!baseMapper.isOneWayFriend(userVo.getId(), friendId))
             throw new UserFriendException(UserFriendExceptionEnum.NOT_FRIEND);
         // 删除对话列表中对应条目
-        sysUserConversationMapper.deleteByUidAndFriendId(userVo.getId(), friendId);
-        conversationRedisService.deleteFriendConversation(userVo.getId(), friendId);
+        sysUserConversationMapper.deleteConversation(userVo.getId(), friendId, ChatType.FRIEND);
+        conversationRedisService.deleteConversation(userVo.getId(), friendId, ChatType.FRIEND);
         // 删除好友
         LambdaQueryWrapper<SysUserFriend> qw = new LambdaQueryWrapper<>();
         qw.eq(SysUserFriend::getUid, userVo.getId())

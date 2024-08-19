@@ -2,6 +2,7 @@ package top.th1nk.easychat.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import top.th1nk.easychat.domain.SysUserConversation;
+import top.th1nk.easychat.domain.chat.ChatType;
 
 /**
  * @author vinka
@@ -11,13 +12,13 @@ import top.th1nk.easychat.domain.SysUserConversation;
  */
 public interface SysUserConversationMapper extends BaseMapper<SysUserConversation> {
     /**
-     * 根据uid和friendId删除会话
+     * 根据uid和senderId删除会话
      *
      * @param uid      用户id
-     * @param friendId 好友id
+     * @param senderId 接收者id
      * @return 影响的行数
      */
-    int deleteByUidAndFriendId(Integer uid, Integer friendId);
+    int deleteConversation(Integer uid, Integer senderId, ChatType chatType);
 }
 
 

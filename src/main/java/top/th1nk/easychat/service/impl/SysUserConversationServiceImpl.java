@@ -107,7 +107,7 @@ public class SysUserConversationServiceImpl extends ServiceImpl<SysUserConversat
     @Override
     public void setConversationRead(int userId, int receiverId, ChatType chatType) {
         log.debug("设置用户对话为已读 userId:{} receiverId:{}", userId, receiverId);
-        if (conversationRedisService.setConversationRead(userId, receiverId))
+        if (conversationRedisService.setConversationRead(userId, receiverId, chatType))
             return;
         // 在数据库中设为已读
         LambdaQueryWrapper<SysUserConversation> qw = new LambdaQueryWrapper<>();

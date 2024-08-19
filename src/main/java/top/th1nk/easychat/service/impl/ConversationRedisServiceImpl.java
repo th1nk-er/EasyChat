@@ -6,6 +6,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import top.th1nk.easychat.domain.SysChatMessage;
 import top.th1nk.easychat.domain.SysUserConversation;
+import top.th1nk.easychat.domain.chat.ChatType;
 import top.th1nk.easychat.service.ConversationRedisService;
 
 import java.util.ArrayList;
@@ -14,7 +15,8 @@ import java.util.Set;
 
 @Service
 public class ConversationRedisServiceImpl implements ConversationRedisService {
-    private static final String CHAT_CONVERSATION_KEY = "chat:conversation:";
+    private static final String CHAT_CONVERSATION_PRIVATE_KEY = "chat:conversation:private:";
+    private static final String CHAT_CONVERSATION_GROUP_KEY = "chat:conversation:group:";
     @Resource
     private RedisTemplate<String, SysUserConversation> redisTemplate;
 
@@ -26,7 +28,9 @@ public class ConversationRedisServiceImpl implements ConversationRedisService {
     private void handleMessageSent(SysChatMessage message) {
         // receiverId 收到消息，将 senderId 的对话记录 readCount 设为 0 表明已读
         HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
-        String redisKey = CHAT_CONVERSATION_KEY + message.getSenderId();
+        String redisKey = CHAT_CONVERSATION_PRIVATE_KEY + message.getSenderId();
+        if (message.getChatType() == ChatType.GROUP)
+            redisKey = CHAT_CONVERSATION_GROUP_KEY + message.getSenderId();
         String hashKey = String.valueOf(message.getReceiverId());
         SysUserConversation userConversation = hashOperations.get(redisKey, hashKey);
         if (userConversation == null) {
@@ -47,7 +51,9 @@ public class ConversationRedisServiceImpl implements ConversationRedisService {
     public void handleMessageReceived(SysChatMessage message) {
         // receiverId 收到消息，将 receiverId 的对话记录 readCount + 1
         HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
-        String redisKey = CHAT_CONVERSATION_KEY + message.getReceiverId();
+        String redisKey = CHAT_CONVERSATION_PRIVATE_KEY + message.getReceiverId();
+        if (message.getChatType() == ChatType.GROUP)
+            redisKey = CHAT_CONVERSATION_GROUP_KEY + message.getReceiverId();
         String hashKey = String.valueOf(message.getSenderId());
         SysUserConversation userConversation = hashOperations.get(redisKey, hashKey);
         if (userConversation == null) {
@@ -71,25 +77,36 @@ public class ConversationRedisServiceImpl implements ConversationRedisService {
     @Override
     public List<SysUserConversation> getUserConversations(int uid) {
         HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
-        return hashOperations.values(CHAT_CONVERSATION_KEY + uid);
+        List<SysUserConversation> res = hashOperations.values(CHAT_CONVERSATION_PRIVATE_KEY + uid);
+        res.addAll(hashOperations.values(CHAT_CONVERSATION_GROUP_KEY + uid));
+        return res;
     }
 
     @Override
     public List<SysUserConversation> getAllUserConversations() {
         HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
-        Set<String> keys = redisTemplate.keys(CHAT_CONVERSATION_KEY + "*");
-        if (keys == null || keys.isEmpty()) return List.of();
+        Set<String> friendKeys = redisTemplate.keys(CHAT_CONVERSATION_PRIVATE_KEY + "*");
+        Set<String> groupKeys = redisTemplate.keys(CHAT_CONVERSATION_GROUP_KEY + "*");
         List<SysUserConversation> result = new ArrayList<>();
-        for (String key : keys) {
-            result.addAll(hashOperations.values(key));
+        if (friendKeys != null) {
+            for (String key : friendKeys) {
+                result.addAll(hashOperations.values(key));
+            }
+        }
+        if (groupKeys != null) {
+            for (String key : groupKeys) {
+                result.addAll(hashOperations.values(key));
+            }
         }
         return result;
     }
 
     @Override
-    public boolean setConversationRead(int senderId, int receiverId) {
+    public boolean setConversationRead(int senderId, int receiverId, ChatType chatType) {
         HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
-        String redisKey = CHAT_CONVERSATION_KEY + senderId;
+        String redisKey = CHAT_CONVERSATION_PRIVATE_KEY + senderId;
+        if (chatType == ChatType.GROUP)
+            redisKey = CHAT_CONVERSATION_GROUP_KEY + senderId;
         String hashKey = String.valueOf(receiverId);
         SysUserConversation sysUserConversation = hashOperations.get(redisKey, hashKey);
         if (sysUserConversation == null) return false;
@@ -103,15 +120,20 @@ public class ConversationRedisServiceImpl implements ConversationRedisService {
         if (conversation == null || conversation.isEmpty()) return;
         HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
         for (SysUserConversation userConversation : conversation) {
-            String redisKey = CHAT_CONVERSATION_KEY + userConversation.getUid();
+            String redisKey = CHAT_CONVERSATION_PRIVATE_KEY + userConversation.getUid();
+            if (userConversation.getChatType() == ChatType.GROUP)
+                redisKey = CHAT_CONVERSATION_GROUP_KEY + userConversation.getUid();
             String hashKey = String.valueOf(userConversation.getSenderId());
             hashOperations.put(redisKey, hashKey, userConversation);
         }
     }
 
     @Override
-    public void deleteFriendConversation(int senderId, int receiverId) {
+    public void deleteConversation(int userId, int senderId, ChatType chatType) {
         HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
-        hashOperations.delete(CHAT_CONVERSATION_KEY + senderId, String.valueOf(receiverId));
+        if (chatType == ChatType.FRIEND)
+            hashOperations.delete(CHAT_CONVERSATION_PRIVATE_KEY + userId, String.valueOf(senderId));
+        else if (chatType == ChatType.GROUP)
+            hashOperations.delete(CHAT_CONVERSATION_GROUP_KEY + userId, String.valueOf(senderId));
     }
 }
