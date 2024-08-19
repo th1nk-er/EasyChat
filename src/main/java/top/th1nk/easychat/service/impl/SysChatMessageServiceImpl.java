@@ -55,9 +55,8 @@ public class SysChatMessageServiceImpl extends ServiceImpl<SysChatMessageMapper,
     @Override
     public void saveMessage(WSMessage wsMessage) {
         if (messageRedisService.saveMessage(wsMessage) >= 15) {
-            int receiverId = wsMessage.getToId() == null ? wsMessage.getGroupId() : wsMessage.getToId();
-            List<SysChatMessage> messages = messageRedisService.getMessages(wsMessage.getFromId(), receiverId);
-            messageRedisService.removeMessage(wsMessage.getFromId(), receiverId);
+            List<SysChatMessage> messages = messageRedisService.getMessages(wsMessage.getFromId(), wsMessage.getToId());
+            messageRedisService.removeMessage(wsMessage.getFromId(), wsMessage.getToId());
             baseMapper.insert(messages);
         }
     }

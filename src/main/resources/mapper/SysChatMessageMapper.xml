@@ -7,16 +7,16 @@
     <resultMap id="BaseResultMap" type="top.th1nk.easychat.domain.SysChatMessage">
         <id property="id" column="id" jdbcType="INTEGER"/>
         <result property="senderId" column="sender_id" jdbcType="INTEGER"/>
-        <result property="senderGroupId" column="sender_group_id" jdbcType="INTEGER"/>
+        <result property="chatType" column="chat_type" jdbcType="TINYINT"/>
         <result property="receiverId" column="receiver_id" jdbcType="INTEGER"/>
-        <result property="type" column="type" jdbcType="INTEGER"/>
+        <result property="messageType" column="message_type" jdbcType="TINYINT"/>
         <result property="content" column="content" jdbcType="VARCHAR"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,sender_id,sender_group_id,
-        receiver_id,type,content,
+        id,sender_id,chat_type,
+        receiver_id,message_type,content,
         create_time
     </sql>
 </mapper>

@@ -4,6 +4,7 @@ import jakarta.annotation.Resource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import top.th1nk.easychat.domain.SysChatMessage;
+import top.th1nk.easychat.domain.chat.ChatType;
 import top.th1nk.easychat.domain.chat.WSMessage;
 import top.th1nk.easychat.service.ConversationRedisService;
 import top.th1nk.easychat.service.MessageRedisService;
@@ -16,6 +17,7 @@ import java.util.Set;
 @Service
 public class MessageRedisServiceImpl implements MessageRedisService {
     private static final String CHAT_PRIVATE_MESSAGE_KEY = "chat:message:private:";
+    private static final String CHAT_GROUP_MESSAGE_KEY = "chat:message:group:";
 
     @Resource
     private RedisTemplate<String, SysChatMessage> redisTemplate;
@@ -34,15 +36,19 @@ public class MessageRedisServiceImpl implements MessageRedisService {
     public int saveMessage(WSMessage wsMessage) {
         SysChatMessage message = new SysChatMessage();
         message.setContent(wsMessage.getContent());
-        message.setType(wsMessage.getType());
-        message.setReceiverId(wsMessage.getToId() == null ? wsMessage.getGroupId() : wsMessage.getToId());
+        message.setMessageType(wsMessage.getMessageType());
+        message.setChatType(wsMessage.getChatType());
         message.setSenderId(wsMessage.getFromId());
+        message.setReceiverId(wsMessage.getToId());
         message.setCreateTime(LocalDateTime.now());
         String chatKey;
-        if (wsMessage.getToId() != null) {
+        if (message.getChatType() == ChatType.FRIEND) {
             chatKey = getRedisKey(message.getSenderId(), message.getReceiverId());
-        } else
-            chatKey = CHAT_PRIVATE_MESSAGE_KEY + message.getSenderId() + "-" + message.getReceiverId();
+        } else if (message.getChatType() == ChatType.GROUP)
+            chatKey = CHAT_GROUP_MESSAGE_KEY + message.getReceiverId();
+        else {
+            return 0;
+        }
         redisTemplate.opsForList().rightPush(chatKey, message);
         Long size = redisTemplate.opsForList().size(chatKey);
         conversationRedisService.handleMessageReceived(message);

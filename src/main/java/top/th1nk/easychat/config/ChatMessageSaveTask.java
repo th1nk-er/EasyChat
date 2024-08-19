@@ -51,7 +51,7 @@ public class ChatMessageSaveTask {
         for (SysUserConversation conversation : userConversations) {
             LambdaQueryWrapper<SysUserConversation> qw = new LambdaQueryWrapper<>();
             qw.eq(SysUserConversation::getUid, conversation.getUid())
-                    .eq(SysUserConversation::getFriendId, conversation.getFriendId());
+                    .eq(SysUserConversation::getSenderId, conversation.getSenderId());
             SysUserConversation userConversation = sysUserConversationMapper.selectOne(qw);
             if (userConversation == null)
                 sysUserConversationMapper.insert(conversation);

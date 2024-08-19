@@ -46,6 +46,6 @@ public class ChatController {
         if (user == null)
             return;
         // 将对话设为已读
-        sysUserConversationService.setConversationRead((Integer) user.getPrincipal(), message.getToId());
+        sysUserConversationService.setConversationRead((Integer) user.getPrincipal(), message.getToId(),message.getChatType());
     }
 }

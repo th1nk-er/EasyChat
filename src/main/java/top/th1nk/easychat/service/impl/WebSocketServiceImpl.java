@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import top.th1nk.easychat.config.easychat.JwtProperties;
 import top.th1nk.easychat.domain.chat.MessageCommand;
 import top.th1nk.easychat.domain.chat.WSMessage;
+import top.th1nk.easychat.domain.chat.ChatType;
 import top.th1nk.easychat.mapper.SysUserFriendMapper;
 import top.th1nk.easychat.service.SysChatMessageService;
 import top.th1nk.easychat.service.WebSocketService;
@@ -34,7 +35,7 @@ public class WebSocketServiceImpl implements WebSocketService {
 
     @Override
     public void sendMessage(Authentication authentication, WSMessage message) {
-        if (message.getToId() != null) {
+        if (message.getChatType() == ChatType.FRIEND) {
             if (message.getFromId() <= 0) {
                 // 系统发送给用户的消息
                 return;
@@ -58,9 +59,8 @@ public class WebSocketServiceImpl implements WebSocketService {
                 }
             }
             sysChatMessageService.saveMessage(message);
-        } else if (message.getGroupId() != null) {
+        } else if (message.getChatType() == ChatType.GROUP) {
             //群组消息
-            //TODO 当groupId不为空时判断用户是否为群组成员
             return;
         }
     }

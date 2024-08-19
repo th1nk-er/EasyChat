@@ -9,6 +9,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import top.th1nk.easychat.domain.SysUser;
 import top.th1nk.easychat.domain.SysUserConversation;
+import top.th1nk.easychat.domain.chat.ChatType;
 import top.th1nk.easychat.domain.chat.MessageType;
 import top.th1nk.easychat.domain.vo.UserConversationVo;
 import top.th1nk.easychat.domain.vo.UserFriendVo;
@@ -48,11 +49,11 @@ public class SysUserConversationServiceImpl extends ServiceImpl<SysUserConversat
     private UserConversationVo transformToVo(SysUserConversation sysUserConversation) {
         UserConversationVo vo = new UserConversationVo();
         BeanUtils.copyProperties(sysUserConversation, vo);
-        if (sysUserConversation.getFriendId() != null) {
-            SysUser sysUser = sysUserMapper.selectById(sysUserConversation.getFriendId());
+        if (sysUserConversation.getSenderId() != null) {
+            SysUser sysUser = sysUserMapper.selectById(sysUserConversation.getSenderId());
             vo.setAvatar(sysUser.getAvatar());
             vo.setNickname(sysUser.getNickname());
-            UserFriendVo userFriendVo = sysUserFriendMapper.selectUserFriendVo(sysUserConversation.getUid(), sysUserConversation.getFriendId());
+            UserFriendVo userFriendVo = sysUserFriendMapper.selectUserFriendVo(sysUserConversation.getUid(), sysUserConversation.getSenderId());
             if (userFriendVo != null) {
                 vo.setRemark(userFriendVo.getRemark());
                 vo.setMuted(userFriendVo.isMuted());
@@ -91,9 +92,9 @@ public class SysUserConversationServiceImpl extends ServiceImpl<SysUserConversat
         // 将redis中较新数据替换数据库中数据
         for (SysUserConversation redisRecord : redisHistory) {
             for (SysUserConversation pageRecord : pages.getRecords()) {
-                if (redisRecord.getFriendId() != null && redisRecord.getFriendId().equals(pageRecord.getFriendId())) {
+                if (redisRecord.getSenderId() != null && redisRecord.getSenderId().equals(pageRecord.getSenderId())) {
                     result.add(transformToVo(redisRecord));
-                } else if (redisRecord.getGroupId() != null && redisRecord.getGroupId().equals(pageRecord.getGroupId())) {
+                } else if (redisRecord.getChatType() != null && redisRecord.getChatType().equals(pageRecord.getChatType())) {
                     result.add(transformToVo(redisRecord));
                 } else {
                     result.add(transformToVo(pageRecord));
@@ -104,14 +105,14 @@ public class SysUserConversationServiceImpl extends ServiceImpl<SysUserConversat
     }
 
     @Override
-    public void setConversationRead(int userId, int receiverId) {
+    public void setConversationRead(int userId, int receiverId, ChatType chatType) {
         log.debug("设置用户对话为已读 userId:{} receiverId:{}", userId, receiverId);
         if (conversationRedisService.setConversationRead(userId, receiverId))
             return;
         // 在数据库中设为已读
         LambdaQueryWrapper<SysUserConversation> qw = new LambdaQueryWrapper<>();
         qw.eq(SysUserConversation::getUid, userId)
-                .eq(SysUserConversation::getFriendId, receiverId);
+                .eq(SysUserConversation::getSenderId, receiverId);
         SysUserConversation conversation = baseMapper.selectOne(qw);
         if (conversation != null) {
             conversation.setUnreadCount(0);
@@ -122,8 +123,9 @@ public class SysUserConversationServiceImpl extends ServiceImpl<SysUserConversat
             conversation.setUpdateTime(LocalDateTime.now());
             conversation.setMessageType(MessageType.TEXT);
             conversation.setUid(userId);
-            conversation.setFriendId(receiverId);
+            conversation.setSenderId(receiverId);
             conversation.setUnreadCount(0);
+            conversation.setChatType(chatType);
             baseMapper.insert(conversation);
         }
     }

@@ -30,15 +30,16 @@ public class ConversationRedisServiceImpl implements ConversationRedisService {
         String hashKey = String.valueOf(message.getReceiverId());
         SysUserConversation userConversation = hashOperations.get(redisKey, hashKey);
         if (userConversation == null) {
+            // redis中无记录
             userConversation = new SysUserConversation();
             userConversation.setUid(message.getSenderId());
-            userConversation.setFriendId(message.getReceiverId());
-            userConversation.setGroupId(message.getSenderGroupId());
+            userConversation.setSenderId(message.getReceiverId());
+            userConversation.setChatType(message.getChatType());
         }
         userConversation.setUnreadCount(0);
         userConversation.setUpdateTime(message.getCreateTime());
         userConversation.setLastMessage(message.getContent());
-        userConversation.setMessageType(message.getType());
+        userConversation.setMessageType(message.getMessageType());
         hashOperations.put(redisKey, hashKey, userConversation);
     }
 
@@ -50,17 +51,19 @@ public class ConversationRedisServiceImpl implements ConversationRedisService {
         String hashKey = String.valueOf(message.getSenderId());
         SysUserConversation userConversation = hashOperations.get(redisKey, hashKey);
         if (userConversation == null) {
+            // redis中无记录
             userConversation = new SysUserConversation();
             userConversation.setUid(message.getReceiverId());
-            userConversation.setFriendId(message.getSenderId());
-            userConversation.setGroupId(message.getSenderGroupId());
+            userConversation.setSenderId(message.getSenderId());
+            userConversation.setChatType(message.getChatType());
             userConversation.setUnreadCount(1);
         } else {
+            // redis中有记录
             userConversation.setUnreadCount(userConversation.getUnreadCount() + 1);
         }
         userConversation.setUpdateTime(message.getCreateTime());
         userConversation.setLastMessage(message.getContent());
-        userConversation.setMessageType(message.getType());
+        userConversation.setMessageType(message.getMessageType());
         hashOperations.put(redisKey, hashKey, userConversation);
         handleMessageSent(message);
     }
@@ -101,16 +104,14 @@ public class ConversationRedisServiceImpl implements ConversationRedisService {
         HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
         for (SysUserConversation userConversation : conversation) {
             String redisKey = CHAT_CONVERSATION_KEY + userConversation.getUid();
-            String hashKey = String.valueOf(userConversation.getFriendId());
+            String hashKey = String.valueOf(userConversation.getSenderId());
             hashOperations.put(redisKey, hashKey, userConversation);
         }
     }
 
     @Override
     public void deleteFriendConversation(int senderId, int receiverId) {
-        List<SysUserConversation> userConversations = this.getUserConversations(senderId);
         HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
         hashOperations.delete(CHAT_CONVERSATION_KEY + senderId, String.valueOf(receiverId));
     }
-
 }

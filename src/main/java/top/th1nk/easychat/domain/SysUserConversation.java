@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import top.th1nk.easychat.domain.chat.MessageType;
+import top.th1nk.easychat.domain.chat.ChatType;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -30,16 +31,16 @@ public class SysUserConversation implements Serializable {
     private Integer uid;
 
     /**
-     * 好友ID
+     * 发送者ID
      */
-    @Schema(description = "好友ID")
-    private Integer friendId;
+    @Schema(description = "发送者ID")
+    private Integer senderId;
 
     /**
-     * 群组ID
+     * 聊天类型
      */
     @Schema(description = "群组ID")
-    private Integer groupId;
+    private ChatType chatType;
 
     /**
      * 未读消息数量

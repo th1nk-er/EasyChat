@@ -2,6 +2,7 @@ package top.th1nk.easychat.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import top.th1nk.easychat.domain.SysUserConversation;
+import top.th1nk.easychat.domain.chat.ChatType;
 import top.th1nk.easychat.domain.vo.UserConversationVo;
 
 import java.util.List;
@@ -26,8 +27,9 @@ public interface SysUserConversationService extends IService<SysUserConversation
      *
      * @param userId     用户id
      * @param receiverId 接收者id
+     * @param chatType   聊天类型
      */
-    void setConversationRead(int userId, int receiverId);
+    void setConversationRead(int userId, int receiverId, ChatType chatType);
 
     /**
      * 将用户对话列表加载到redis

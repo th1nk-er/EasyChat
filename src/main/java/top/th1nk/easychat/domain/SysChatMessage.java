@@ -3,6 +3,7 @@ package top.th1nk.easychat.domain;
 import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import top.th1nk.easychat.domain.chat.ChatType;
 import top.th1nk.easychat.domain.chat.MessageType;
 
 import java.io.Serial;
@@ -30,13 +31,14 @@ public class SysChatMessage implements Serializable {
     private Integer senderId;
 
     /**
-     * 群组消息时，群组ID
+     * 聊天类型
      */
-    @Schema(description = "群组消息时，群组ID")
-    private Integer senderGroupId;
+    @Schema(description = "聊天类型")
+    private ChatType chatType;
 
     /**
      * 接收者ID
+     * 当chatType == GROUP 时，接收者ID为群组ID
      */
     @Schema(description = "接收者ID")
     private Integer receiverId;
@@ -45,7 +47,7 @@ public class SysChatMessage implements Serializable {
      * 消息类型
      */
     @Schema(description = "消息类型")
-    private MessageType type;
+    private MessageType messageType;
 
     /**
      * 消息内容
