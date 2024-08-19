@@ -200,8 +200,7 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
             if (UserUtils.isValidRemark(userFriendUpdateDto.getRemark()))
                 sysUserFriend.setRemark(userFriendUpdateDto.getRemark());
             else throw new UserFriendException(UserFriendExceptionEnum.INVALID_REMARK);
-            if (userFriendUpdateDto.getRemark().trim().isEmpty())
-                sysUserFriend.setRemark(null);
+            userFriendUpdateDto.setRemark(userFriendUpdateDto.getRemark().trim());
         }
         sysUserFriend.setMuted(userFriendUpdateDto.isMuted());
         return baseMapper.updateById(sysUserFriend) == 1;
