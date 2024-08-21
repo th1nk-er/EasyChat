@@ -34,4 +34,10 @@ public class EasyChatConfiguration {
      * 用户配置
      */
     private UserProperties user;
+
+
+    /**
+     * 聊天配置
+     */
+    private ChatProperties chat;
 }

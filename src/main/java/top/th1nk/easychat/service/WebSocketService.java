@@ -10,7 +10,7 @@ public interface WebSocketService {
      * 发送消息
      *
      * @param authentication 用户认证信息
-     * @param message 消息
+     * @param message        消息
      */
     void sendMessage(Authentication authentication, WSMessage message);
 

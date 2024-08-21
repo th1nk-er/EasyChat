@@ -8,12 +8,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import top.th1nk.easychat.config.easychat.ChatProperties;
 import top.th1nk.easychat.config.easychat.UserProperties;
+import top.th1nk.easychat.domain.Response;
+import top.th1nk.easychat.enums.CommonExceptionEnum;
+import top.th1nk.easychat.exception.CommonException;
 import top.th1nk.easychat.service.MinioService;
+import top.th1nk.easychat.utils.FileUtils;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @Slf4j
 @RestController
@@ -24,6 +31,8 @@ public class FileController {
     private MinioService minioService;
     @Resource
     private UserProperties userProperties;
+    @Resource
+    private ChatProperties chatProperties;
 
     @Operation(summary = "获取头像", description = "以文件形式返回用户头像")
     @GetMapping("/avatar/{imgName}")
@@ -42,6 +51,28 @@ public class FileController {
         } catch (Exception e) {
             log.error("获取头像失败", e);
             return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @Operation(summary = "上传聊天图片", description = "上传聊天图片")
+    @PostMapping("/chat/image")
+    public Response<String> uploadImg(@RequestParam("file") MultipartFile file) {
+        try {
+            if (file.getSize() > chatProperties.getImageMaxSize())
+                throw new CommonException(CommonExceptionEnum.FILE_SIZE_EXCEEDED);
+            if (!FileUtils.isImage(file.getOriginalFilename()))
+                throw new CommonException(CommonExceptionEnum.FILE_TYPE_NOT_SUPPORTED);
+            byte[] bytes = file.getInputStream().readAllBytes();
+            String checkSum = FileUtils.getCheckSum(bytes);
+            String fileType = FileUtils.getFileType(file.getOriginalFilename());
+            String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
+            String filePath = "/" + chatProperties.getFileDir() + "/" + date + "/" + checkSum + "." + fileType;
+            if (minioService.getObject(filePath) == null) {
+                minioService.upload(bytes, filePath);
+            }
+            return Response.ok(filePath);
+        } catch (IOException e) {
+            throw new CommonException(CommonExceptionEnum.FILE_UPLOAD_FAILED);
         }
     }
 }

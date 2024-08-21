@@ -78,3 +78,6 @@ easy-chat:
     default-avatar-path: classpath:static/img/avatar-default.jpg
     avatar-max-size: 5120
     avatar-dir: avatar
+  chat:
+    file-dir: chat
+    image-max-size: 5242800
