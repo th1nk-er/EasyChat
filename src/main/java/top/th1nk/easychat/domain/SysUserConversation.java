@@ -3,8 +3,8 @@ package top.th1nk.easychat.domain;
 import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import top.th1nk.easychat.domain.chat.MessageType;
 import top.th1nk.easychat.domain.chat.ChatType;
+import top.th1nk.easychat.domain.chat.MessageType;
 
 import java.io.Serial;
 import java.io.Serializable;

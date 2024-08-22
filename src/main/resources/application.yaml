@@ -44,7 +44,8 @@ easy-chat:
       - /user/register
       - /user/verify-email
       - /user/register/verify-email
-      - /upload/avatar/**
+      - /upload/${easy-chat.user.avatar-dir}/**
+      - /upload/${easy-chat.chat.file-dir}/**
       - /chat/ws/**
   jwt:
     secret: =====================EASYCHAT=====================
@@ -79,5 +80,5 @@ easy-chat:
     avatar-max-size: 5120
     avatar-dir: avatar
   chat:
-    file-dir: chat
+    file-dir: chat-file
     image-max-size: 5242800

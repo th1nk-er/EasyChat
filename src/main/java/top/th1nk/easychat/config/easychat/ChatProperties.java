@@ -16,5 +16,5 @@ public class ChatProperties {
     /**
      * 聊天中文件存储时路径前缀
      */
-    private String fileDir = "chat";
+    private String fileDir = "chat-file";
 }

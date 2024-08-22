@@ -75,4 +75,24 @@ public class FileController {
             throw new CommonException(CommonExceptionEnum.FILE_UPLOAD_FAILED);
         }
     }
+
+    @Operation(summary = "获取图片", description = "以文件形式返回聊天图片")
+    @GetMapping("/chat-file/{imgDate}/{imgName}")
+    public ResponseEntity<byte[]> getChatImg(@PathVariable String imgDate, @PathVariable String imgName) {
+        GetObjectResponse objectResponse = minioService.getObject(chatProperties.getFileDir() + "/" + imgDate + "/" + imgName);
+        if (objectResponse == null) return ResponseEntity.notFound().build();
+        String contentType = objectResponse.headers().get("Content-Type");
+        if (contentType == null) contentType = "image/jpeg";
+        try {
+            byte[] avatarBytes = objectResponse.readAllBytes();
+            objectResponse.close();
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + imgName + "\"")
+                    .contentType(MediaType.valueOf(contentType))
+                    .body(avatarBytes);
+        } catch (Exception e) {
+            log.error("获取聊天图片失败", e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 }
