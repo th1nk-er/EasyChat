@@ -64,9 +64,13 @@ public class SysChatMessageServiceImpl extends ServiceImpl<SysChatMessageMapper,
     @Override
     public List<SysChatMessage> getMessages(int receiverId, int currentPage) {
         UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
-        if (userVo == null || userVo.getId() == null) return List.of();
+        if (userVo == null || userVo.getId() == null || currentPage < 0 || receiverId <= 0) return List.of();
         int senderId = userVo.getId();
         List<SysChatMessage> messages = messageRedisService.getMessages(senderId, receiverId);
+        if (currentPage == 0) {
+            // 页码为0时，仅返回redis中聊天记录
+            return messages;
+        }
         List<SysChatMessage> dbMessages = this.getChatMessageList(senderId, receiverId, currentPage);
         Collections.reverse(dbMessages);
         if (dbMessages.isEmpty()) {
