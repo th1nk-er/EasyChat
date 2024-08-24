@@ -14,7 +14,6 @@ import top.th1nk.easychat.service.SysChatMessageService;
 import top.th1nk.easychat.utils.JwtUtils;
 import top.th1nk.easychat.utils.RequestUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -66,25 +65,14 @@ public class SysChatMessageServiceImpl extends ServiceImpl<SysChatMessageMapper,
         UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
         if (userVo == null || userVo.getId() == null || currentPage < 0 || receiverId <= 0) return List.of();
         int senderId = userVo.getId();
-        List<SysChatMessage> messages = messageRedisService.getMessages(senderId, receiverId);
         if (currentPage == 0) {
             // 页码为0时，仅返回redis中聊天记录
-            return messages;
+            return messageRedisService.getMessages(senderId, receiverId);
+
         }
-        List<SysChatMessage> dbMessages = this.getChatMessageList(senderId, receiverId, currentPage);
-        Collections.reverse(dbMessages);
-        if (dbMessages.isEmpty()) {
-            return messages;
-        } else {
-            if (messages.isEmpty()) {
-                return dbMessages;
-            } else {
-                List<SysChatMessage> result = new ArrayList<>();
-                result.addAll(dbMessages);
-                result.addAll(messages);
-                return result;
-            }
-        }
+        List<SysChatMessage> messages = this.getChatMessageList(senderId, receiverId, currentPage);
+        Collections.reverse(messages);
+        return messages;
     }
 }
 
