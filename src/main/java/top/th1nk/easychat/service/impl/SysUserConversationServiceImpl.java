@@ -106,6 +106,7 @@ public class SysUserConversationServiceImpl extends ServiceImpl<SysUserConversat
 
     @Override
     public void setConversationRead(int userId, int receiverId, ChatType chatType) {
+        if (userId == receiverId) return;
         log.debug("设置用户对话为已读 userId:{} receiverId:{}", userId, receiverId);
         if (conversationRedisService.setConversationRead(userId, receiverId, chatType))
             return;
@@ -141,7 +142,3 @@ public class SysUserConversationServiceImpl extends ServiceImpl<SysUserConversat
         log.info("加载用户对话列表完成");
     }
 }
-
-
-
-
