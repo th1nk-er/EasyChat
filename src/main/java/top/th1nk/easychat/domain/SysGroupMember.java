@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import top.th1nk.easychat.enums.UserRole;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -44,7 +45,7 @@ public class SysGroupMember implements Serializable {
     /**
      * 用户角色
      */
-    private Integer role;
+    private UserRole role;
 
     /**
      * 加入时间
