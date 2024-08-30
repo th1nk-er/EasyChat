@@ -5,6 +5,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
+import top.th1nk.easychat.config.easychat.GroupProperties;
 import top.th1nk.easychat.config.easychat.MinioProperties;
 import top.th1nk.easychat.config.easychat.UserProperties;
 import top.th1nk.easychat.service.MinioService;
@@ -22,6 +23,8 @@ public class MinioServiceImpl implements MinioService {
     private ResourceLoader resourceLoader;
     @Resource
     private UserProperties userProperties;
+    @Resource
+    private GroupProperties groupProperties;
 
     @Override
     public boolean upload(byte[] fileBytes, String filePath) {
@@ -59,8 +62,10 @@ public class MinioServiceImpl implements MinioService {
             boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(minioProperties.getBucketName()).build());
             if (!found)
                 minioClient.makeBucket(MakeBucketArgs.builder().bucket(minioProperties.getBucketName()).build());
-            byte[] fileData = Files.readAllBytes(Paths.get(resourceLoader.getResource(userProperties.getDefaultAvatarPath()).getURI()));
-            return upload(fileData, userProperties.getAvatarDir() + "/default.jpg");
+            byte[] userAvatar = Files.readAllBytes(Paths.get(resourceLoader.getResource(userProperties.getDefaultAvatarPath()).getURI()));
+            byte[] groupAvatar = Files.readAllBytes(Paths.get(resourceLoader.getResource(groupProperties.getDefaultAvatarPath()).getURI()));
+            return upload(userAvatar, userProperties.getAvatarDir() + "/" + userProperties.getDefaultAvatarName())
+                    && upload(groupAvatar, groupProperties.getAvatarDir() + "/" + groupProperties.getDefaultAvatarName());
         } catch (Exception e) {
             log.error("初始化Minio失败", e);
             return false;

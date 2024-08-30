@@ -21,7 +21,8 @@ import top.th1nk.easychat.domain.SysUserToken;
 import top.th1nk.easychat.domain.dto.*;
 import top.th1nk.easychat.domain.vo.SearchUserVo;
 import top.th1nk.easychat.domain.vo.UserVo;
-import top.th1nk.easychat.enums.*;
+import top.th1nk.easychat.enums.EmailActionEnum;
+import top.th1nk.easychat.enums.LoginType;
 import top.th1nk.easychat.exception.CommonException;
 import top.th1nk.easychat.exception.LoginException;
 import top.th1nk.easychat.exception.RegisterException;
@@ -95,7 +96,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         user.setPassword(UserUtils.encryptPassword(registerDto.getPassword()));
         user.setNickname(registerDto.getUsername());
         user.setRegisterIp(RequestUtils.getClientIp());
-        user.setAvatar("/avatar/default.jpg");
+        user.setAvatar("/" + userProperties.getAvatarDir() + "/" + userProperties.getDefaultAvatarName());
         log.info("注册用户:{}", user);
         // 插入到数据库
         if (baseMapper.insert(user) != 1)
@@ -231,8 +232,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                     return null;
             }
             // 删除历史头像
-            if (baseMapper.getSameAvatarCount(userVo.getAvatar()) == 0) {
-                // 该头像没有其他用户正在使用，可以删除
+            if (!userVo.getAvatar().equals("/" + userProperties.getDefaultAvatarPath() + "/" + userProperties.getDefaultAvatarName())
+                    && baseMapper.getSameAvatarCount(userVo.getAvatar()) == 0) {
+                // 该头像没有其他用户正在使用且非默认头像时，可以删除
                 if (minioService.deleteObject(userVo.getAvatar())) {
                     log.info("删除用户历史头像成功，文件路径：{}", userVo.getAvatar());
                 } else {

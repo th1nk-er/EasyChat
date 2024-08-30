@@ -16,7 +16,7 @@ public class GroupProperties {
     /**
      * 默认头像存储时的文件名
      */
-    private String defaultAvatarName = "group-avatar-default.jpg";
+    private String defaultAvatarName = "default.jpg";
     /**
      * minio中头像文件夹名称
      */

@@ -12,6 +12,10 @@ public class UserProperties {
      * 默认头像
      */
     private String defaultAvatarPath = "classpath:static/img/avatar-default.jpg";
+    /**
+     * 默认头像存储时的文件名
+     */
+    private String defaultAvatarName = "default.jpg";
 
     /**
      * 最大头像大小，单位：KB
