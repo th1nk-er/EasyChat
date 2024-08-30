@@ -1,4 +1,4 @@
-package top.th1nk.easychat.enums;
+package top.th1nk.easychat.exception.enums;
 
 import lombok.Getter;
 

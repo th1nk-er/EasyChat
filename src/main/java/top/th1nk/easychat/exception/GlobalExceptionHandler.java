@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import top.th1nk.easychat.domain.Response;
-import top.th1nk.easychat.enums.CommonExceptionEnum;
+import top.th1nk.easychat.exception.enums.CommonExceptionEnum;
 
 /**
  * 全局异常处理器
@@ -18,34 +18,11 @@ import top.th1nk.easychat.enums.CommonExceptionEnum;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     /**
-     * 用户好友异常
+     * 自定义异常
+     * @param e 自定义异常
      */
-    @ExceptionHandler(UserFriendException.class)
-    public Response<?> userFriendException(UserFriendException e) {
-        return Response.error(e.getCode(), e.getMessage());
-    }
-
-    /**
-     * 登录异常
-     */
-    @ExceptionHandler(LoginException.class)
-    public Response<?> loginException(LoginException e) {
-        return Response.error(e.getCode(), e.getMessage());
-    }
-
-    /**
-     * 注册异常
-     */
-    @ExceptionHandler(RegisterException.class)
-    public Response<?> registerException(RegisterException e) {
-        return Response.error(e.getCode(), e.getMessage());
-    }
-
-    /**
-     * 普通异常
-     */
-    @ExceptionHandler(CommonException.class)
-    public Response<?> commonException(CommonException e) {
+    @ExceptionHandler(CustomException.class)
+    public Response<?> commonException(CustomException e) {
         return Response.error(e.getCode(), e.getMessage());
     }
 

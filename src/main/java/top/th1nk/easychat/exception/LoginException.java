@@ -1,19 +1,14 @@
 package top.th1nk.easychat.exception;
 
 import lombok.Getter;
-import top.th1nk.easychat.enums.LoginExceptionEnum;
+import top.th1nk.easychat.exception.enums.LoginExceptionEnum;
 
 /**
  * 登录异常
  */
 @Getter
-public class LoginException extends RuntimeException {
-
-    private final String message;
-    private final int code;
-
+public class LoginException extends CustomException {
     public LoginException(LoginExceptionEnum e) {
-        this.message = e.getMessage();
-        this.code = e.getCode();
+        super(e.getCode(), e.getMessage());
     }
 }

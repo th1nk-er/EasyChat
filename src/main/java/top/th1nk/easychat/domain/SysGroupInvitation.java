@@ -1,9 +1,6 @@
 package top.th1nk.easychat.domain;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import top.th1nk.easychat.enums.GroupInvitationStatus;
@@ -54,12 +51,14 @@ public class SysGroupInvitation implements Serializable {
      * 邀请创建时间
      */
     @Schema(description = "邀请创建时间")
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
     @Schema(description = "更新时间")
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updatedTime;
 
     @Serial

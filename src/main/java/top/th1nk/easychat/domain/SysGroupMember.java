@@ -1,9 +1,6 @@
 package top.th1nk.easychat.domain;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import top.th1nk.easychat.enums.UserRole;
@@ -60,6 +57,7 @@ public class SysGroupMember implements Serializable {
      * 加入时间
      */
     @Schema(description = "加入时间")
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime joinedTime;
 
     @Serial

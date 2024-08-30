@@ -19,4 +19,10 @@
         user_group_nickname,group_remark,role,
         joined_time
     </sql>
+    <select id="countGroupsByUserRole" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM ec_group_member
+        WHERE user_id = #{userId}
+          AND role = #{role}
+    </select>
 </mapper>

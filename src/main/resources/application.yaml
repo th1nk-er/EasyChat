@@ -82,3 +82,5 @@ easy-chat:
   chat:
     file-dir: chat-file
     image-max-size: 5242800
+  group:
+    default-avatar-path: classpath:static/img/group-avatar-default.jpg

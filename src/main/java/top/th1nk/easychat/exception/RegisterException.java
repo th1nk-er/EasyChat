@@ -1,15 +1,11 @@
 package top.th1nk.easychat.exception;
 
 import lombok.Getter;
-import top.th1nk.easychat.enums.RegisterExceptionEnum;
+import top.th1nk.easychat.exception.enums.RegisterExceptionEnum;
 
 @Getter
-public class RegisterException extends RuntimeException {
-    private final String message;
-    private final int code;
-
+public class RegisterException extends CustomException {
     public RegisterException(RegisterExceptionEnum e) {
-        this.message = e.getMessage();
-        this.code = e.getCode();
+        super(e.getCode(), e.getMessage());
     }
 }

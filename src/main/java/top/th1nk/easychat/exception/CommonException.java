@@ -1,15 +1,11 @@
 package top.th1nk.easychat.exception;
 
 import lombok.Getter;
-import top.th1nk.easychat.enums.CommonExceptionEnum;
+import top.th1nk.easychat.exception.enums.CommonExceptionEnum;
 
 @Getter
-public class CommonException extends RuntimeException {
-    private final String message;
-    private final int code;
-
+public class CommonException extends CustomException {
     public CommonException(CommonExceptionEnum e) {
-        this.message = e.getMessage();
-        this.code = e.getCode();
+        super(e.getCode(), e.getMessage());
     }
 }
