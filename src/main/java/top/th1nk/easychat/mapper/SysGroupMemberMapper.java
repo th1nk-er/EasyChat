@@ -13,6 +13,7 @@ import top.th1nk.easychat.enums.UserRole;
 public interface SysGroupMemberMapper extends BaseMapper<SysGroupMember> {
     /**
      * 获取用户为指定身份的群组数量
+     *
      * @param userId 用户ID
      * @return 群组数量
      */

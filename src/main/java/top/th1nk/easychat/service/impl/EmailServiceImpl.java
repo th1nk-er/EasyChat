@@ -14,9 +14,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import top.th1nk.easychat.config.easychat.MailProperties;
-import top.th1nk.easychat.exception.enums.CommonExceptionEnum;
 import top.th1nk.easychat.enums.EmailActionEnum;
 import top.th1nk.easychat.exception.CommonException;
+import top.th1nk.easychat.exception.enums.CommonExceptionEnum;
 import top.th1nk.easychat.service.EmailService;
 import top.th1nk.easychat.utils.UserUtils;
 

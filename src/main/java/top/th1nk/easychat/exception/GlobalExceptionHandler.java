@@ -19,6 +19,7 @@ import top.th1nk.easychat.exception.enums.CommonExceptionEnum;
 public class GlobalExceptionHandler {
     /**
      * 自定义异常
+     *
      * @param e 自定义异常
      */
     @ExceptionHandler(CustomException.class)

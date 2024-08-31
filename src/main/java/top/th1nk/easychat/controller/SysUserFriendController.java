@@ -11,8 +11,8 @@ import top.th1nk.easychat.domain.dto.UserFriendUpdateDto;
 import top.th1nk.easychat.domain.vo.FriendListVo;
 import top.th1nk.easychat.domain.vo.FriendRequestListVo;
 import top.th1nk.easychat.domain.vo.UserFriendVo;
-import top.th1nk.easychat.exception.enums.UserFriendExceptionEnum;
 import top.th1nk.easychat.exception.UserFriendException;
+import top.th1nk.easychat.exception.enums.UserFriendExceptionEnum;
 import top.th1nk.easychat.service.SysUserAddFriendService;
 import top.th1nk.easychat.service.SysUserFriendService;
 

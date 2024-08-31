@@ -13,8 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 import top.th1nk.easychat.config.easychat.ChatProperties;
 import top.th1nk.easychat.config.easychat.UserProperties;
 import top.th1nk.easychat.domain.Response;
-import top.th1nk.easychat.exception.enums.CommonExceptionEnum;
 import top.th1nk.easychat.exception.CommonException;
+import top.th1nk.easychat.exception.enums.CommonExceptionEnum;
 import top.th1nk.easychat.service.MinioService;
 import top.th1nk.easychat.utils.FileUtils;
 
