@@ -19,4 +19,16 @@
         avatar,deleted,create_time,
         update_time
     </sql>
+    <select id="selectUserGroupList" resultType="top.th1nk.easychat.domain.vo.UserGroupVo">
+        SELECT g.group_id,
+               g.group_name,
+               g.group_desc,
+               g.avatar,
+               gm.role,
+               gm.group_remark
+        FROM ec_group g
+                 LEFT JOIN ec_group_member gm ON g.group_id = gm.group_id
+                 LEFT JOIN ec_user u ON gm.user_id = u.id
+        WHERE gm.user_id = #{userId}
+    </select>
 </mapper>

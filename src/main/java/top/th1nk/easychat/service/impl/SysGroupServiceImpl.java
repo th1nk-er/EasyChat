@@ -1,7 +1,10 @@
 package top.th1nk.easychat.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,7 +12,9 @@ import top.th1nk.easychat.config.easychat.GroupProperties;
 import top.th1nk.easychat.domain.SysGroup;
 import top.th1nk.easychat.domain.SysGroupInvitation;
 import top.th1nk.easychat.domain.SysGroupMember;
+import top.th1nk.easychat.domain.chat.ChatType;
 import top.th1nk.easychat.domain.dto.CreateGroupDto;
+import top.th1nk.easychat.domain.vo.UserGroupVo;
 import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.enums.GroupInvitationStatus;
 import top.th1nk.easychat.enums.UserRole;
@@ -20,6 +25,7 @@ import top.th1nk.easychat.mapper.SysGroupMapper;
 import top.th1nk.easychat.mapper.SysGroupMemberMapper;
 import top.th1nk.easychat.mapper.SysUserFriendMapper;
 import top.th1nk.easychat.service.SysGroupService;
+import top.th1nk.easychat.service.SysUserConversationService;
 import top.th1nk.easychat.utils.GroupUtils;
 import top.th1nk.easychat.utils.JwtUtils;
 import top.th1nk.easychat.utils.RequestUtils;
@@ -46,6 +52,8 @@ public class SysGroupServiceImpl extends ServiceImpl<SysGroupMapper, SysGroup>
     private SysUserFriendMapper sysUserFriendMapper;
     @Resource
     private SysGroupInvitationMapper sysGroupInvitationMapper;
+    @Resource
+    private SysUserConversationService sysUserConversationService;
 
     @Transactional
     @Override
@@ -87,7 +95,20 @@ public class SysGroupServiceImpl extends ServiceImpl<SysGroupMapper, SysGroup>
             invitation.setStatus(GroupInvitationStatus.PENDING);
             sysGroupInvitationMapper.insert(invitation);
         });
+        // 讲群聊加入到用户会话中
+        sysUserConversationService.setConversationRead(userVo.getId(), group.getGroupId(), ChatType.GROUP);
         return true;
+    }
+
+    @Override
+    @NotNull
+    public List<UserGroupVo> getUserGroupList(int pageNum) {
+        if (pageNum <= 0) return List.of();
+        UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
+        if (userVo == null || userVo.getId() == null)
+            return List.of();
+        IPage<UserGroupVo> ipage = baseMapper.selectUserGroupList(new Page<>(pageNum, 10), userVo.getId());
+        return ipage.getRecords();
     }
 }
 

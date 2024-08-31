@@ -3,6 +3,9 @@ package top.th1nk.easychat.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import top.th1nk.easychat.domain.SysGroup;
 import top.th1nk.easychat.domain.dto.CreateGroupDto;
+import top.th1nk.easychat.domain.vo.UserGroupVo;
+
+import java.util.List;
 
 /**
  * @author vinka
@@ -17,4 +20,12 @@ public interface SysGroupService extends IService<SysGroup> {
      * @return 是否创建成功
      */
     boolean createGroup(CreateGroupDto createGroupDto);
+
+    /**
+     * 获取用户群聊列表
+     *
+     * @param pageNum 页码
+     * @return 群聊列表
+     */
+    List<UserGroupVo> getUserGroupList(int pageNum);
 }

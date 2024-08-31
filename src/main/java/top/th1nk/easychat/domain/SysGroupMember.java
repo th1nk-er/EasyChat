@@ -58,7 +58,7 @@ public class SysGroupMember implements Serializable {
      */
     @Schema(description = "加入时间")
     @TableField(fill = FieldFill.INSERT)
-    private LocalDateTime joinedTime;
+    private LocalDateTime createTime;
 
     @Serial
     @TableField(exist = false)

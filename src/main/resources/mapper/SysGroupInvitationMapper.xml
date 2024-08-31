@@ -17,6 +17,6 @@
     <sql id="Base_Column_List">
         id,group_id,invited_user_id,
         invited_by,status,create_time,
-        updated_time
+        update_time
     </sql>
 </mapper>

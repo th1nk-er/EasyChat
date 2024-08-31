@@ -11,13 +11,13 @@
         <result property="userGroupNickname" column="user_group_nickname" jdbcType="VARCHAR"/>
         <result property="groupRemark" column="group_remark" jdbcType="VARCHAR"/>
         <result property="role" column="role" jdbcType="TINYINT"/>
-        <result property="joinedTime" column="joined_time" jdbcType="TIMESTAMP"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,group_id,user_id,
         user_group_nickname,group_remark,role,
-        joined_time
+        create_time
     </sql>
     <select id="countGroupsByUserRole" resultType="java.lang.Integer">
         SELECT COUNT(*)
