@@ -59,7 +59,7 @@ public class SysGroupInvitation implements Serializable {
      */
     @Schema(description = "更新时间")
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updatedTime;
+    private LocalDateTime updateTime;
 
     @Serial
     @TableField(exist = false)

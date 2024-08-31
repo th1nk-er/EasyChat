@@ -44,7 +44,7 @@ public class SysGroup implements Serializable {
      * 是否已删除
      */
     @Schema(description = "是否已删除")
-    private Integer deleted;
+    private boolean deleted;
 
     /**
      * 群组创建时间

@@ -23,6 +23,6 @@
         SELECT COUNT(*)
         FROM ec_group_member
         WHERE user_id = #{userId}
-          AND role = #{role}
+          AND role = #{userRole}
     </select>
 </mapper>
