@@ -7,7 +7,8 @@ import lombok.Getter;
 public enum GroupInvitationStatus {
     PENDING(0, "待处理"),
     ACCEPTED(1, "已同意"),
-    REJECTED(2, "已拒绝");
+    REJECTED(2, "已拒绝"),
+    EXPIRED(3, "已过期");
 
     @EnumValue
     private final int value;

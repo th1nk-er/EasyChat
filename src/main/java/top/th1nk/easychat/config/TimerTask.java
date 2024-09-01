@@ -15,6 +15,7 @@ import top.th1nk.easychat.mapper.SysChatMessageMapper;
 import top.th1nk.easychat.mapper.SysUserConversationMapper;
 import top.th1nk.easychat.service.ConversationRedisService;
 import top.th1nk.easychat.service.MessageRedisService;
+import top.th1nk.easychat.service.SysGroupInvitationService;
 
 import java.util.List;
 
@@ -22,7 +23,7 @@ import java.util.List;
 @EnableScheduling
 @Slf4j
 @Component
-public class ChatMessageSaveTask {
+public class TimerTask {
     @Resource
     private SysChatMessageMapper sysChatMessageMapper;
     @Resource
@@ -31,7 +32,12 @@ public class ChatMessageSaveTask {
     private MessageRedisService messageRedisService;
     @Resource
     private ConversationRedisService conversationRedisService;
+    @Resource
+    private SysGroupInvitationService sysGroupInvitationService;
 
+    /**
+     * 每小时保存一次聊天记录到数据库
+     */
     @Scheduled(cron = "0 0 * * * ?")
     @EventListener(ContextClosedEvent.class)
     public void chatMessageSave() {
@@ -44,6 +50,9 @@ public class ChatMessageSaveTask {
         log.info("定时任务：保存[{}]条聊天记录", allMessages.size());
     }
 
+    /**
+     * 每小时保存一次用户对话到数据库
+     */
     @Scheduled(cron = "0 0 * * * ?")
     @EventListener(ContextClosedEvent.class)
     public void userConversationSave() {
@@ -65,5 +74,15 @@ public class ChatMessageSaveTask {
 
         }
         log.info("定时任务：保存[{}]条用户对话", userConversations.size());
+    }
+
+    /**
+     * 每小时更新一次群邀请状态
+     */
+    @Scheduled(cron = "0 0 * * * ?")
+    @EventListener(ContextClosedEvent.class)
+    public void groupInvitationStatusUpdate() {
+        int num = sysGroupInvitationService.refreshAllInvitationStatus();
+        log.info("定时任务：更新[{}]条群邀请状态", num);
     }
 }
