@@ -46,6 +46,7 @@ easy-chat:
       - /user/register/verify-email
       - /upload/${easy-chat.user.avatar-dir}/**
       - /upload/${easy-chat.chat.file-dir}/**
+      - /upload/${easy-chat.group.avatar-dir}/**
       - /chat/ws/**
   jwt:
     secret: =====================EASYCHAT=====================
@@ -84,3 +85,4 @@ easy-chat:
     image-max-size: 5242800
   group:
     default-avatar-path: classpath:static/img/group-avatar-default.jpg
+    avatar-dir: group/avatar

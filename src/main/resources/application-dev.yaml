@@ -39,6 +39,7 @@ easy-chat:
       - /user/register/verify-email
       - /upload/${easy-chat.user.avatar-dir}/**
       - /upload/${easy-chat.chat.file-dir}/**
+      - /upload/${easy-chat.group.avatar-dir}/**
       - /chat/ws/**
       # 开发时配置
       - /swagger-ui/**
