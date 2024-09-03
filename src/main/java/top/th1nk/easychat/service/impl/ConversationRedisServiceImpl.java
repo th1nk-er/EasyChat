@@ -79,6 +79,7 @@ public class ConversationRedisServiceImpl implements ConversationRedisService {
         HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
         List<SysUserConversation> res = hashOperations.values(CHAT_CONVERSATION_PRIVATE_KEY + uid);
         res.addAll(hashOperations.values(CHAT_CONVERSATION_GROUP_KEY + uid));
+        res.sort((o1, o2) -> o2.getUpdateTime().compareTo(o1.getUpdateTime()));
         return res;
     }
 

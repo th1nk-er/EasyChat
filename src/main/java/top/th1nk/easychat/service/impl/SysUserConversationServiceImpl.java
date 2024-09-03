@@ -1,7 +1,6 @@
 package top.th1nk.easychat.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -71,35 +70,22 @@ public class SysUserConversationServiceImpl extends ServiceImpl<SysUserConversat
     }
 
     @Override
-    public List<UserConversationVo> getConversations(int pageNum) {
+    public List<UserConversationVo> getUserConversations() {
         UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
         if (userVo == null || userVo.getId() == null) return List.of();
         // 查询用户聊天列表
-        log.debug("查询用户聊天列表 用户ID:{} 页码:{}", userVo.getId(), pageNum);
-        LambdaQueryWrapper<SysUserConversation> qw = new LambdaQueryWrapper<>();
-        qw.eq(SysUserConversation::getUid, userVo.getId())
-                .orderByAsc(SysUserConversation::getUpdateTime);
-        Page<SysUserConversation> pages = baseMapper.selectPage(new Page<>(pageNum, 15), qw);
-        List<SysUserConversation> redisHistory;
-        // 仅当页码为1时，将redis数据一并返回
-        if (pageNum == 1)
-            redisHistory = conversationRedisService.getUserConversations(userVo.getId());
-        else
-            redisHistory = List.of();
-        if (pages.getRecords().isEmpty()) return transformToVo(redisHistory);
-        if (redisHistory.isEmpty()) return transformToVo(pages.getRecords());
-        List<UserConversationVo> result = new ArrayList<>();
-        // 将redis中较新数据替换数据库中数据
-        for (SysUserConversation redisRecord : redisHistory) {
-            for (SysUserConversation pageRecord : pages.getRecords()) {
-                if (redisRecord.getSenderId() != null && redisRecord.getSenderId().equals(pageRecord.getSenderId()) && redisRecord.getChatType() == pageRecord.getChatType()) {
-                    result.add(transformToVo(redisRecord));
-                } else {
-                    result.add(transformToVo(pageRecord));
-                }
-            }
+        log.debug("查询用户聊天列表 用户ID:{}", userVo.getId());
+        List<SysUserConversation> redisRecords = conversationRedisService.getUserConversations(userVo.getId());
+        if (redisRecords.isEmpty()) {
+            LambdaQueryWrapper<SysUserConversation> qw = new LambdaQueryWrapper<>();
+            qw.eq(SysUserConversation::getUid, userVo.getId())
+                    .orderByDesc(SysUserConversation::getUpdateTime);
+            List<SysUserConversation> dbRecords = baseMapper.selectList(qw);
+            conversationRedisService.addToConversation(dbRecords);
+            return transformToVo(dbRecords);
+        } else {
+            return transformToVo(redisRecords);
         }
-        return result;
     }
 
     @Override
@@ -110,35 +96,14 @@ public class SysUserConversationServiceImpl extends ServiceImpl<SysUserConversat
         log.debug("设置用户对话为已读 userId:{} receiverId:{}", userId, receiverId);
         if (conversationRedisService.setConversationRead(userId, receiverId, chatType))
             return;
-        // 在数据库中设为已读
-        LambdaQueryWrapper<SysUserConversation> qw = new LambdaQueryWrapper<>();
-        qw.eq(SysUserConversation::getUid, userId)
-                .eq(SysUserConversation::getSenderId, receiverId);
-        SysUserConversation conversation = baseMapper.selectOne(qw);
-        if (conversation != null) {
-            conversation.setUnreadCount(0);
-            baseMapper.updateById(conversation);
-        } else {
-            // 保存新会话
-            conversation = new SysUserConversation();
-            conversation.setUpdateTime(LocalDateTime.now());
-            conversation.setMessageType(MessageType.TEXT);
-            conversation.setUid(userId);
-            conversation.setSenderId(receiverId);
-            conversation.setUnreadCount(0);
-            conversation.setChatType(chatType);
-            baseMapper.insert(conversation);
-        }
-    }
-
-    @Override
-    public void loadConversationToRedis() {
-        // 仅加载未读对话列表
-        log.info("加载用户对话列表 ...");
-        LambdaQueryWrapper<SysUserConversation> qw = new LambdaQueryWrapper<>();
-        qw.gt(SysUserConversation::getUnreadCount, 0);
-        List<SysUserConversation> sysUserConversations = baseMapper.selectList(qw);
-        conversationRedisService.addToConversation(sysUserConversations);
-        log.info("加载用户对话列表完成");
+        // 保存新会话
+        SysUserConversation conversation = new SysUserConversation();
+        conversation.setUpdateTime(LocalDateTime.now());
+        conversation.setMessageType(MessageType.TEXT);
+        conversation.setUid(userId);
+        conversation.setSenderId(receiverId);
+        conversation.setUnreadCount(0);
+        conversation.setChatType(chatType);
+        conversationRedisService.addToConversation(List.of(conversation));
     }
 }

@@ -16,10 +16,9 @@ public interface SysUserConversationService extends IService<SysUserConversation
     /**
      * 获取用户对话列表
      *
-     * @param pageNum 页码
      * @return 聊天列表
      */
-    List<UserConversationVo> getConversations(int pageNum);
+    List<UserConversationVo> getUserConversations();
 
     /**
      * 将对话设为已读
@@ -30,9 +29,4 @@ public interface SysUserConversationService extends IService<SysUserConversation
      * @param chatType   聊天类型
      */
     void setConversationRead(int userId, int receiverId, ChatType chatType);
-
-    /**
-     * 将用户对话列表加载到redis
-     */
-    void loadConversationToRedis();
 }
