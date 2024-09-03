@@ -92,9 +92,7 @@ public class SysUserConversationServiceImpl extends ServiceImpl<SysUserConversat
         // 将redis中较新数据替换数据库中数据
         for (SysUserConversation redisRecord : redisHistory) {
             for (SysUserConversation pageRecord : pages.getRecords()) {
-                if (redisRecord.getSenderId() != null && redisRecord.getSenderId().equals(pageRecord.getSenderId())) {
-                    result.add(transformToVo(redisRecord));
-                } else if (redisRecord.getChatType() != null && redisRecord.getChatType().equals(pageRecord.getChatType())) {
+                if (redisRecord.getSenderId() != null && redisRecord.getSenderId().equals(pageRecord.getSenderId()) && redisRecord.getChatType() == pageRecord.getChatType()) {
                     result.add(transformToVo(redisRecord));
                 } else {
                     result.add(transformToVo(pageRecord));
@@ -107,6 +105,8 @@ public class SysUserConversationServiceImpl extends ServiceImpl<SysUserConversat
     @Override
     public void setConversationRead(int userId, int receiverId, ChatType chatType) {
         if (userId == receiverId) return;
+        if (chatType == ChatType.FRIEND && !sysUserFriendMapper.isOneWayFriend(userId, receiverId))
+            return;
         log.debug("设置用户对话为已读 userId:{} receiverId:{}", userId, receiverId);
         if (conversationRedisService.setConversationRead(userId, receiverId, chatType))
             return;
