@@ -85,6 +85,7 @@ public class SysGroupServiceImpl extends ServiceImpl<SysGroupMapper, SysGroup>
         sysGroupMember.setGroupId(group.getGroupId());
         sysGroupMember.setUserId(userVo.getId());
         sysGroupMember.setRole(UserRole.LEADER);
+        sysGroupMember.setMuted(false);
         sysGroupMemberMapper.insert(sysGroupMember);
         // 发送邀请
         friendIds.forEach(id -> {

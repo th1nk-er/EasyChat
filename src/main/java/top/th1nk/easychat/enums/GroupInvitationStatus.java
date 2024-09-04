@@ -8,7 +8,10 @@ public enum GroupInvitationStatus {
     PENDING(0, "待处理"),
     ACCEPTED(1, "已同意"),
     REJECTED(2, "已拒绝"),
-    EXPIRED(3, "已过期");
+    EXPIRED(3, "已过期"),
+    ADMIN_PENDING(4, "管理员待处理"),
+    ADMIN_ACCEPTED(5, "管理员已同意"),
+    ADMIN_REJECTED(6, "管理员已拒绝");
 
     @EnumValue
     private final int value;

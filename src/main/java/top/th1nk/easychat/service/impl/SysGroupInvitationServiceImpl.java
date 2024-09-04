@@ -37,7 +37,7 @@ public class SysGroupInvitationServiceImpl extends ServiceImpl<SysGroupInvitatio
     @Override
     public int refreshAllInvitationStatus() {
         LambdaUpdateWrapper<SysGroupInvitation> qw = new LambdaUpdateWrapper<>();
-        qw.gt(SysGroupInvitation::getCreateTime, LocalDateTime.now().plusHours(INVITATION_EXPIRE_TIME))
+        qw.lt(SysGroupInvitation::getCreateTime, LocalDateTime.now().minusHours(INVITATION_EXPIRE_TIME))
                 .set(SysGroupInvitation::getStatus, GroupInvitationStatus.EXPIRED);
         return baseMapper.update(qw);
     }

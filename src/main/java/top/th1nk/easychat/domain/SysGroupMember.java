@@ -54,6 +54,11 @@ public class SysGroupMember implements Serializable {
     private UserRole role;
 
     /**
+     * 是否免打扰 0-否 1-是
+     */
+    @Schema(description = "是否免打扰 0-否 1-是")
+    private boolean muted;
+    /**
      * 加入时间
      */
     @Schema(description = "加入时间")
