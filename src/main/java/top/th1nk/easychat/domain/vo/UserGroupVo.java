@@ -17,6 +17,8 @@ public class UserGroupVo {
     private String avatar;
     @Schema(description = "用户角色")
     private UserRole role;
+    @Schema(description = "是否免打扰")
+    private boolean muted;
     @Schema(description = "用户给群组的备注")
     private String groupRemark;
 }
