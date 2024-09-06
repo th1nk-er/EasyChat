@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.th1nk.easychat.domain.SysGroupInvitation;
 import top.th1nk.easychat.domain.SysGroupMember;
+import top.th1nk.easychat.domain.vo.GroupAdminInvitationVo;
 import top.th1nk.easychat.domain.vo.GroupInvitationVo;
 import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.enums.GroupInvitationStatus;
@@ -57,6 +58,14 @@ public class SysGroupInvitationServiceImpl extends ServiceImpl<SysGroupInvitatio
         UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
         if (userVo == null || userVo.getId() == null) return List.of();
         return baseMapper.selectInvitationVoByUserId(new Page<>(page, 10), userVo.getId());
+    }
+
+    @Override
+    public List<GroupAdminInvitationVo> getAdminGroupInvitationList(int page) {
+        if (page <= 0) return List.of();
+        UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
+        if (userVo == null || userVo.getId() == null) return List.of();
+        return baseMapper.selectAdminInvitationVoByUserId(new Page<>(page, 10), userVo.getId());
     }
 
     @Override

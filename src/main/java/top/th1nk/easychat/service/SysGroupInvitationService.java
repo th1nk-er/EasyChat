@@ -2,6 +2,7 @@ package top.th1nk.easychat.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import top.th1nk.easychat.domain.SysGroupInvitation;
+import top.th1nk.easychat.domain.vo.GroupAdminInvitationVo;
 import top.th1nk.easychat.domain.vo.GroupInvitationVo;
 
 import java.util.List;
@@ -26,6 +27,14 @@ public interface SysGroupInvitationService extends IService<SysGroupInvitation> 
      * @return 邀请列表
      */
     List<GroupInvitationVo> getUserGroupInvitationList(int page);
+
+    /**
+     * 获取用户管理的群聊的邀请列表
+     *
+     * @param page 页码
+     * @return 邀请列表
+     */
+    List<GroupAdminInvitationVo> getAdminGroupInvitationList(int page);
 
     /**
      * 用户接受群聊邀请

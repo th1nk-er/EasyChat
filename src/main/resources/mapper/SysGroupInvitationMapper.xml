@@ -38,4 +38,24 @@
           AND u.deleted = 0
           AND uf.deleted = 0
     </select>
+    <select id="selectAdminInvitationVoByUserId" resultType="top.th1nk.easychat.domain.vo.GroupAdminInvitationVo">
+        SELECT g.group_id,
+               g.group_name,
+               g.avatar    AS group_avatar,
+               u.username  AS inviter_username,
+               u.nickname  AS inviter_nickname,
+               u1.username AS invited_by_username,
+               u1.nickname AS invited_by_nickname,
+               gi.`status`,
+               gi.create_time
+        FROM ec_group_invitation gi
+                 LEFT JOIN ec_group g ON gi.group_id = g.group_id
+                 LEFT JOIN ec_user u ON u.id = gi.invited_user_id
+                 LEFT JOIN ec_user u1 ON u1.id = gi.invited_by
+                 LEFT JOIN ec_group_member gm ON gm.group_id = gi.group_id
+        WHERE gm.role > 0
+          AND gm.user_id = 10
+          AND g.deleted = 0
+          AND u.deleted = 0
+    </select>
 </mapper>

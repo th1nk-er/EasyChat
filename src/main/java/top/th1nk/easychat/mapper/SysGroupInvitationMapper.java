@@ -3,6 +3,7 @@ package top.th1nk.easychat.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import top.th1nk.easychat.domain.SysGroupInvitation;
+import top.th1nk.easychat.domain.vo.GroupAdminInvitationVo;
 import top.th1nk.easychat.domain.vo.GroupInvitationVo;
 
 import java.util.List;
@@ -22,6 +23,15 @@ public interface SysGroupInvitationMapper extends BaseMapper<SysGroupInvitation>
      * @return 群聊邀请列表
      */
     List<GroupInvitationVo> selectInvitationVoByUserId(IPage<?> page, int userId);
+
+    /**
+     * 获取用户管理的群聊的邀请列表
+     *
+     * @param page   分页
+     * @param userId 用户ID
+     * @return 群聊邀请列表
+     */
+    List<GroupAdminInvitationVo> selectAdminInvitationVoByUserId(IPage<?> page, int userId);
 }
 
 
