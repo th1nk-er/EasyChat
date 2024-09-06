@@ -26,4 +26,11 @@
         WHERE user_id = #{userId}
           AND role = #{userRole}
     </select>
+    <select id="selectByUserIdAndGroupId" resultType="top.th1nk.easychat.domain.SysGroupMember">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM ec_group_member
+        WHERE user_id = #{userId}
+        AND group_id = #{groupId}
+    </select>
 </mapper>

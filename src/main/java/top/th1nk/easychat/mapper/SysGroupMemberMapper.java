@@ -18,6 +18,15 @@ public interface SysGroupMemberMapper extends BaseMapper<SysGroupMember> {
      * @return 群组数量
      */
     int countGroupsByUserRole(Integer userId, UserRole userRole);
+
+    /**
+     * 根据用户ID和群组ID查询群组成员信息
+     *
+     * @param userId  用户ID
+     * @param groupId 群组ID
+     * @return 群组成员信息
+     */
+    SysGroupMember selectByUserIdAndGroupId(Integer userId, Integer groupId);
 }
 
 

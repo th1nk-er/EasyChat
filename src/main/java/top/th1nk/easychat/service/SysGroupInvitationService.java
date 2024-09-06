@@ -26,4 +26,38 @@ public interface SysGroupInvitationService extends IService<SysGroupInvitation> 
      * @return 邀请列表
      */
     List<GroupInvitationVo> getUserGroupInvitationList(int page);
+
+    /**
+     * 用户接受群聊邀请
+     *
+     * @param groupId 群ID
+     * @return 是否成功
+     */
+    boolean userAcceptInvitation(int groupId);
+
+    /**
+     * 用户拒绝群聊邀请
+     *
+     * @param groupId 群ID
+     * @return 是否成功
+     */
+    boolean userRejectInvitation(int groupId);
+
+    /**
+     * 管理员同意用户的进群邀请
+     *
+     * @param userId  用户ID
+     * @param groupId 群ID
+     * @return 是否成功
+     */
+    boolean adminAcceptInvitation(int userId, int groupId);
+
+    /**
+     * 管理员拒绝用户的进群邀请
+     *
+     * @param userId  用户ID
+     * @param groupId 群ID
+     * @return 是否成功
+     */
+    boolean adminRejectInvitation(int userId, int groupId);
 }

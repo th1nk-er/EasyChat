@@ -6,7 +6,6 @@ import lombok.Getter;
 @Getter
 public enum GroupInvitationStatus {
     PENDING(0, "待处理"),
-    ACCEPTED(1, "已同意"),
     REJECTED(2, "已拒绝"),
     EXPIRED(3, "已过期"),
     ADMIN_PENDING(4, "管理员待处理"),
