@@ -16,10 +16,11 @@ public class EmailAuthenticationToken extends AbstractAuthenticationToken {
         this.code = code;
     }
 
-    public EmailAuthenticationToken(Collection<? extends GrantedAuthority> authorities, String email, String code) {
+    public EmailAuthenticationToken(String email, String code, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.email = email;
         this.code = code;
+        this.setAuthenticated(true);
     }
 
     @Override

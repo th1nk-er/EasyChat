@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import top.th1nk.easychat.enums.UserRole;
 import top.th1nk.easychat.enums.UserSex;
@@ -11,7 +12,9 @@ import top.th1nk.easychat.enums.UserSex;
 import java.io.Serial;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @TableName ec_user
@@ -111,8 +114,14 @@ public class SysUser implements UserDetails {
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 
+    @TableField(exist = false)
+    private Set<String> permissions = new HashSet<>();
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        if (permissions != null && !permissions.isEmpty()) {
+            return permissions.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toSet());
+        }
+        return null;
     }
 }

@@ -60,4 +60,11 @@
           AND friend_id = #{friendId}
           AND deleted = 0
     </select>
+    <select id="selectAllByUid" resultType="top.th1nk.easychat.domain.SysUserFriend">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM ec_user_friend
+        WHERE uid = #{uid}
+        AND deleted = 0
+    </select>
 </mapper>

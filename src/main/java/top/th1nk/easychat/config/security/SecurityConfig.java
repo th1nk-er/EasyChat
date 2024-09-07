@@ -24,8 +24,10 @@ import java.util.List;
  */
 @Configuration
 public class SecurityConfig {
-    @Resource
-    private UserDetailsService userDetailsService;
+    @Resource(name = "passwordUserDetailsService")
+    private UserDetailsService passwordUserDetailsService;
+    @Resource(name = "emailUserDetailsService")
+    private UserDetailsService emailUserDetailsService;
     @Resource
     private JwtAuthenticationFilter jwtAuthenticationFilter;
     @Resource
@@ -38,7 +40,8 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder);
-        provider.setUserDetailsService(userDetailsService);
+        provider.setUserDetailsService(passwordUserDetailsService);
+        emailAuthenticationProvider.setUserDetailsService(emailUserDetailsService);
         return new ProviderManager(provider, emailAuthenticationProvider);
     }
 

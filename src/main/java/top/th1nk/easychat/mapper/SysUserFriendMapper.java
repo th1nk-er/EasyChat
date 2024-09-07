@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import top.th1nk.easychat.domain.SysUserFriend;
 import top.th1nk.easychat.domain.vo.UserFriendVo;
 
+import java.util.List;
+
 /**
  * @author vinka
  * @description 针对表【ec_user_friend】的数据库操作Mapper
@@ -45,6 +47,14 @@ public interface SysUserFriendMapper extends BaseMapper<SysUserFriend> {
      * @return 好友信息
      */
     SysUserFriend selectByUserIdAndFriendId(Integer userId, Integer friendId);
+
+    /**
+     * 根据用户ID查询所有好友信息
+     *
+     * @param uid 用户ID
+     * @return 好友信息列表
+     */
+    List<SysUserFriend> selectAllByUid(Integer uid);
 }
 
 
