@@ -36,6 +36,6 @@ public class Response<T> {
     }
 
     public static <T> Response<T> error() {
-        return error("未知错误");
+        return error("操作失败");
     }
 }

@@ -6,10 +6,9 @@ import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 import top.th1nk.easychat.domain.Response;
 import top.th1nk.easychat.domain.dto.CreateGroupDto;
+import top.th1nk.easychat.domain.dto.GroupInvitationRequestDto;
 import top.th1nk.easychat.domain.vo.GroupInvitationVo;
 import top.th1nk.easychat.domain.vo.UserGroupVo;
-import top.th1nk.easychat.exception.GroupException;
-import top.th1nk.easychat.exception.enums.GroupExceptionEnum;
 import top.th1nk.easychat.service.SysGroupInvitationService;
 import top.th1nk.easychat.service.SysGroupService;
 
@@ -27,10 +26,9 @@ public class GroupController {
     @Operation(summary = "创建群聊", description = "创建群聊")
     @PostMapping("/create")
     public Response<?> createGroup(@RequestBody CreateGroupDto createGroupDto) {
-        if (sysGroupService.createGroup(createGroupDto)) {
+        if (sysGroupService.createGroup(createGroupDto))
             return Response.ok();
-        }
-        throw new GroupException(GroupExceptionEnum.GROUP_CREATE_FAIL);
+        else return Response.error();
     }
 
     @Operation(summary = "获取用户群聊列表", description = "获取用户群聊列表")
@@ -43,5 +41,31 @@ public class GroupController {
     @GetMapping("/invitation/list/{pageNum}")
     public Response<List<GroupInvitationVo>> getGroupInvitationList(@PathVariable int pageNum) {
         return Response.ok(sysGroupInvitationService.getUserGroupInvitationList(pageNum));
+    }
+
+    @Operation(summary = "处理群聊邀请", description = "处理群聊邀请")
+    @PostMapping("/invitation")
+    public Response<?> handleInvitation(@RequestBody GroupInvitationRequestDto groupInvitationRequestDto) {
+        if (groupInvitationRequestDto.isAccept()) {
+            if (sysGroupInvitationService.userAcceptInvitation(groupInvitationRequestDto.getGroupId()))
+                return Response.ok();
+        } else {
+            if (sysGroupInvitationService.userRejectInvitation(groupInvitationRequestDto.getGroupId()))
+                return Response.ok();
+        }
+        return Response.error();
+    }
+
+    @Operation(summary = "群组管理员处理群聊邀请", description = "群组管理员处理群聊邀请")
+    @PostMapping("/invitation/manage")
+    public Response<?> adminHandleInvitation(@RequestBody GroupInvitationRequestDto groupInvitationRequestDto) {
+        if (groupInvitationRequestDto.isAccept()) {
+            if (sysGroupInvitationService.adminAcceptInvitation(groupInvitationRequestDto.getUserId(), groupInvitationRequestDto.getGroupId()))
+                return Response.ok();
+        } else {
+            if (sysGroupInvitationService.adminRejectInvitation(groupInvitationRequestDto.getUserId(), groupInvitationRequestDto.getGroupId()))
+                return Response.ok();
+        }
+        return Response.error();
     }
 }
