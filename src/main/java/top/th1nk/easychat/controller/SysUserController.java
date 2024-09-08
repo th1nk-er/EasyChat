@@ -3,6 +3,7 @@ package top.th1nk.easychat.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import top.th1nk.easychat.domain.Response;
@@ -108,6 +109,7 @@ public class SysUserController {
 
     @Operation(summary = "修改密码", description = "修改密码")
     @PutMapping("/password")
+    @PreAuthorize("hasAuthority('USER:' + #updatePasswordDto.getUserId())")
     public Response<?> updatePassword(@RequestBody UpdatePasswordDto updatePasswordDto) {
         if (sysUserService.updatePassword(updatePasswordDto)) {
             return Response.ok();
@@ -116,9 +118,10 @@ public class SysUserController {
     }
 
     @Operation(summary = "修改头像", description = "修改头像")
-    @PostMapping("/avatar")
-    public Response<?> updateAvatar(@RequestParam("file") MultipartFile file) {
-        String avatarPath = sysUserService.updateAvatar(file);
+    @PostMapping("/avatar/{userId}")
+    @PreAuthorize("hasAuthority('USER:' + #userId)")
+    public Response<?> updateAvatar(@RequestParam("file") MultipartFile file, @PathVariable int userId) {
+        String avatarPath = sysUserService.updateAvatar(userId, file);
         if (avatarPath != null)
             return Response.ok(avatarPath);
         else
@@ -127,6 +130,7 @@ public class SysUserController {
 
     @Operation(summary = "修改用户信息", description = "修改用户信息")
     @PutMapping("/info")
+    @PreAuthorize("hasAuthority('USER:' + #updateUserInfoDto.getUserId())")
     public Response<?> updateUserInfo(@RequestBody UpdateUserInfoDto updateUserInfoDto) {
         if (sysUserService.updateUserInfo(updateUserInfoDto)) {
             return Response.ok();

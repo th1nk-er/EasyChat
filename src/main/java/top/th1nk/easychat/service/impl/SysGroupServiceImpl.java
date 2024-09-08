@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.th1nk.easychat.config.easychat.GroupProperties;
@@ -57,6 +58,7 @@ public class SysGroupServiceImpl extends ServiceImpl<SysGroupMapper, SysGroup>
 
     @Transactional
     @Override
+    @CacheEvict(cacheNames = "user:perms", key = "#createGroupDto.getUserId()", condition = "#result==true")
     public boolean createGroup(CreateGroupDto createGroupDto) {
         if (!GroupUtils.isValidGroupName(createGroupDto.getGroupName())) {
             throw new GroupException(GroupExceptionEnum.INVALID_GROUP_NAME);
@@ -103,12 +105,9 @@ public class SysGroupServiceImpl extends ServiceImpl<SysGroupMapper, SysGroup>
 
     @Override
     @NotNull
-    public List<UserGroupVo> getUserGroupList(int pageNum) {
+    public List<UserGroupVo> getUserGroupList(int userId, int pageNum) {
         if (pageNum <= 0) return List.of();
-        UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
-        if (userVo == null || userVo.getId() == null)
-            return List.of();
-        IPage<UserGroupVo> ipage = baseMapper.selectUserGroupList(new Page<>(pageNum, 10), userVo.getId());
+        IPage<UserGroupVo> ipage = baseMapper.selectUserGroupList(new Page<>(pageNum, 10), userId);
         return ipage.getRecords();
     }
 }

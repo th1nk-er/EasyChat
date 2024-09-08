@@ -10,14 +10,11 @@ import org.springframework.stereotype.Service;
 import top.th1nk.easychat.domain.SysUser;
 import top.th1nk.easychat.domain.SysUserAddFriend;
 import top.th1nk.easychat.domain.vo.FriendRequestListVo;
-import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.enums.AddUserStatus;
 import top.th1nk.easychat.enums.AddUserType;
 import top.th1nk.easychat.mapper.SysUserAddFriendMapper;
 import top.th1nk.easychat.mapper.SysUserMapper;
 import top.th1nk.easychat.service.SysUserAddFriendService;
-import top.th1nk.easychat.utils.JwtUtils;
-import top.th1nk.easychat.utils.RequestUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -34,25 +31,15 @@ public class SysUserAddFriendServiceImpl extends ServiceImpl<SysUserAddFriendMap
     private static final long REQUEST_EXPIRE_TIME = 60 * 60 * 24 * 7; // 好友申请有效期：7天 单位：秒
     @Resource
     private SysUserMapper sysUserMapper;
-    @Resource
-    private JwtUtils jwtUtils;
 
     @Override
-    public FriendRequestListVo getFriendRequestList(int page) {
+    public FriendRequestListVo getFriendRequestList(int userId, int page) {
         FriendRequestListVo friendRequestListVo = new FriendRequestListVo();
         friendRequestListVo.setTotal(0);
         friendRequestListVo.setPageSize(10);
         friendRequestListVo.setRecords(List.of());
-        // 获取token
-        String tokenString = RequestUtils.getUserTokenString();
-        if (tokenString.isEmpty()) return friendRequestListVo;
-        // 解析token 获取用户ID
-        UserVo userVo = jwtUtils.parseToken(tokenString);
-        if (userVo == null || userVo.getId() == null)
-            return friendRequestListVo;
-        // 开始查询
         LambdaQueryWrapper<SysUserAddFriend> qw = new LambdaQueryWrapper<>();
-        qw.eq(SysUserAddFriend::getUid, userVo.getId());
+        qw.eq(SysUserAddFriend::getUid, userId);
         Page<SysUserAddFriend> selectedPage = baseMapper.selectPage(new Page<>(page, 10), qw);
         List<SysUserAddFriend> userAddFriendList = selectedPage.getRecords();
         // 按添加时间排序
@@ -100,11 +87,11 @@ public class SysUserAddFriendServiceImpl extends ServiceImpl<SysUserAddFriendMap
 
     @Nullable
     @Override
-    public SysUserAddFriend getPendingRequest(int uid, int strangerId) {
-        if (!baseMapper.isAddRequestPending(uid, strangerId))
+    public SysUserAddFriend getPendingRequest(int userId, int strangerId) {
+        if (!baseMapper.isAddRequestPending(userId, strangerId))
             return null;
         LambdaQueryWrapper<SysUserAddFriend> qw = new LambdaQueryWrapper<>();
-        qw.eq(SysUserAddFriend::getUid, uid)
+        qw.eq(SysUserAddFriend::getUid, userId)
                 .eq(SysUserAddFriend::getStrangerId, strangerId)
                 .eq(SysUserAddFriend::getStatus, AddUserStatus.PENDING)
                 .eq(SysUserAddFriend::getAddType, AddUserType.ADD_OTHER);

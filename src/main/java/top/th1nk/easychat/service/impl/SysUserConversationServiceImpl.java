@@ -12,14 +12,11 @@ import top.th1nk.easychat.domain.chat.ChatType;
 import top.th1nk.easychat.domain.chat.MessageType;
 import top.th1nk.easychat.domain.vo.UserConversationVo;
 import top.th1nk.easychat.domain.vo.UserFriendVo;
-import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.mapper.SysUserConversationMapper;
 import top.th1nk.easychat.mapper.SysUserFriendMapper;
 import top.th1nk.easychat.mapper.SysUserMapper;
 import top.th1nk.easychat.service.ConversationRedisService;
 import top.th1nk.easychat.service.SysUserConversationService;
-import top.th1nk.easychat.utils.JwtUtils;
-import top.th1nk.easychat.utils.RequestUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -34,9 +31,6 @@ import java.util.List;
 @Slf4j
 public class SysUserConversationServiceImpl extends ServiceImpl<SysUserConversationMapper, SysUserConversation>
         implements SysUserConversationService {
-
-    @Resource
-    private JwtUtils jwtUtils;
 
     @Resource
     private ConversationRedisService conversationRedisService;
@@ -70,15 +64,13 @@ public class SysUserConversationServiceImpl extends ServiceImpl<SysUserConversat
     }
 
     @Override
-    public List<UserConversationVo> getUserConversations() {
-        UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
-        if (userVo == null || userVo.getId() == null) return List.of();
+    public List<UserConversationVo> getUserConversations(int userId) {
         // 查询用户聊天列表
-        log.debug("查询用户聊天列表 用户ID:{}", userVo.getId());
-        List<SysUserConversation> redisRecords = conversationRedisService.getUserConversations(userVo.getId());
+        log.debug("查询用户聊天列表 用户ID:{}", userId);
+        List<SysUserConversation> redisRecords = conversationRedisService.getUserConversations(userId);
         if (redisRecords.isEmpty()) {
             LambdaQueryWrapper<SysUserConversation> qw = new LambdaQueryWrapper<>();
-            qw.eq(SysUserConversation::getUid, userVo.getId())
+            qw.eq(SysUserConversation::getUid, userId)
                     .orderByDesc(SysUserConversation::getUpdateTime);
             List<SysUserConversation> dbRecords = baseMapper.selectList(qw);
             conversationRedisService.addToConversation(dbRecords);

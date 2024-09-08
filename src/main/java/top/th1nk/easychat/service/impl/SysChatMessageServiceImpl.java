@@ -7,12 +7,9 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import top.th1nk.easychat.domain.SysChatMessage;
 import top.th1nk.easychat.domain.chat.WSMessage;
-import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.mapper.SysChatMessageMapper;
 import top.th1nk.easychat.service.MessageRedisService;
 import top.th1nk.easychat.service.SysChatMessageService;
-import top.th1nk.easychat.utils.JwtUtils;
-import top.th1nk.easychat.utils.RequestUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,8 +24,6 @@ public class SysChatMessageServiceImpl extends ServiceImpl<SysChatMessageMapper,
         implements SysChatMessageService {
     @Resource
     private MessageRedisService messageRedisService;
-    @Resource
-    private JwtUtils jwtUtils;
 
     /**
      * 分页获取消息
@@ -61,16 +56,14 @@ public class SysChatMessageServiceImpl extends ServiceImpl<SysChatMessageMapper,
     }
 
     @Override
-    public List<SysChatMessage> getMessages(int receiverId, int currentPage) {
-        UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
-        if (userVo == null || userVo.getId() == null || currentPage < 0 || receiverId <= 0) return List.of();
-        int senderId = userVo.getId();
+    public List<SysChatMessage> getMessages(int userId, int receiverId, int currentPage) {
+        if (currentPage < 0 || receiverId <= 0) return List.of();
         if (currentPage == 0) {
             // 页码为0时，仅返回redis中聊天记录
-            return messageRedisService.getMessages(senderId, receiverId);
+            return messageRedisService.getMessages(userId, receiverId);
 
         }
-        List<SysChatMessage> messages = this.getChatMessageList(senderId, receiverId, currentPage);
+        List<SysChatMessage> messages = this.getChatMessageList(userId, receiverId, currentPage);
         Collections.reverse(messages);
         return messages;
     }

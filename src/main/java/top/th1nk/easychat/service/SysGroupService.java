@@ -24,8 +24,9 @@ public interface SysGroupService extends IService<SysGroup> {
     /**
      * 获取用户群聊列表
      *
+     * @param userId  用户ID
      * @param pageNum 页码
      * @return 群聊列表
      */
-    List<UserGroupVo> getUserGroupList(int pageNum);
+    List<UserGroupVo> getUserGroupList(int userId, int pageNum);
 }

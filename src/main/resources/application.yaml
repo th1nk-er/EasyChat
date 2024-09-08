@@ -1,4 +1,9 @@
 spring:
+  cache:
+    cache-names: easy-chat-cache
+    redis:
+      use-key-prefix: true
+      time-to-live: 1h
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
   mail:

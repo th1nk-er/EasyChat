@@ -7,6 +7,8 @@ import top.th1nk.easychat.enums.AddUserStatus;
 @Data
 @Schema(description = "好友请求处理DTO")
 public class FriendRequestHandleDto {
+    @Schema(description = "用户id")
+    private int userId;
     @Schema(description = "好友请求id")
     private int id;
     @Schema(description = "处理状态")

@@ -23,10 +23,11 @@ public interface SysGroupInvitationService extends IService<SysGroupInvitation> 
     /**
      * 获取用户群聊邀请列表
      *
-     * @param page 页码
+     * @param userId 用户ID
+     * @param page   页码
      * @return 邀请列表
      */
-    List<GroupInvitationVo> getUserGroupInvitationList(int page);
+    List<GroupInvitationVo> getUserGroupInvitationList(int userId, int page);
 
     /**
      * 获取用户管理的群聊的邀请列表

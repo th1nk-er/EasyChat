@@ -3,6 +3,7 @@ package top.th1nk.easychat.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import top.th1nk.easychat.domain.Response;
 import top.th1nk.easychat.domain.dto.CreateGroupDto;
@@ -25,6 +26,7 @@ public class GroupController {
 
     @Operation(summary = "创建群聊", description = "创建群聊")
     @PostMapping("/create")
+    @PreAuthorize("hasAuthority('USER:' + #createGroupDto.getUserId())")
     public Response<?> createGroup(@RequestBody CreateGroupDto createGroupDto) {
         if (sysGroupService.createGroup(createGroupDto))
             return Response.ok();
@@ -32,19 +34,22 @@ public class GroupController {
     }
 
     @Operation(summary = "获取用户群聊列表", description = "获取用户群聊列表")
-    @GetMapping("/list/{pageNum}")
-    public Response<List<UserGroupVo>> getGroupList(@PathVariable int pageNum) {
-        return Response.ok(sysGroupService.getUserGroupList(pageNum));
+    @GetMapping("/list/{userId}/{pageNum}")
+    @PreAuthorize("hasAuthority('USER:' + #userId)")
+    public Response<List<UserGroupVo>> getGroupList(@PathVariable int userId, @PathVariable int pageNum) {
+        return Response.ok(sysGroupService.getUserGroupList(userId, pageNum));
     }
 
     @Operation(summary = "获取用户群聊邀请列表", description = "获取用户群聊邀请列表")
-    @GetMapping("/invitation/list/{pageNum}")
-    public Response<List<GroupInvitationVo>> getGroupInvitationList(@PathVariable int pageNum) {
-        return Response.ok(sysGroupInvitationService.getUserGroupInvitationList(pageNum));
+    @GetMapping("/invitation/list/{userId}/{pageNum}")
+    @PreAuthorize("hasAuthority('USER:' + #userId)")
+    public Response<List<GroupInvitationVo>> getGroupInvitationList(@PathVariable int userId, @PathVariable int pageNum) {
+        return Response.ok(sysGroupInvitationService.getUserGroupInvitationList(userId, pageNum));
     }
 
     @Operation(summary = "处理群聊邀请", description = "处理群聊邀请")
     @PostMapping("/invitation")
+    @PreAuthorize("hasAuthority('USER:' + #groupInvitationRequestDto.getUserId())")
     public Response<?> handleInvitation(@RequestBody GroupInvitationRequestDto groupInvitationRequestDto) {
         if (groupInvitationRequestDto.isAccept()) {
             if (sysGroupInvitationService.userAcceptInvitation(groupInvitationRequestDto.getGroupId()))
@@ -58,6 +63,7 @@ public class GroupController {
 
     @Operation(summary = "群组管理员处理群聊邀请", description = "群组管理员处理群聊邀请")
     @PostMapping("/invitation/manage")
+    @PreAuthorize("hasAuthority('GROUP_ADMIN:' + #groupInvitationRequestDto.getGroupId())")
     public Response<?> adminHandleInvitation(@RequestBody GroupInvitationRequestDto groupInvitationRequestDto) {
         if (groupInvitationRequestDto.isAccept()) {
             if (sysGroupInvitationService.adminAcceptInvitation(groupInvitationRequestDto.getUserId(), groupInvitationRequestDto.getGroupId()))

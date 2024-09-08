@@ -7,6 +7,8 @@ import top.th1nk.easychat.enums.UserSex;
 @Data
 @Schema(description = "更新用户信息DTO")
 public class UpdateUserInfoDto {
+    @Schema(description = "用户ID")
+    private int userId;
     @Schema(description = "昵称")
     private String nickname;
     @Schema(description = "性别")

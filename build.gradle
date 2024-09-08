@@ -30,6 +30,7 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis' // redis
     implementation 'org.springframework.boot:spring-boot-starter-security' // spring security
+    implementation 'org.springframework.boot:spring-boot-starter-cache' // spring cache
     implementation 'org.springframework.boot:spring-boot-starter-web' // spring web
     implementation 'org.springframework.boot:spring-boot-starter-websocket' // spring websocket
     implementation 'org.springframework.boot:spring-boot-starter-mail' // email

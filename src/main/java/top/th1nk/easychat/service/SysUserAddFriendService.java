@@ -16,11 +16,12 @@ public interface SysUserAddFriendService extends IService<SysUserAddFriend> {
     /**
      * 获取好友申请列表
      *
-     * @param page 页码
+     * @param userId 用户ID
+     * @param page   页码
      * @return 好友申请列表Vo
      */
     @NotNull
-    FriendRequestListVo getFriendRequestList(int page);
+    FriendRequestListVo getFriendRequestList(int userId, int page);
 
     /**
      * 通过一方的好友申请ID返回另一方的好友申请
@@ -35,12 +36,12 @@ public interface SysUserAddFriendService extends IService<SysUserAddFriend> {
      * 获取待处理的好友申请
      * 返回用户ID向陌生人ID发起的待处理的请求
      *
-     * @param uid        用户ID
+     * @param userId     用户ID
      * @param strangerId 陌生人ID
      * @return 待处理的好友申请
      */
     @Nullable
-    SysUserAddFriend getPendingRequest(int uid, int strangerId);
+    SysUserAddFriend getPendingRequest(int userId, int strangerId);
 
     /**
      * 判断好友申请是否过期

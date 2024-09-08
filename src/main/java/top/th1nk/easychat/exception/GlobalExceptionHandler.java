@@ -2,6 +2,7 @@ package top.th1nk.easychat.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -25,6 +26,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CustomException.class)
     public Response<?> commonException(CustomException e) {
         return Response.error(e.getCode(), e.getMessage());
+    }
+
+    /**
+     * 权限不足
+     */
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public Response<?> authorityException() {
+        return Response.error("权限不足");
     }
 
     /**

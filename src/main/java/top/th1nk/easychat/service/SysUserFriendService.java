@@ -35,33 +35,37 @@ public interface SysUserFriendService extends IService<SysUserFriend> {
     /**
      * 获取好友列表
      *
-     * @param page 页码
+     * @param userId 用户ID
+     * @param page   页码
      * @return 好友列表
      */
-    FriendListVo getFriendList(int page);
+    FriendListVo getFriendList(int userId, int page);
 
     /**
      * 获取好友信息
      *
+     * @param userId   用户ID
      * @param friendId 好友ID
      * @return 好友信息
      */
     @Nullable
-    UserFriendVo getFriendInfo(int friendId);
+    UserFriendVo getFriendInfo(int userId, int friendId);
 
     /**
      * 更新好友信息
      *
+     * @param userId              用户ID
      * @param userFriendUpdateDto 更新信息
      * @return 是否更新成功
      */
-    boolean updateFriendInfo(UserFriendUpdateDto userFriendUpdateDto);
+    boolean updateFriendInfo(int userId, UserFriendUpdateDto userFriendUpdateDto);
 
     /**
      * 删除好友
      *
+     * @param userId   用户ID
      * @param friendId 好友ID
      * @return 是否删除成功
      */
-    boolean deleteFriend(int friendId);
+    boolean deleteFriend(int userId, int friendId);
 }

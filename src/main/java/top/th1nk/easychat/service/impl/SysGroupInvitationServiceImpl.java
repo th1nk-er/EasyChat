@@ -53,11 +53,9 @@ public class SysGroupInvitationServiceImpl extends ServiceImpl<SysGroupInvitatio
     }
 
     @Override
-    public List<GroupInvitationVo> getUserGroupInvitationList(int page) {
+    public List<GroupInvitationVo> getUserGroupInvitationList(int userId, int page) {
         if (page <= 0) return List.of();
-        UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
-        if (userVo == null || userVo.getId() == null) return List.of();
-        return baseMapper.selectInvitationVoByUserId(new Page<>(page, 10), userVo.getId());
+        return baseMapper.selectInvitationVoByUserId(new Page<>(page, 10), userId);
     }
 
     @Override

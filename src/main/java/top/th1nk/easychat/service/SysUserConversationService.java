@@ -16,9 +16,10 @@ public interface SysUserConversationService extends IService<SysUserConversation
     /**
      * 获取用户对话列表
      *
+     * @param userId 用户id
      * @return 聊天列表
      */
-    List<UserConversationVo> getUserConversations();
+    List<UserConversationVo> getUserConversations(int userId);
 
     /**
      * 将对话设为已读

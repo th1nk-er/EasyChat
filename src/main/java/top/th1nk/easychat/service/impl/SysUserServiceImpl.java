@@ -183,20 +183,18 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public boolean updatePassword(UpdatePasswordDto updatePasswordDto) {
-        UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
-        if (userVo == null) return false;
-        SysUser user = baseMapper.getByUsername(userVo.getUsername());
+        SysUser user = baseMapper.selectById(updatePasswordDto.getUserId());
         if (user == null) return false;
         if (!UserUtils.isValidPassword(updatePasswordDto.getNewPassword()))
             throw new CommonException(CommonExceptionEnum.PASSWORD_INVALID);
         // 判断验证码是否正确
-        if (emailService.verifyCode(userVo.getEmail(), updatePasswordDto.getCode(), EmailActionEnum.ACTION_CHANGE_PASSWORD)) {
+        if (emailService.verifyCode(user.getEmail(), updatePasswordDto.getCode(), EmailActionEnum.ACTION_CHANGE_PASSWORD)) {
             user.setPassword(UserUtils.encryptPassword(updatePasswordDto.getNewPassword()));
             if (baseMapper.updateById(user) == 0) {
                 return false;
             }
             // 强制过期所有token
-            List<SysUserToken> userTokenList = sysUserTokenService.getUserTokenList(userVo.getId());
+            List<SysUserToken> userTokenList = sysUserTokenService.getUserTokenList(updatePasswordDto.getUserId());
             userTokenList.forEach(token -> sysUserTokenService.expireToken(token.getToken()));
             return true;
         } else
@@ -204,13 +202,13 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    public String updateAvatar(MultipartFile file) {
+    public String updateAvatar(int userId, MultipartFile file) {
         if (file == null) return null;
         if (!FileUtils.isImage(file.getOriginalFilename()))
             throw new CommonException(CommonExceptionEnum.FILE_TYPE_NOT_SUPPORTED); // 文件类型不支持
         if ((file.getSize() / 1024) > userProperties.getAvatarMaxSize())
             throw new CommonException(CommonExceptionEnum.FILE_SIZE_EXCEEDED); // 头像文件过大
-        UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
+        UserVo userVo = UserUtils.userToVo(baseMapper.selectById(userId));
         if (userVo == null || userVo.getId() == null) return null;
         log.info("用户修改头像，用户ID：{}", userVo.getId());
         String fileType = FileUtils.getFileType(file.getOriginalFilename());
@@ -261,9 +259,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         if (!UserUtils.isValidNickname(updateUserInfoDto.getNickname()))
             throw new CommonException(CommonExceptionEnum.NICKNAME_INVALID);
         if (updateUserInfoDto.getSex() == null) return false;
-        UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
-        if (userVo == null || userVo.getId() == null) return false;
-        SysUser sysUser = baseMapper.selectById(userVo.getId());
+        SysUser sysUser = baseMapper.selectById(updateUserInfoDto.getUserId());
         if (sysUser == null) return false;
         if (sysUser.getNickname().equals(updateUserInfoDto.getNickname()) && sysUser.getSex() == updateUserInfoDto.getSex())
             return true;
@@ -272,9 +268,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         sysUser.setSex(updateUserInfoDto.getSex());
         if (baseMapper.updateById(sysUser) == 0) return false;
         // 更新redis中的userVo
-        userVo.setNickname(updateUserInfoDto.getNickname());
-        userVo.setSex(updateUserInfoDto.getSex());
-        List<SysUserToken> userTokenList = sysUserTokenService.getUserTokenList(userVo.getId());
+        List<SysUserToken> userTokenList = sysUserTokenService.getUserTokenList(updateUserInfoDto.getUserId());
+        UserVo userVo = UserUtils.userToVo(sysUser);
         for (SysUserToken userToken : userTokenList) {
             jwtUtils.updateUserVo(userToken.getToken(), userVo);
         }
