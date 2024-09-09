@@ -15,6 +15,8 @@ public class GroupInvitationVo {
     private String groupName;
     @Schema(description = "群组头像")
     private String groupAvatar;
+    @Schema(description = "邀请人ID")
+    private Integer invitedById;
     @Schema(description = "邀请人用户名")
     private Integer invitedByUsername;
     @Schema(description = "邀请人昵称")

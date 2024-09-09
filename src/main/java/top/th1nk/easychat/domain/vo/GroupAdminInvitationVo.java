@@ -15,13 +15,17 @@ public class GroupAdminInvitationVo {
     private String groupName;
     @Schema(description = "群组头像")
     private String groupAvatar;
+    @Schema(description = "邀请人id")
+    private Integer invitedById;
     @Schema(description = "邀请人用户名")
     private Integer invitedByUsername;
     @Schema(description = "邀请人昵称")
     private String invitedByNickname;
-    @Schema(description = "邀请人用户名")
+    @Schema(description = "受邀请人ID")
+    private Integer inviterId;
+    @Schema(description = "受邀请人用户名")
     private String inviterUsername;
-    @Schema(description = "邀请人昵称")
+    @Schema(description = "受邀请人昵称")
     private String inviterNickname;
     @Schema(description = "邀请状态")
     private GroupInvitationStatus status;
