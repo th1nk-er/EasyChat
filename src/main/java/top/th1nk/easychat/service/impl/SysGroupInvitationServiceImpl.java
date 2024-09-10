@@ -59,23 +59,19 @@ public class SysGroupInvitationServiceImpl extends ServiceImpl<SysGroupInvitatio
     }
 
     @Override
-    public List<GroupAdminInvitationVo> getAdminGroupInvitationList(int page) {
+    public List<GroupAdminInvitationVo> getAdminGroupInvitationList(int userId, int page) {
         if (page <= 0) return List.of();
-        UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
-        if (userVo == null || userVo.getId() == null) return List.of();
-        return baseMapper.selectAdminInvitationVoByUserId(new Page<>(page, 10), userVo.getId());
+        return baseMapper.selectAdminInvitationVoByUserId(new Page<>(page, 10), userId);
     }
 
     @Override
     @Transactional
-    public boolean userAcceptInvitation(int groupId) {
-        UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
-        if (userVo == null || userVo.getId() == null) return false;
-        if (sysGroupMemberMapper.selectByUserIdAndGroupId(userVo.getId(), groupId) != null)
+    public boolean userAcceptInvitation(int userId, int groupId) {
+        if (sysGroupMemberMapper.selectByUserIdAndGroupId(userId, groupId) != null)
             throw new GroupException(GroupExceptionEnum.ALREADY_IN_GROUP);
         LambdaUpdateWrapper<SysGroupInvitation> qw = new LambdaUpdateWrapper<>();
         qw.eq(SysGroupInvitation::getGroupId, groupId)
-                .eq(SysGroupInvitation::getInvitedUserId, userVo.getId())
+                .eq(SysGroupInvitation::getInvitedUserId, userId)
                 .eq(SysGroupInvitation::getStatus, GroupInvitationStatus.PENDING);
         SysGroupInvitation invitation = baseMapper.selectOne(qw);
         if (invitation == null) return false;
@@ -86,7 +82,7 @@ public class SysGroupInvitationServiceImpl extends ServiceImpl<SysGroupInvitatio
                 return false;
             // 添加群组成员
             SysGroupMember sysGroupMember = new SysGroupMember();
-            sysGroupMember.setUserId(userVo.getId());
+            sysGroupMember.setUserId(userId);
             sysGroupMember.setGroupId(groupId);
             sysGroupMember.setMuted(false);
             sysGroupMember.setRole(UserRole.USER);
@@ -98,12 +94,10 @@ public class SysGroupInvitationServiceImpl extends ServiceImpl<SysGroupInvitatio
     }
 
     @Override
-    public boolean userRejectInvitation(int groupId) {
-        UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
-        if (userVo == null || userVo.getId() == null) return false;
+    public boolean userRejectInvitation(int userId, int groupId) {
         LambdaUpdateWrapper<SysGroupInvitation> qw = new LambdaUpdateWrapper<>();
         qw.eq(SysGroupInvitation::getGroupId, groupId)
-                .eq(SysGroupInvitation::getInvitedUserId, userVo.getId())
+                .eq(SysGroupInvitation::getInvitedUserId, userId)
                 .eq(SysGroupInvitation::getStatus, GroupInvitationStatus.PENDING);
         if (baseMapper.selectOne(qw) == null) return false;
         return baseMapper.update(null, qw.set(SysGroupInvitation::getStatus, GroupInvitationStatus.REJECTED)) > 0;

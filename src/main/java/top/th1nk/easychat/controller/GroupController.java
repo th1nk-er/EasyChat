@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import top.th1nk.easychat.domain.Response;
 import top.th1nk.easychat.domain.dto.CreateGroupDto;
 import top.th1nk.easychat.domain.dto.GroupInvitationRequestDto;
+import top.th1nk.easychat.domain.vo.GroupAdminInvitationVo;
 import top.th1nk.easychat.domain.vo.GroupInvitationVo;
 import top.th1nk.easychat.domain.vo.UserGroupVo;
 import top.th1nk.easychat.service.SysGroupInvitationService;
@@ -52,13 +53,19 @@ public class GroupController {
     @PreAuthorize("hasAuthority('USER:' + #groupInvitationRequestDto.getUserId())")
     public Response<?> handleInvitation(@RequestBody GroupInvitationRequestDto groupInvitationRequestDto) {
         if (groupInvitationRequestDto.isAccept()) {
-            if (sysGroupInvitationService.userAcceptInvitation(groupInvitationRequestDto.getGroupId()))
+            if (sysGroupInvitationService.userAcceptInvitation(groupInvitationRequestDto.getUserId(), groupInvitationRequestDto.getGroupId()))
                 return Response.ok();
         } else {
-            if (sysGroupInvitationService.userRejectInvitation(groupInvitationRequestDto.getGroupId()))
+            if (sysGroupInvitationService.userRejectInvitation(groupInvitationRequestDto.getUserId(), groupInvitationRequestDto.getGroupId()))
                 return Response.ok();
         }
         return Response.error();
+    }
+
+    @Operation(summary = "获取用户管理的群聊的邀请列表", description = "获取用户管理的群聊的邀请列表")
+    @GetMapping("/invitation/manage/list/{userId}/{pageNum}")
+    public Response<List<GroupAdminInvitationVo>> getAdminGroupInvitationList(@PathVariable int userId, @PathVariable int pageNum) {
+        return Response.ok(sysGroupInvitationService.getAdminGroupInvitationList(userId, pageNum));
     }
 
     @Operation(summary = "群组管理员处理群聊邀请", description = "群组管理员处理群聊邀请")
