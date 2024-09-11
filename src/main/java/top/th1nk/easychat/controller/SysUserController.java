@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import top.th1nk.easychat.domain.Response;
 import top.th1nk.easychat.domain.dto.*;
 import top.th1nk.easychat.domain.vo.SearchUserVo;
+import top.th1nk.easychat.domain.vo.StrangerVo;
 import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.enums.EmailActionEnum;
 import top.th1nk.easychat.exception.CommonException;
@@ -41,6 +42,12 @@ public class SysUserController {
     @GetMapping("/info")
     public Response<UserVo> getUser() {
         return Response.ok(jwtUtils.parseToken(RequestUtils.getUserTokenString()));
+    }
+
+    @Operation(summary = "获取陌生人信息", description = "用户获取指定陌生人信息")
+    @GetMapping("/info/{strangerId}")
+    public Response<StrangerVo> getStranger(@PathVariable int strangerId) {
+        return Response.ok(sysUserService.getStrangerInfo(strangerId));
     }
 
     @Operation(summary = "用户注册", description = "用户注册")

@@ -20,6 +20,7 @@ import top.th1nk.easychat.domain.SysUser;
 import top.th1nk.easychat.domain.SysUserToken;
 import top.th1nk.easychat.domain.dto.*;
 import top.th1nk.easychat.domain.vo.SearchUserVo;
+import top.th1nk.easychat.domain.vo.StrangerVo;
 import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.enums.EmailActionEnum;
 import top.th1nk.easychat.enums.LoginType;
@@ -170,9 +171,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
         if (iPage.getTotal() == 0) return result;
 
-        List<SearchUserVo.Record> records = new ArrayList<>();
+        List<StrangerVo> records = new ArrayList<>();
         iPage.getRecords().forEach(sysUser -> {
-            SearchUserVo.Record record = new SearchUserVo.Record();
+            StrangerVo record = new StrangerVo();
             BeanUtils.copyProperties(sysUser, record);
             records.add(record);
         });
@@ -274,5 +275,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             jwtUtils.updateUserVo(userToken.getToken(), userVo);
         }
         return true;
+    }
+
+    @Override
+    public StrangerVo getStrangerInfo(int strangerId) {
+        SysUser sysUser = baseMapper.selectById(strangerId);
+        return UserUtils.userToStrangerVo(sysUser);
     }
 }

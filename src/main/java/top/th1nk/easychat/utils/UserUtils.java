@@ -4,6 +4,7 @@ import jakarta.annotation.Nullable;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import top.th1nk.easychat.domain.SysUser;
+import top.th1nk.easychat.domain.vo.StrangerVo;
 import top.th1nk.easychat.domain.vo.UserVo;
 
 /**
@@ -22,6 +23,14 @@ public class UserUtils {
         UserVo userVo = new UserVo();
         BeanUtils.copyProperties(user, userVo);
         return userVo;
+    }
+
+    @Nullable
+    public static StrangerVo userToStrangerVo(@Nullable SysUser user) {
+        if (user == null) return null;
+        StrangerVo strangerVo = new StrangerVo();
+        BeanUtils.copyProperties(user, strangerVo);
+        return strangerVo;
     }
 
     /**

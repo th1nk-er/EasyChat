@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import top.th1nk.easychat.domain.SysUser;
 import top.th1nk.easychat.domain.dto.*;
 import top.th1nk.easychat.domain.vo.SearchUserVo;
+import top.th1nk.easychat.domain.vo.StrangerVo;
 import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.exception.LoginException;
 import top.th1nk.easychat.exception.RegisterException;
@@ -103,4 +104,12 @@ public interface SysUserService extends IService<SysUser> {
      * @return 修改结果
      */
     boolean updateUserInfo(UpdateUserInfoDto updateUserInfoDto);
+
+    /**
+     * 获取陌生人信息
+     *
+     * @param strangerId 陌生人id
+     * @return 陌生人信息
+     */
+    StrangerVo getStrangerInfo(int strangerId);
 }
