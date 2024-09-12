@@ -3,6 +3,7 @@ package top.th1nk.easychat.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import top.th1nk.easychat.domain.SysGroup;
 import top.th1nk.easychat.domain.dto.CreateGroupDto;
+import top.th1nk.easychat.domain.vo.GroupVo;
 import top.th1nk.easychat.domain.vo.UserGroupVo;
 
 import java.util.List;
@@ -29,4 +30,12 @@ public interface SysGroupService extends IService<SysGroup> {
      * @return 群聊列表
      */
     List<UserGroupVo> getUserGroupList(int userId, int pageNum);
+
+    /**
+     * 获取群聊信息Vo
+     *
+     * @param groupId 群聊ID
+     * @return 群聊信息
+     */
+    GroupVo getGroupVo(int groupId);
 }

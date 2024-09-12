@@ -103,12 +103,14 @@ public class ConversationRedisServiceImpl implements ConversationRedisService {
     }
 
     @Override
-    public boolean setConversationRead(int senderId, int receiverId, ChatType chatType) {
+    public boolean setConversationRead(int userId, int chatId, ChatType chatType) {
         HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
-        String redisKey = CHAT_CONVERSATION_PRIVATE_KEY + senderId;
-        if (chatType == ChatType.GROUP)
-            redisKey = CHAT_CONVERSATION_GROUP_KEY + senderId;
-        String hashKey = String.valueOf(receiverId);
+        String redisKey;
+        if (chatType == ChatType.FRIEND)
+            redisKey = CHAT_CONVERSATION_PRIVATE_KEY + userId;
+        else
+            redisKey = CHAT_CONVERSATION_GROUP_KEY + userId;
+        String hashKey = String.valueOf(chatId);
         SysUserConversation sysUserConversation = hashOperations.get(redisKey, hashKey);
         if (sysUserConversation == null) return false;
         sysUserConversation.setUnreadCount(0);

@@ -31,4 +31,16 @@
                  LEFT JOIN ec_user u ON gm.user_id = u.id
         WHERE gm.user_id = #{userId}
     </select>
+    <select id="selectGroupVoById" resultType="top.th1nk.easychat.domain.vo.GroupVo">
+        SELECT g.group_id,
+               g.group_name,
+               g.group_desc,
+               g.avatar,
+               g.create_time,
+               count(gm.user_id) AS member_count
+        FROM ec_group g
+                 LEFT JOIN ec_group_member gm ON g.group_id = gm.group_id
+        WHERE g.group_id = #{groupId}
+          AND deleted = 0
+    </select>
 </mapper>

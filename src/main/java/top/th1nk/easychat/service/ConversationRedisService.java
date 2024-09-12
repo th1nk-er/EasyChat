@@ -32,12 +32,12 @@ public interface ConversationRedisService {
     /**
      * 在redis中设置用户对话已读
      *
-     * @param senderId   发送者ID
-     * @param receiverId 接收者ID
-     * @param chatType   聊天类型
+     * @param userId   用户ID
+     * @param chatId   对话者ID
+     * @param chatType 聊天类型
      * @return 是否设置成功, redis中不存在指定会话时返回false
      */
-    boolean setConversationRead(int senderId, int receiverId, ChatType chatType);
+    boolean setConversationRead(int userId, int chatId, ChatType chatType);
 
     /**
      * 在redis中添加用户对话

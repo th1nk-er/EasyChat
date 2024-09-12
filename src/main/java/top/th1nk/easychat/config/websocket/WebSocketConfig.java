@@ -12,6 +12,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
@@ -19,6 +20,7 @@ import top.th1nk.easychat.config.easychat.EasyChatConfiguration;
 import top.th1nk.easychat.config.easychat.WebSocketProperties;
 import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.utils.JwtUtils;
+import top.th1nk.easychat.utils.SecurityUtils;
 
 import java.util.List;
 
@@ -28,6 +30,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final WebSocketProperties webSocket;
     @Resource
     private JwtUtils jwtUtils;
+    @Resource
+    private SecurityUtils securityUtils;
 
     public WebSocketConfig(EasyChatConfiguration easyChatConfiguration) {
         this.webSocket = easyChatConfiguration.getWebSocket();
@@ -62,6 +66,19 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                     UserVo userVo = jwtUtils.parseToken(tokenString);
                     if (userVo == null) return message;
                     accessor.setUser(new UsernamePasswordAuthenticationToken(userVo.getId(), tokenString));
+                } else if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
+                    // 用户发起订阅消息
+                    String destination = accessor.getDestination();
+                    if (destination == null) return message;
+                    if (destination.startsWith("/notify/message/group/")) {
+                        // 订阅群组消息
+                        Authentication authentication = (Authentication) accessor.getUser();
+                        if (authentication == null || authentication.getPrincipal() == null)
+                            return null;
+                        String groupId = destination.substring("/notify/message/group/".length());
+                        if (!securityUtils.getPermissions((Integer) authentication.getPrincipal()).contains("GROUP:" + groupId))
+                            return null;
+                    }
                 }
                 return message;
             }

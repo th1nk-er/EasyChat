@@ -82,10 +82,8 @@ public class SysUserConversationServiceImpl extends ServiceImpl<SysUserConversat
 
     @Override
     public void setConversationRead(int userId, int receiverId, ChatType chatType) {
-        if (userId == receiverId) return;
-        if (chatType == ChatType.FRIEND && !sysUserFriendMapper.isOneWayFriend(userId, receiverId))
-            return;
-        log.debug("设置用户对话为已读 userId:{} receiverId:{}", userId, receiverId);
+        if (chatType == ChatType.FRIEND && userId == receiverId) return;
+        log.debug("设置用户对话为已读 userId:{} receiverId:{} chatType:{}", userId, receiverId, chatType);
         if (conversationRedisService.setConversationRead(userId, receiverId, chatType))
             return;
         // 保存新会话

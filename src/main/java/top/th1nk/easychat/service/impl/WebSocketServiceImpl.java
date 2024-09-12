@@ -10,9 +10,9 @@ import top.th1nk.easychat.config.easychat.JwtProperties;
 import top.th1nk.easychat.domain.chat.ChatType;
 import top.th1nk.easychat.domain.chat.MessageCommand;
 import top.th1nk.easychat.domain.chat.WSMessage;
-import top.th1nk.easychat.mapper.SysUserFriendMapper;
 import top.th1nk.easychat.service.SysChatMessageService;
 import top.th1nk.easychat.service.WebSocketService;
+import top.th1nk.easychat.utils.SecurityUtils;
 import top.th1nk.easychat.utils.StringUtils;
 
 import java.time.Duration;
@@ -29,9 +29,9 @@ public class WebSocketServiceImpl implements WebSocketService {
     @Resource
     private JwtProperties jwtProperties;
     @Resource
-    private SysUserFriendMapper sysUserFriendMapper;
-    @Resource
     private SysChatMessageService sysChatMessageService;
+    @Resource
+    private SecurityUtils securityUtils;
 
     @Override
     public void sendMessage(Authentication authentication, WSMessage message) {
@@ -42,7 +42,8 @@ public class WebSocketServiceImpl implements WebSocketService {
             }
             // 用户消息，从redis中取出toId对应的token，
             // 获取其token对应的sha256值，以sha256值为目的地发送ws消息
-            if (!sysUserFriendMapper.isFriend(message.getFromId(), message.getToId())) {
+            if (!securityUtils.getPermissions(message.getFromId()).contains("FRIEND:" + message.getToId()) &&
+                    !securityUtils.getPermissions(message.getToId()).contains("FRIEND:" + message.getFromId())) {
                 // 非好友关系
                 log.warn("用户 {} 试图在非好友状态下向用户 {} 发送消息", message.getFromId(), message.getToId());
                 //发送错误提示
@@ -61,7 +62,7 @@ public class WebSocketServiceImpl implements WebSocketService {
             sysChatMessageService.saveMessage(message);
         } else if (message.getChatType() == ChatType.GROUP) {
             //群组消息
-            return;
+            simpMessagingTemplate.convertAndSend("/notify/message/group/" + message.getToId(), message);
         }
     }
 
@@ -88,7 +89,7 @@ public class WebSocketServiceImpl implements WebSocketService {
             this.sendMessage(authentication, message);
         } else {
             // 发送者未通过认证
-            return;
+            simpMessagingTemplate.convertAndSend("/notify/message/" + StringUtils.getSHA256Hash(authentication.getCredentials().toString()), WSMessage.error(message.getFromId(), "认证未通过"));
         }
     }
 

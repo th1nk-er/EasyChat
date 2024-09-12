@@ -81,4 +81,10 @@ public class GroupController {
         }
         return Response.error();
     }
+
+    @Operation(summary = "获取群聊信息", description = "获取群聊信息")
+    @GetMapping("/info/{groupId}")
+    public Response<?> getGroupInfo(@PathVariable int groupId) {
+        return Response.ok(sysGroupService.getGroupVo(groupId));
+    }
 }
