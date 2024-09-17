@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import top.th1nk.easychat.domain.Response;
 import top.th1nk.easychat.domain.dto.CreateGroupDto;
 import top.th1nk.easychat.domain.dto.GroupInvitationRequestDto;
+import top.th1nk.easychat.domain.dto.UserGroupUpdateDto;
 import top.th1nk.easychat.domain.vo.GroupAdminInvitationVo;
 import top.th1nk.easychat.domain.vo.GroupInvitationVo;
 import top.th1nk.easychat.domain.vo.UserGroupVo;
@@ -86,5 +87,14 @@ public class GroupController {
     @GetMapping("/info/{groupId}")
     public Response<?> getGroupInfo(@PathVariable int groupId) {
         return Response.ok(sysGroupService.getGroupVo(groupId));
+    }
+
+    @Operation(summary = "更新用户用户群组信息", description = "更新用户用户群组信息")
+    @PutMapping("/update/user/{userId}")
+    @PreAuthorize("hasAuthority('USER:'+ #userId) and hasAuthority('GROUP:' + #userGroupUpdateDto.getGroupId())")
+    public Response<?> updateUserGroupInfo(@PathVariable int userId, @RequestBody UserGroupUpdateDto userGroupUpdateDto) {
+        if (sysGroupService.updateUserGroupInfo(userId, userGroupUpdateDto))
+            return Response.ok();
+        else return Response.error();
     }
 }

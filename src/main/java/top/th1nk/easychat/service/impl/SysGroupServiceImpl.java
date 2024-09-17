@@ -1,5 +1,6 @@
 package top.th1nk.easychat.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -15,6 +16,7 @@ import top.th1nk.easychat.domain.SysGroupInvitation;
 import top.th1nk.easychat.domain.SysGroupMember;
 import top.th1nk.easychat.domain.chat.ChatType;
 import top.th1nk.easychat.domain.dto.CreateGroupDto;
+import top.th1nk.easychat.domain.dto.UserGroupUpdateDto;
 import top.th1nk.easychat.domain.vo.GroupVo;
 import top.th1nk.easychat.domain.vo.UserGroupVo;
 import top.th1nk.easychat.domain.vo.UserVo;
@@ -116,8 +118,14 @@ public class SysGroupServiceImpl extends ServiceImpl<SysGroupMapper, SysGroup>
     public GroupVo getGroupVo(int groupId) {
         return baseMapper.selectGroupVoById(groupId);
     }
+
+    @Override
+    public boolean updateUserGroupInfo(int userId, UserGroupUpdateDto userGroupUpdateDto) {
+        LambdaUpdateWrapper<SysGroupMember> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(SysGroupMember::getUserId, userId)
+                .eq(SysGroupMember::getGroupId, userGroupUpdateDto.getGroupId())
+                .set(SysGroupMember::isMuted, userGroupUpdateDto.isMuted())
+                .set(SysGroupMember::getGroupRemark, userGroupUpdateDto.getGroupRemark());
+        return sysGroupMemberMapper.update(null, updateWrapper) > 0;
+    }
 }
-
-
-
-

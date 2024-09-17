@@ -3,6 +3,7 @@ package top.th1nk.easychat.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import top.th1nk.easychat.domain.SysGroup;
 import top.th1nk.easychat.domain.dto.CreateGroupDto;
+import top.th1nk.easychat.domain.dto.UserGroupUpdateDto;
 import top.th1nk.easychat.domain.vo.GroupVo;
 import top.th1nk.easychat.domain.vo.UserGroupVo;
 
@@ -38,4 +39,13 @@ public interface SysGroupService extends IService<SysGroup> {
      * @return 群聊信息
      */
     GroupVo getGroupVo(int groupId);
+
+    /**
+     * 更新用户群组信息
+     *
+     * @param userId             用户ID
+     * @param userGroupUpdateDto 用户群组信息更新Dto
+     * @return 是否更新成功
+     */
+    boolean updateUserGroupInfo(int userId, UserGroupUpdateDto userGroupUpdateDto);
 }
