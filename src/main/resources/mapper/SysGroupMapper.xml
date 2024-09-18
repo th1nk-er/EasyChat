@@ -25,6 +25,7 @@
                g.group_desc,
                g.avatar,
                gm.role,
+               gm.muted,
                gm.group_remark
         FROM ec_group g
                  LEFT JOIN ec_group_member gm ON g.group_id = gm.group_id
