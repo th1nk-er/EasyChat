@@ -29,6 +29,15 @@ public interface SysGroupMapper extends BaseMapper<SysGroup> {
      * @return 群组信息
      */
     GroupVo selectGroupVoById(Integer groupId);
+
+    /**
+     * 查询用户群组信息
+     *
+     * @param userId  用户ID
+     * @param groupId 群组ID
+     * @return 用户群组信息
+     */
+    UserGroupVo selectUserGroupVo(int userId, int groupId);
 }
 
 

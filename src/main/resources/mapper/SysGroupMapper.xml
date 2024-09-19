@@ -44,4 +44,18 @@
         WHERE g.group_id = #{groupId}
           AND deleted = 0
     </select>
+    <select id="selectUserGroupVo" resultType="top.th1nk.easychat.domain.vo.UserGroupVo">
+        SELECT g.group_id,
+               g.group_name,
+               g.group_desc,
+               g.avatar,
+               gm.role,
+               gm.muted,
+               gm.group_remark
+        FROM ec_group g
+                 LEFT JOIN ec_group_member gm ON g.group_id = gm.group_id
+        WHERE g.group_id = #{groupId}
+          AND gm.user_id = #{userId}
+          AND g.deleted = 0
+    </select>
 </mapper>

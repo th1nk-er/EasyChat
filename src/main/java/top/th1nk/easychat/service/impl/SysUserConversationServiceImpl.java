@@ -12,6 +12,8 @@ import top.th1nk.easychat.domain.chat.ChatType;
 import top.th1nk.easychat.domain.chat.MessageType;
 import top.th1nk.easychat.domain.vo.UserConversationVo;
 import top.th1nk.easychat.domain.vo.UserFriendVo;
+import top.th1nk.easychat.domain.vo.UserGroupVo;
+import top.th1nk.easychat.mapper.SysGroupMapper;
 import top.th1nk.easychat.mapper.SysUserConversationMapper;
 import top.th1nk.easychat.mapper.SysUserFriendMapper;
 import top.th1nk.easychat.mapper.SysUserMapper;
@@ -38,18 +40,31 @@ public class SysUserConversationServiceImpl extends ServiceImpl<SysUserConversat
     private SysUserMapper sysUserMapper;
     @Resource
     private SysUserFriendMapper sysUserFriendMapper;
+    @Resource
+    private SysGroupMapper sysGroupMapper;
 
     private UserConversationVo transformToVo(SysUserConversation sysUserConversation) {
         UserConversationVo vo = new UserConversationVo();
         BeanUtils.copyProperties(sysUserConversation, vo);
         if (sysUserConversation.getSenderId() != null) {
-            SysUser sysUser = sysUserMapper.selectById(sysUserConversation.getSenderId());
-            vo.setAvatar(sysUser.getAvatar());
-            vo.setNickname(sysUser.getNickname());
-            UserFriendVo userFriendVo = sysUserFriendMapper.selectUserFriendVo(sysUserConversation.getUid(), sysUserConversation.getSenderId());
-            if (userFriendVo != null) {
-                vo.setRemark(userFriendVo.getRemark());
-                vo.setMuted(userFriendVo.isMuted());
+            if (sysUserConversation.getChatType() == ChatType.FRIEND) {
+                SysUser sysUser = sysUserMapper.selectById(sysUserConversation.getSenderId());
+                if (sysUser == null) return vo;
+                vo.setAvatar(sysUser.getAvatar());
+                vo.setNickname(sysUser.getNickname());
+                UserFriendVo userFriendVo = sysUserFriendMapper.selectUserFriendVo(sysUserConversation.getUid(), sysUserConversation.getSenderId());
+                if (userFriendVo != null) {
+                    vo.setRemark(userFriendVo.getRemark());
+                    vo.setMuted(userFriendVo.isMuted());
+                }
+            } else if (sysUserConversation.getChatType() == ChatType.GROUP) {
+                // 群组
+                UserGroupVo userGroupVo = sysGroupMapper.selectUserGroupVo(sysUserConversation.getUid(), sysUserConversation.getSenderId());
+                if (userGroupVo == null) return vo;
+                vo.setNickname(userGroupVo.getGroupName());
+                vo.setMuted(userGroupVo.isMuted());
+                vo.setRemark(userGroupVo.getGroupRemark());
+                vo.setAvatar(userGroupVo.getAvatar());
             }
         }
         return vo;
