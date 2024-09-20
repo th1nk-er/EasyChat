@@ -33,8 +33,8 @@ public class SysUserConversation implements Serializable {
     /**
      * 发送者ID
      */
-    @Schema(description = "发送者ID")
-    private Integer senderId;
+    @Schema(description = "对方ID")
+    private Integer chatId;
 
     /**
      * 聊天类型

@@ -23,11 +23,11 @@ public interface SysUserConversationService extends IService<SysUserConversation
 
     /**
      * 将对话设为已读
-     * 将用户对 receiverId 的对话设为已读
+     * 将用户对 chatId 的对话设为已读
      *
-     * @param userId     用户id
-     * @param receiverId 接收者id
-     * @param chatType   聊天类型
+     * @param userId   用户id
+     * @param chatId   对方id
+     * @param chatType 聊天类型
      */
-    void setConversationRead(int userId, int receiverId, ChatType chatType);
+    void setConversationRead(int userId, int chatId, ChatType chatType);
 }

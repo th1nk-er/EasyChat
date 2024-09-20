@@ -37,7 +37,7 @@ public class ConversationRedisServiceImpl implements ConversationRedisService {
             // redis中无记录
             userConversation = new SysUserConversation();
             userConversation.setUid(message.getSenderId());
-            userConversation.setSenderId(message.getReceiverId());
+            userConversation.setChatId(message.getReceiverId());
             userConversation.setChatType(message.getChatType());
         }
         userConversation.setUnreadCount(0);
@@ -60,7 +60,7 @@ public class ConversationRedisServiceImpl implements ConversationRedisService {
             // redis中无记录
             userConversation = new SysUserConversation();
             userConversation.setUid(message.getReceiverId());
-            userConversation.setSenderId(message.getSenderId());
+            userConversation.setChatId(message.getSenderId());
             userConversation.setChatType(message.getChatType());
             userConversation.setUnreadCount(1);
         } else {
@@ -126,7 +126,7 @@ public class ConversationRedisServiceImpl implements ConversationRedisService {
             String redisKey = CHAT_CONVERSATION_PRIVATE_KEY + userConversation.getUid();
             if (userConversation.getChatType() == ChatType.GROUP)
                 redisKey = CHAT_CONVERSATION_GROUP_KEY + userConversation.getUid();
-            String hashKey = String.valueOf(userConversation.getSenderId());
+            String hashKey = String.valueOf(userConversation.getChatId());
             hashOperations.put(redisKey, hashKey, userConversation);
         }
     }

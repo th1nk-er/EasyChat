@@ -7,7 +7,7 @@
     <resultMap id="BaseResultMap" type="top.th1nk.easychat.domain.SysUserConversation">
         <id property="id" column="id" jdbcType="INTEGER"/>
         <result property="uid" column="uid" jdbcType="INTEGER"/>
-        <result property="senderId" column="sender_id" jdbcType="INTEGER"/>
+        <result property="chatId" column="chat_id" jdbcType="INTEGER"/>
         <result property="chatType" column="chat_type" jdbcType="TINYINT"/>
         <result property="unreadCount" column="unread_count" jdbcType="INTEGER"/>
         <result property="lastMessage" column="last_message" jdbcType="VARCHAR"/>
@@ -16,14 +16,14 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,uid,sender_id,
+        id,uid,chat_id,
         chat_type,unread_count,last_message, message_type,
         update_time
     </sql>
     <delete id="deleteConversation">
         DELETE
         FROM ec_user_conversation
-        WHERE sender_id = #{senderId}
+        WHERE chat_id = #{senderId}
           AND uid = #{uid}
           AND chat_type = #{chatType}
     </delete>

@@ -60,7 +60,7 @@ public class TimerTask {
         for (SysUserConversation conversation : userConversations) {
             LambdaQueryWrapper<SysUserConversation> qw = new LambdaQueryWrapper<>();
             qw.eq(SysUserConversation::getUid, conversation.getUid())
-                    .eq(SysUserConversation::getSenderId, conversation.getSenderId());
+                    .eq(SysUserConversation::getChatId, conversation.getChatId());
             SysUserConversation userConversation = sysUserConversationMapper.selectOne(qw);
             if (userConversation == null)
                 sysUserConversationMapper.insert(conversation);
