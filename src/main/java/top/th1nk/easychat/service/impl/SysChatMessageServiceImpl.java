@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import top.th1nk.easychat.domain.SysChatMessage;
+import top.th1nk.easychat.domain.chat.ChatType;
 import top.th1nk.easychat.domain.chat.WSMessage;
 import top.th1nk.easychat.mapper.SysChatMessageMapper;
 import top.th1nk.easychat.service.MessageRedisService;
@@ -28,20 +29,26 @@ public class SysChatMessageServiceImpl extends ServiceImpl<SysChatMessageMapper,
     /**
      * 分页获取消息
      *
-     * @param senderId    发送者ID
-     * @param receiverId  接收者ID
+     * @param userId      发送者ID
+     * @param chatId      接收者ID
      * @param currentPage 当前页码
      * @return 消息列表
      */
-    private List<SysChatMessage> getChatMessageList(int senderId, int receiverId, int currentPage) {
+    private List<SysChatMessage> getChatMessageList(int userId, int chatId, ChatType chatType, int currentPage) {
         LambdaQueryWrapper<SysChatMessage> qw = new LambdaQueryWrapper<>();
-        qw.nested(i -> i.eq(SysChatMessage::getSenderId, senderId)
-                        .eq(SysChatMessage::getReceiverId, receiverId))
-                .or()
-                .nested(i -> i.eq(SysChatMessage::getReceiverId, senderId)
-                        .eq(SysChatMessage::getSenderId, receiverId)
-                )
-                .orderByDesc(SysChatMessage::getCreateTime);
+        if (chatType == ChatType.FRIEND) {
+            qw.nested(i -> i.eq(SysChatMessage::getSenderId, userId)
+                            .eq(SysChatMessage::getReceiverId, chatId))
+                    .or()
+                    .nested(i -> i.eq(SysChatMessage::getReceiverId, userId)
+                            .eq(SysChatMessage::getSenderId, chatId)
+                    )
+                    .orderByDesc(SysChatMessage::getCreateTime);
+        } else if (chatType == ChatType.GROUP) {
+            qw.eq(SysChatMessage::getReceiverId, chatId)
+                    .eq(SysChatMessage::getChatType, chatType)
+                    .orderByDesc(SysChatMessage::getCreateTime);
+        }
         Page<SysChatMessage> sysChatMessagePage = baseMapper.selectPage(new Page<>(currentPage, 15), qw);
         return sysChatMessagePage.getRecords();
     }
@@ -49,21 +56,32 @@ public class SysChatMessageServiceImpl extends ServiceImpl<SysChatMessageMapper,
     @Override
     public void saveMessage(WSMessage wsMessage) {
         if (messageRedisService.saveMessage(wsMessage) >= 15) {
-            List<SysChatMessage> messages = messageRedisService.getMessages(wsMessage.getFromId(), wsMessage.getToId());
-            messageRedisService.removeMessage(wsMessage.getFromId(), wsMessage.getToId());
+            List<SysChatMessage> messages = messageRedisService.getMessages(wsMessage.getFromId(), wsMessage.getToId(), wsMessage.getChatType());
+            messageRedisService.removeMessage(wsMessage.getFromId(), wsMessage.getToId(), wsMessage.getChatType());
             baseMapper.insert(messages);
         }
     }
 
     @Override
-    public List<SysChatMessage> getMessages(int userId, int receiverId, int currentPage) {
-        if (currentPage < 0 || receiverId <= 0) return List.of();
+    public List<SysChatMessage> getFriendMessages(int userId, int chatId, int currentPage) {
+        if (currentPage < 0 || chatId <= 0) return List.of();
         if (currentPage == 0) {
             // 页码为0时，仅返回redis中聊天记录
-            return messageRedisService.getMessages(userId, receiverId);
-
+            return messageRedisService.getMessages(userId, chatId, ChatType.FRIEND);
         }
-        List<SysChatMessage> messages = this.getChatMessageList(userId, receiverId, currentPage);
+        List<SysChatMessage> messages = this.getChatMessageList(userId, chatId, ChatType.FRIEND, currentPage);
+        Collections.reverse(messages);
+        return messages;
+    }
+
+    @Override
+    public List<SysChatMessage> getGroupMessages(int groupId, int currentPage) {
+        if (currentPage < 0 || groupId <= 0) return List.of();
+        if (currentPage == 0) {
+            // 页码为0时，仅返回redis中聊天记录
+            return messageRedisService.getMessages(-1, groupId, ChatType.GROUP);
+        }
+        List<SysChatMessage> messages = this.getChatMessageList(-1, groupId, ChatType.GROUP, currentPage);
         Collections.reverse(messages);
         return messages;
     }

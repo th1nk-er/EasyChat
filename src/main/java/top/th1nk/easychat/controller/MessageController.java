@@ -22,9 +22,16 @@ public class MessageController {
     private SysChatMessageService sysChatMessageService;
 
     @Operation(summary = "获取消息历史", description = "获取消息历史")
-    @GetMapping("/history/{userId}/{receiverId}/{currentPage}")
+    @GetMapping("/history/{userId}/{chatId}/{currentPage}")
     @PreAuthorize("hasAuthority('USER:' + #userId)")
-    public Response<List<SysChatMessage>> getMessages(@PathVariable int userId, @PathVariable int receiverId, @PathVariable int currentPage) {
-        return Response.ok(sysChatMessageService.getMessages(userId, receiverId, currentPage));
+    public Response<List<SysChatMessage>> getMessages(@PathVariable int userId, @PathVariable int chatId, @PathVariable int currentPage) {
+        return Response.ok(sysChatMessageService.getFriendMessages(userId, chatId, currentPage));
+    }
+
+    @Operation(summary = "获取消息历史", description = "获取消息历史")
+    @GetMapping("/history/group/{groupId}/{currentPage}")
+    @PreAuthorize("hasAuthority('GROUP:' + #groupId)")
+    public Response<List<SysChatMessage>> getGroupMessages(@PathVariable int groupId, @PathVariable int currentPage) {
+        return Response.ok(sysChatMessageService.getGroupMessages(groupId, currentPage));
     }
 }

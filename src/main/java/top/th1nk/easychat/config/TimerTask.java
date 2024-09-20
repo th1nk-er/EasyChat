@@ -45,7 +45,7 @@ public class TimerTask {
         sysChatMessageMapper.insert(allMessages);
         // 清除redis中的对话消息
         for (SysChatMessage allMessage : allMessages) {
-            messageRedisService.removeMessage(allMessage.getSenderId(), allMessage.getReceiverId());
+            messageRedisService.removeMessage(allMessage.getSenderId(), allMessage.getReceiverId(), allMessage.getChatType());
         }
         log.info("定时任务：保存[{}]条聊天记录", allMessages.size());
     }

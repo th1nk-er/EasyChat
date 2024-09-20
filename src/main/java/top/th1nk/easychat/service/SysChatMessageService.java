@@ -18,9 +18,18 @@ public interface SysChatMessageService extends IService<SysChatMessage> {
      * 分页获取消息
      *
      * @param userId      发送者id
-     * @param receiverId  接收者id
+     * @param chatId      接收者id
      * @param currentPage 当前页码
      * @return 消息列表
      */
-    List<SysChatMessage> getMessages(int userId, int receiverId, int currentPage);
+    List<SysChatMessage> getFriendMessages(int userId, int chatId, int currentPage);
+
+    /**
+     * 分页获取群组消息
+     *
+     * @param groupId     群组id
+     * @param currentPage 当前页码
+     * @return 消息列表
+     */
+    List<SysChatMessage> getGroupMessages(int groupId, int currentPage);
 }
