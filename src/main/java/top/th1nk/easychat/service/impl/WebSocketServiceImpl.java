@@ -62,6 +62,14 @@ public class WebSocketServiceImpl implements WebSocketService {
             sysChatMessageService.saveMessage(message);
         } else if (message.getChatType() == ChatType.GROUP) {
             //群组消息
+            if (!securityUtils.getPermissions(message.getFromId()).contains("GROUP:" + message.getToId())) {
+                // 非群组成员
+                log.warn("用户 {} 试图在非群组成员状态下向群组 {} 发送消息", message.getFromId(), message.getToId());
+                //发送错误提示
+                simpMessagingTemplate.convertAndSend("/notify/message/" + StringUtils.getSHA256Hash(authentication.getCredentials().toString()), WSMessage.error(message.getFromId(), "你不是群组成员"));
+                return;
+            }
+            log.info("用户 {} 向群组 {} 发送消息", message.getFromId(), message.getToId());
             simpMessagingTemplate.convertAndSend("/notify/message/group/" + message.getToId(), message);
         }
     }
