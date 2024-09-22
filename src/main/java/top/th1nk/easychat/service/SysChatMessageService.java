@@ -12,6 +12,11 @@ import java.util.List;
  * @createDate 2024-08-01 18:08:50
  */
 public interface SysChatMessageService extends IService<SysChatMessage> {
+    /**
+     * 保存消息，数据持久化，使用redis+mysql
+     *
+     * @param wsMessage 消息
+     */
     void saveMessage(WSMessage wsMessage);
 
     /**

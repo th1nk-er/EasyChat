@@ -71,6 +71,7 @@ public class WebSocketServiceImpl implements WebSocketService {
             }
             log.info("用户 {} 向群组 {} 发送消息", message.getFromId(), message.getToId());
             simpMessagingTemplate.convertAndSend("/notify/message/group/" + message.getToId(), message);
+            sysChatMessageService.saveMessage(message);
         }
     }
 

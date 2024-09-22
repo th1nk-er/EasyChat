@@ -15,6 +15,9 @@ import java.util.Set;
 
 @Service
 public class ConversationRedisServiceImpl implements ConversationRedisService {
+    // 使用两组key原因：
+    // 1.当用户ID与群组ID相同时，区分是好友对话和群组对话
+    // 2.便于管理
     private static final String CHAT_CONVERSATION_PRIVATE_KEY = "chat:conversation:private:";
     private static final String CHAT_CONVERSATION_GROUP_KEY = "chat:conversation:group:";
     @Resource
@@ -54,6 +57,7 @@ public class ConversationRedisServiceImpl implements ConversationRedisService {
         String redisKey = CHAT_CONVERSATION_PRIVATE_KEY + message.getReceiverId();
         if (message.getChatType() == ChatType.GROUP)
             redisKey = CHAT_CONVERSATION_GROUP_KEY + message.getReceiverId();
+        //TODO 当是群组消息时，更新每个群组成员的对话
         String hashKey = String.valueOf(message.getSenderId());
         SysUserConversation userConversation = hashOperations.get(redisKey, hashKey);
         if (userConversation == null) {
