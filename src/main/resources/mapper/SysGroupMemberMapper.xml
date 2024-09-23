@@ -39,4 +39,9 @@
         FROM ec_group_member
         WHERE user_id = #{userId}
     </select>
+    <select id="selectGroupMemberVo" resultType="top.th1nk.easychat.domain.vo.GroupMemberVo">
+        SELECT group_id, user_id, user_group_nickname, group_remark, role, create_time
+        FROM ec_group_member
+        WHERE group_id = #{groupId}
+    </select>
 </mapper>

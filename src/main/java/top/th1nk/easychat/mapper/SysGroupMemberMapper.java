@@ -1,7 +1,9 @@
 package top.th1nk.easychat.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import top.th1nk.easychat.domain.SysGroupMember;
+import top.th1nk.easychat.domain.vo.GroupMemberVo;
 import top.th1nk.easychat.enums.UserRole;
 
 import java.util.List;
@@ -37,6 +39,15 @@ public interface SysGroupMemberMapper extends BaseMapper<SysGroupMember> {
      * @return 群组成员信息列表
      */
     List<SysGroupMember> selectAllByUserId(Integer userId);
+
+    /**
+     * 根据群组ID查询所有群组成员信息
+     *
+     * @param page    分页对象
+     * @param groupId 群组ID
+     * @return 群组成员信息列表
+     */
+    List<GroupMemberVo> selectGroupMemberVo(IPage<?> page, int groupId);
 }
 
 

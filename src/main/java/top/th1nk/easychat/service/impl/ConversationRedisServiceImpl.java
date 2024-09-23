@@ -1,5 +1,7 @@
 package top.th1nk.easychat.service.impl;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import jakarta.annotation.Nullable;
 import jakarta.annotation.Resource;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -7,6 +9,8 @@ import org.springframework.stereotype.Service;
 import top.th1nk.easychat.domain.SysChatMessage;
 import top.th1nk.easychat.domain.SysUserConversation;
 import top.th1nk.easychat.domain.chat.ChatType;
+import top.th1nk.easychat.domain.vo.GroupMemberVo;
+import top.th1nk.easychat.mapper.SysGroupMemberMapper;
 import top.th1nk.easychat.service.ConversationRedisService;
 
 import java.util.ArrayList;
@@ -22,60 +26,118 @@ public class ConversationRedisServiceImpl implements ConversationRedisService {
     private static final String CHAT_CONVERSATION_GROUP_KEY = "chat:conversation:group:";
     @Resource
     private RedisTemplate<String, SysUserConversation> redisTemplate;
+    @Resource
+    private SysGroupMemberMapper sysGroupMemberMapper;
 
     /**
-     * 处理发送者的聊天列表
+     * 获取redis key
+     *
+     * @param userId   用户ID
+     * @param chatType 聊天类型
+     * @return redis key
+     */
+    private String getRedisKey(int userId, ChatType chatType) {
+        if (chatType == ChatType.FRIEND)
+            return CHAT_CONVERSATION_PRIVATE_KEY + userId;
+        else if (chatType == ChatType.GROUP)
+            return CHAT_CONVERSATION_GROUP_KEY + userId;
+        else
+            return "";
+    }
+
+    /**
+     * 获取对话
+     *
+     * @param userId   用户ID
+     * @param chatId   对话ID
+     * @param chatType 聊天类型
+     * @return 对话
+     */
+    @Nullable
+    private SysUserConversation getConversation(int userId, int chatId, ChatType chatType) {
+        HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
+        String redisKey = getRedisKey(userId, chatType);
+        return hashOperations.get(redisKey, String.valueOf(chatId));
+    }
+
+    /**
+     * 更新好友对话
+     * 将 senderId 对话的 unreadCount设置为0
+     * 将 receiverId 对话的 unreadCount + 1
      *
      * @param message 消息
      */
-    private void handleMessageSent(SysChatMessage message) {
-        // receiverId 收到消息，将 senderId 的对话记录 readCount 设为 0 表明已读
+    private void updateFriendConversation(SysChatMessage message) {
+        if (message.getChatType() != ChatType.FRIEND) return;
         HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
-        String redisKey = CHAT_CONVERSATION_PRIVATE_KEY + message.getSenderId();
-        if (message.getChatType() == ChatType.GROUP)
-            redisKey = CHAT_CONVERSATION_GROUP_KEY + message.getSenderId();
-        String hashKey = String.valueOf(message.getReceiverId());
-        SysUserConversation userConversation = hashOperations.get(redisKey, hashKey);
+        // 更新 receiverId 的对话
+        SysUserConversation userConversation = getConversation(message.getReceiverId(), message.getSenderId(), ChatType.FRIEND);
         if (userConversation == null) {
-            // redis中无记录
+            userConversation = new SysUserConversation();
+            userConversation.setUid(message.getReceiverId());
+            userConversation.setChatId(message.getSenderId());
+            userConversation.setChatType(ChatType.FRIEND);
+            userConversation.setUnreadCount(1);
+        } else {
+            userConversation.setUnreadCount(userConversation.getUnreadCount() + 1);
+        }
+        userConversation.setUpdateTime(message.getCreateTime());
+        userConversation.setLastMessage(message.getContent());
+        hashOperations.put(getRedisKey(message.getReceiverId(), ChatType.FRIEND), String.valueOf(message.getSenderId()), userConversation);
+        // 更新 senderId 的对话
+        userConversation = getConversation(message.getSenderId(), message.getReceiverId(), ChatType.FRIEND);
+        if (userConversation == null) {
             userConversation = new SysUserConversation();
             userConversation.setUid(message.getSenderId());
             userConversation.setChatId(message.getReceiverId());
-            userConversation.setChatType(message.getChatType());
+            userConversation.setChatType(ChatType.FRIEND);
         }
         userConversation.setUnreadCount(0);
         userConversation.setUpdateTime(message.getCreateTime());
         userConversation.setLastMessage(message.getContent());
         userConversation.setMessageType(message.getMessageType());
-        hashOperations.put(redisKey, hashKey, userConversation);
+        hashOperations.put(getRedisKey(message.getSenderId(), ChatType.FRIEND), String.valueOf(message.getReceiverId()), userConversation);
+
+    }
+
+    /**
+     * 更新群组对话
+     * 将用户的群组对话的unreadCount + 1
+     *
+     * @param message 消息
+     * @param userId  用户ID
+     */
+    private void updateGroupConversation(SysChatMessage message, int userId) {
+        if (message.getChatType() != ChatType.GROUP) return;
+        HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
+        // userId 收到群组的消息 message
+        SysUserConversation userConversation = getConversation(userId, message.getReceiverId(), ChatType.GROUP);
+        if (userConversation == null) {
+            userConversation = new SysUserConversation();
+            userConversation.setUid(userId);
+            userConversation.setChatId(message.getReceiverId());
+            userConversation.setChatType(ChatType.GROUP);
+            userConversation.setUnreadCount(1);
+        } else {
+            userConversation.setUnreadCount(userConversation.getUnreadCount() + 1);
+        }
+        if (message.getSenderId() == userId) userConversation.setUnreadCount(0);
+        userConversation.setUpdateTime(message.getCreateTime());
+        userConversation.setLastMessage(message.getContent());
+        userConversation.setMessageType(message.getMessageType());
+        hashOperations.put(getRedisKey(userId, ChatType.GROUP), String.valueOf(message.getReceiverId()), userConversation);
     }
 
     @Override
     public void handleMessageReceived(SysChatMessage message) {
-        // receiverId 收到消息，将 receiverId 的对话记录 readCount + 1
-        HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
-        String redisKey = CHAT_CONVERSATION_PRIVATE_KEY + message.getReceiverId();
-        if (message.getChatType() == ChatType.GROUP)
-            redisKey = CHAT_CONVERSATION_GROUP_KEY + message.getReceiverId();
-        //TODO 当是群组消息时，更新每个群组成员的对话
-        String hashKey = String.valueOf(message.getSenderId());
-        SysUserConversation userConversation = hashOperations.get(redisKey, hashKey);
-        if (userConversation == null) {
-            // redis中无记录
-            userConversation = new SysUserConversation();
-            userConversation.setUid(message.getReceiverId());
-            userConversation.setChatId(message.getSenderId());
-            userConversation.setChatType(message.getChatType());
-            userConversation.setUnreadCount(1);
-        } else {
-            // redis中有记录
-            userConversation.setUnreadCount(userConversation.getUnreadCount() + 1);
+        if (message.getChatType() == ChatType.GROUP) {
+            // 更新每一个群聊成员的对话
+            // Page current = -1 表示不分页
+            List<GroupMemberVo> groupMemberVos = sysGroupMemberMapper.selectGroupMemberVo(new Page<>(-1, 10), message.getReceiverId());
+            groupMemberVos.forEach(vo -> updateGroupConversation(message, vo.getUserId()));
+        } else if (message.getChatType() == ChatType.FRIEND) {
+            updateFriendConversation(message);
         }
-        userConversation.setUpdateTime(message.getCreateTime());
-        userConversation.setLastMessage(message.getContent());
-        userConversation.setMessageType(message.getMessageType());
-        hashOperations.put(redisKey, hashKey, userConversation);
-        handleMessageSent(message);
     }
 
     @Override
