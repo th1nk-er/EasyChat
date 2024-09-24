@@ -44,4 +44,19 @@
         FROM ec_group_member
         WHERE group_id = #{groupId}
     </select>
+    <select id="selectGroupMemberInfoVo" resultType="top.th1nk.easychat.domain.vo.GroupMemberInfoVo">
+        SELECT group_id,
+               user_id,
+               user_group_nickname,
+               gm.role,
+               gm.create_time,
+               u.username,
+               u.nickname,
+               u.avatar,
+               u.sex
+        FROM ec_user u
+                 JOIN ec_group_member gm ON u.id = gm.user_id
+        WHERE gm.group_id = #{groupId}
+          AND u.id = #{userId}
+    </select>
 </mapper>

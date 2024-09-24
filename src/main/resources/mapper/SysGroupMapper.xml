@@ -15,7 +15,8 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        group_id,group_name,group_desc,
+        group_id
+        ,group_name,group_desc,
         avatar,deleted,create_time,
         update_time
     </sql>

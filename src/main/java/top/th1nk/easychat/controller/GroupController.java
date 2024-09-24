@@ -11,8 +11,10 @@ import top.th1nk.easychat.domain.dto.GroupInvitationRequestDto;
 import top.th1nk.easychat.domain.dto.UserGroupUpdateDto;
 import top.th1nk.easychat.domain.vo.GroupAdminInvitationVo;
 import top.th1nk.easychat.domain.vo.GroupInvitationVo;
+import top.th1nk.easychat.domain.vo.GroupMemberInfoVo;
 import top.th1nk.easychat.domain.vo.UserGroupVo;
 import top.th1nk.easychat.service.SysGroupInvitationService;
+import top.th1nk.easychat.service.SysGroupMemberService;
 import top.th1nk.easychat.service.SysGroupService;
 
 import java.util.List;
@@ -25,6 +27,8 @@ public class GroupController {
     private SysGroupService sysGroupService;
     @Resource
     private SysGroupInvitationService sysGroupInvitationService;
+    @Resource
+    private SysGroupMemberService sysGroupMemberService;
 
     @Operation(summary = "创建群聊", description = "创建群聊")
     @PostMapping("/create")
@@ -96,5 +100,12 @@ public class GroupController {
         if (sysGroupService.updateUserGroupInfo(userId, userGroupUpdateDto))
             return Response.ok();
         else return Response.error();
+    }
+
+    @Operation(summary = "获取群组成员的详细信息", description = "获取群组成员的详细信息")
+    @GetMapping("/{groupId}/member/{userId}")
+    @PreAuthorize("hasAuthority('GROUP:' + #groupId)")
+    public Response<GroupMemberInfoVo> getGroupMemberInfo(@PathVariable int userId, @PathVariable int groupId) {
+        return Response.ok(sysGroupMemberService.getGroupMemberInfo(userId, groupId));
     }
 }
