@@ -1,6 +1,7 @@
 package top.th1nk.easychat.service.impl;
 
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import top.th1nk.easychat.domain.SysChatMessage;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @Service
 public class MessageRedisServiceImpl implements MessageRedisService {
     private static final String CHAT_PRIVATE_MESSAGE_KEY = "chat:message:private:";
@@ -41,6 +43,7 @@ public class MessageRedisServiceImpl implements MessageRedisService {
     @Override
     public int saveMessage(WSMessage wsMessage) {
         SysChatMessage message = new SysChatMessage();
+        message.setParams(wsMessage.getParams());
         message.setContent(wsMessage.getContent());
         message.setMessageType(wsMessage.getMessageType());
         message.setChatType(wsMessage.getChatType());
@@ -69,7 +72,12 @@ public class MessageRedisServiceImpl implements MessageRedisService {
     @Override
     public List<SysChatMessage> getAllMessages() {
         Set<String> keys = redisTemplate.keys(CHAT_PRIVATE_MESSAGE_KEY + "*");
-        if (keys == null) return List.of();
+        Set<String> groupKeys = redisTemplate.keys(CHAT_GROUP_MESSAGE_KEY + "*");
+        if (keys == null || groupKeys == null) {
+            log.error("redis异常，无法获取消息");
+            return List.of();
+        }
+        keys.addAll(groupKeys);
         List<SysChatMessage> result = new ArrayList<>();
         for (String key : keys) {
             List<SysChatMessage> part = redisTemplate.opsForList().range(key, 0, -1);

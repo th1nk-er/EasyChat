@@ -1,6 +1,7 @@
 package top.th1nk.easychat.domain;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import top.th1nk.easychat.domain.chat.ChatType;
@@ -9,6 +10,7 @@ import top.th1nk.easychat.domain.chat.MessageType;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @TableName ec_chat_message
@@ -54,6 +56,12 @@ public class SysChatMessage implements Serializable {
      */
     @Schema(description = "消息内容")
     private String content;
+    /**
+     * 消息类型为COMMAND时携带的参数
+     */
+    @Schema(description = "命令参数")
+    @TableField(typeHandler = Fastjson2TypeHandler.class)
+    private List<String> params;
 
     /**
      * 创建时间

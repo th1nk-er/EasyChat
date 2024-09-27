@@ -3,6 +3,8 @@ package top.th1nk.easychat.domain.chat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Schema(description = "WebSocket消息")
 public class WSMessage {
@@ -16,6 +18,8 @@ public class WSMessage {
     private Integer toId;
     @Schema(description = "聊天类型")
     private ChatType chatType;
+    @Schema(description = "消息类型为COMMAND时携带的参数")
+    private List<String> params;
 
     public boolean isValid() {
         return messageType != null && chatType != null && content != null && !content.isEmpty() && fromId != null && toId != null;
