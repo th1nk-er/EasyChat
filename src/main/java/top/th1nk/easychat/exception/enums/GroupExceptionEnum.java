@@ -9,6 +9,7 @@ public enum GroupExceptionEnum {
     ALREADY_IN_GROUP(5003, "你已经在该群聊中"),
     NOT_ADMIN(5004, "你不是管理员"),
     GROUP_MEMBER_CREATE_FAIL(5005, "创建群组成员失败"),
+    INVITATION_NOT_FOUND(5006, "邀请不存在"),
     ;
     private final int code;
     private final String message;

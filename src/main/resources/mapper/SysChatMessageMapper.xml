@@ -11,8 +11,7 @@
         <result property="receiverId" column="receiver_id" jdbcType="INTEGER"/>
         <result property="messageType" column="message_type" jdbcType="TINYINT"/>
         <result property="content" column="content" jdbcType="VARCHAR"/>
-        <result property="params" column="params" jdbcType="VARCHAR"
-                typeHandler="com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler"/>
+        <result property="params" column="params" jdbcType="VARCHAR"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 

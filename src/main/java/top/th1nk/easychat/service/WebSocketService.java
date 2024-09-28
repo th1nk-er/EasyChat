@@ -34,4 +34,11 @@ public interface WebSocketService {
      * @param authentication 用户认证信息
      */
     void handleUserDisconnected(@NotNull Authentication authentication);
+
+    /**
+     * 以系统身份发布消息
+     *
+     * @param message 消息
+     */
+    void publishMessage(WSMessage message);
 }

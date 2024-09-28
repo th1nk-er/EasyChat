@@ -8,9 +8,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.th1nk.easychat.domain.SysGroupInvitation;
 import top.th1nk.easychat.domain.SysGroupMember;
+import top.th1nk.easychat.domain.chat.ChatType;
+import top.th1nk.easychat.domain.chat.MessageCommand;
+import top.th1nk.easychat.domain.chat.WSMessage;
 import top.th1nk.easychat.domain.vo.GroupAdminInvitationVo;
 import top.th1nk.easychat.domain.vo.GroupInvitationVo;
-import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.enums.GroupInvitationStatus;
 import top.th1nk.easychat.enums.UserRole;
 import top.th1nk.easychat.exception.GroupException;
@@ -18,8 +20,7 @@ import top.th1nk.easychat.exception.enums.GroupExceptionEnum;
 import top.th1nk.easychat.mapper.SysGroupInvitationMapper;
 import top.th1nk.easychat.mapper.SysGroupMemberMapper;
 import top.th1nk.easychat.service.SysGroupInvitationService;
-import top.th1nk.easychat.utils.JwtUtils;
-import top.th1nk.easychat.utils.RequestUtils;
+import top.th1nk.easychat.service.WebSocketService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -38,10 +39,18 @@ public class SysGroupInvitationServiceImpl extends ServiceImpl<SysGroupInvitatio
     private static final int INVITATION_EXPIRE_TIME = 24 * 7;
 
     @Resource
-    private JwtUtils jwtUtils;
-    @Resource
     private SysGroupMemberMapper sysGroupMemberMapper;
+    @Resource
+    private WebSocketService webSocketService;
 
+    private boolean insertGroupMember(int userId, int groupId) {
+        SysGroupMember sysGroupMember = new SysGroupMember();
+        sysGroupMember.setUserId(userId);
+        sysGroupMember.setGroupId(groupId);
+        sysGroupMember.setMuted(false);
+        sysGroupMember.setRole(UserRole.USER);
+        return sysGroupMemberMapper.insert(sysGroupMember) > 0;
+    }
 
     @Override
     public int refreshAllInvitationStatus() {
@@ -81,14 +90,12 @@ public class SysGroupInvitationServiceImpl extends ServiceImpl<SysGroupInvitatio
             if (baseMapper.update(null, qw.set(SysGroupInvitation::getStatus, GroupInvitationStatus.ADMIN_ACCEPTED)) == 0)
                 return false;
             // 添加群组成员
-            SysGroupMember sysGroupMember = new SysGroupMember();
-            sysGroupMember.setUserId(userId);
-            sysGroupMember.setGroupId(groupId);
-            sysGroupMember.setMuted(false);
-            sysGroupMember.setRole(UserRole.USER);
-            if (sysGroupMemberMapper.insert(sysGroupMember) == 0)
-                throw new GroupException(GroupExceptionEnum.GROUP_MEMBER_CREATE_FAIL);
-            return true;
+            if (this.insertGroupMember(userId, groupId)) {
+                webSocketService.publishMessage(WSMessage.command(groupId, ChatType.GROUP,
+                        MessageCommand.GROUP_INVITED,
+                        List.of(String.valueOf(invitation.getInvitedBy()), String.valueOf(invitation.getInvitedUserId()))));
+                return true;
+            } else throw new GroupException(GroupExceptionEnum.GROUP_MEMBER_CREATE_FAIL);
         } else
             return baseMapper.update(null, qw.set(SysGroupInvitation::getStatus, GroupInvitationStatus.ADMIN_PENDING)) > 0;
     }
@@ -106,11 +113,6 @@ public class SysGroupInvitationServiceImpl extends ServiceImpl<SysGroupInvitatio
     @Override
     @Transactional
     public boolean adminAcceptInvitation(int userId, int groupId) {
-        UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
-        if (userVo == null || userVo.getId() == null) return false;
-        SysGroupMember adminMember = sysGroupMemberMapper.selectByUserIdAndGroupId(userVo.getId(), groupId);
-        if (adminMember.getRole() != UserRole.LEADER && adminMember.getRole() != UserRole.ADMIN)
-            throw new GroupException(GroupExceptionEnum.NOT_ADMIN);
         if (baseMapper.update(null, new LambdaUpdateWrapper<SysGroupInvitation>()
                 .eq(SysGroupInvitation::getGroupId, groupId)
                 .eq(SysGroupInvitation::getInvitedUserId, userId)
@@ -118,23 +120,23 @@ public class SysGroupInvitationServiceImpl extends ServiceImpl<SysGroupInvitatio
                 .set(SysGroupInvitation::getStatus, GroupInvitationStatus.ADMIN_ACCEPTED)) == 0)
             return false;
         // 添加群组成员
-        SysGroupMember sysGroupMember = new SysGroupMember();
-        sysGroupMember.setUserId(userId);
-        sysGroupMember.setGroupId(groupId);
-        sysGroupMember.setMuted(false);
-        sysGroupMember.setRole(UserRole.USER);
-        if (sysGroupMemberMapper.insert(sysGroupMember) == 0)
-            throw new GroupException(GroupExceptionEnum.GROUP_MEMBER_CREATE_FAIL);
-        return true;
+        if (this.insertGroupMember(userId, groupId)) {
+            // 获取邀请详细信息
+            LambdaUpdateWrapper<SysGroupInvitation> qw = new LambdaUpdateWrapper<>();
+            qw.eq(SysGroupInvitation::getGroupId, groupId)
+                    .eq(SysGroupInvitation::getInvitedUserId, userId)
+                    .eq(SysGroupInvitation::getStatus, GroupInvitationStatus.ADMIN_PENDING);
+            SysGroupInvitation invitation = baseMapper.selectOne(qw);
+            if (invitation == null) throw new GroupException(GroupExceptionEnum.INVITATION_NOT_FOUND);
+            webSocketService.publishMessage(WSMessage.command(groupId, ChatType.GROUP,
+                    MessageCommand.GROUP_INVITED,
+                    List.of(String.valueOf(invitation.getInvitedBy()), String.valueOf(invitation.getInvitedUserId()))));
+            return true;
+        } else throw new GroupException(GroupExceptionEnum.GROUP_MEMBER_CREATE_FAIL);
     }
 
     @Override
     public boolean adminRejectInvitation(int userId, int groupId) {
-        UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
-        if (userVo == null || userVo.getId() == null) return false;
-        SysGroupMember adminMember = sysGroupMemberMapper.selectByUserIdAndGroupId(userVo.getId(), groupId);
-        if (adminMember.getRole() != UserRole.LEADER && adminMember.getRole() != UserRole.ADMIN)
-            throw new GroupException(GroupExceptionEnum.NOT_ADMIN);
         return baseMapper.update(null, new LambdaUpdateWrapper<SysGroupInvitation>()
                 .eq(SysGroupInvitation::getGroupId, groupId)
                 .eq(SysGroupInvitation::getInvitedUserId, userId)

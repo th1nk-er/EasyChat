@@ -58,6 +58,7 @@
                  LEFT JOIN ec_group_member gm ON gm.group_id = gi.group_id
         WHERE gm.role > 0
           AND gm.user_id = 10
+          AND gi.status >= 4
           AND g.deleted = 0
           AND u.deleted = 0
     </select>

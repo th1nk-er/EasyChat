@@ -52,10 +52,20 @@ public class WSMessage {
     }
 
     public static WSMessage command(Integer toId, MessageCommand command) {
+        return command(toId, null, command);
+    }
+
+    public static WSMessage command(Integer toId, ChatType chatType, MessageCommand command) {
+        return command(toId, chatType, command, null);
+    }
+
+    public static WSMessage command(Integer toId, ChatType chatType, MessageCommand command, List<String> params) {
         WSMessage wsMessage = new WSMessage();
         wsMessage.setMessageType(MessageType.COMMAND);
         wsMessage.setFromId(-1);
         wsMessage.setContent(command.getDesc());
+        wsMessage.setParams(params);
+        wsMessage.setChatType(chatType);
         wsMessage.setToId(toId);
         return wsMessage;
     }

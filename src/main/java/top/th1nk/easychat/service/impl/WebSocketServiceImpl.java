@@ -108,4 +108,26 @@ public class WebSocketServiceImpl implements WebSocketService {
         String key = WS_PREFIX + authentication.getPrincipal().toString();
         redisTemplate.opsForSet().remove(key, authentication.getCredentials().toString());
     }
+
+    @Override
+    public void publishMessage(WSMessage message) {
+        // 消息来自系统
+        message.setFromId(-1);
+        if (message.getChatType() == ChatType.FRIEND) {
+            // 系统消息，发送给用户
+            Set<String> toTokens = redisTemplate.opsForSet().members(WS_PREFIX + message.getToId());
+            if (toTokens != null && !toTokens.isEmpty()) {
+                log.info("系统向用户 {} 发送消息", message.getToId());
+                for (String toToken : toTokens) {
+                    String shaID = StringUtils.getSHA256Hash(toToken);
+                    simpMessagingTemplate.convertAndSend("/notify/message/" + shaID, message);
+                }
+            }
+        } else if (message.getChatType() == ChatType.GROUP) {
+            // 系统消息，发送给群组
+            log.info("系统向群组 {} 发送消息", message.getToId());
+            simpMessagingTemplate.convertAndSend("/notify/message/group/" + message.getToId(), message);
+        }
+        sysChatMessageService.saveMessage(message);
+    }
 }
