@@ -53,6 +53,13 @@ public class SysGroupMember implements Serializable {
     @Schema(description = "用户角色")
     private UserRole role;
 
+
+    /**
+     * 是否已删除 0-否 1-是
+     */
+    @Schema(description = "是否已删除 0-否 1-是")
+    private boolean deleted;
+
     /**
      * 是否免打扰 0-否 1-是
      */

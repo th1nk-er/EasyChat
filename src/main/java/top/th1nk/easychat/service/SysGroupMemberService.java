@@ -30,4 +30,13 @@ public interface SysGroupMemberService extends IService<SysGroupMember> {
      * @return 群组成员信息
      */
     GroupMemberInfoVo getGroupMemberInfo(int userId, int groupId);
+
+    /**
+     * 退出群组
+     *
+     * @param userId  用户ID
+     * @param groupId 群组ID
+     * @return 是否成功
+     */
+    boolean quitGroup(int userId, int groupId);
 }

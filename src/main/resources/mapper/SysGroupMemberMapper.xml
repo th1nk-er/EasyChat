@@ -12,19 +12,21 @@
         <result property="groupRemark" column="group_remark" jdbcType="VARCHAR"/>
         <result property="role" column="role" jdbcType="TINYINT"/>
         <result property="muted" column="muted" jdbcType="TINYINT"/>
+        <result property="deleted" column="deleted" jdbcType="TINYINT"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,group_id,user_id,
         user_group_nickname,group_remark,role,
-        muted,create_time
+        muted,deleted,create_time
     </sql>
     <select id="countGroupsByUserRole" resultType="java.lang.Integer">
         SELECT COUNT(*)
         FROM ec_group_member
         WHERE user_id = #{userId}
           AND role = #{userRole}
+          AND deleted = 0
     </select>
     <select id="selectByUserIdAndGroupId" resultType="top.th1nk.easychat.domain.SysGroupMember">
         SELECT
@@ -32,17 +34,20 @@
         FROM ec_group_member
         WHERE user_id = #{userId}
         AND group_id = #{groupId}
+        AND deleted = 0
     </select>
     <select id="selectAllByUserId" resultType="top.th1nk.easychat.domain.SysGroupMember">
         SELECT
         <include refid="Base_Column_List"/>
         FROM ec_group_member
         WHERE user_id = #{userId}
+        AND deleted = 0
     </select>
     <select id="selectGroupMemberVo" resultType="top.th1nk.easychat.domain.vo.GroupMemberVo">
         SELECT group_id, user_id, user_group_nickname, group_remark, role, create_time
         FROM ec_group_member
         WHERE group_id = #{groupId}
+          AND deleted = 0
     </select>
     <select id="selectGroupMemberInfoVo" resultType="top.th1nk.easychat.domain.vo.GroupMemberInfoVo">
         SELECT group_id,
@@ -57,6 +62,7 @@
         FROM ec_user u
                  JOIN ec_group_member gm ON u.id = gm.user_id
         WHERE gm.group_id = #{groupId}
+          AND gm.deleted = 0
           AND u.id = #{userId}
     </select>
 </mapper>
