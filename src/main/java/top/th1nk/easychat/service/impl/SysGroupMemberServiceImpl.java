@@ -6,10 +6,14 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import top.th1nk.easychat.domain.SysGroupInvitation;
 import top.th1nk.easychat.domain.SysGroupMember;
 import top.th1nk.easychat.domain.chat.ChatType;
 import top.th1nk.easychat.domain.vo.GroupMemberInfoVo;
 import top.th1nk.easychat.domain.vo.GroupMemberVo;
+import top.th1nk.easychat.enums.GroupInvitationStatus;
+import top.th1nk.easychat.mapper.SysGroupInvitationMapper;
 import top.th1nk.easychat.mapper.SysGroupMemberMapper;
 import top.th1nk.easychat.mapper.SysUserConversationMapper;
 import top.th1nk.easychat.service.ConversationRedisService;
@@ -29,6 +33,8 @@ public class SysGroupMemberServiceImpl extends ServiceImpl<SysGroupMemberMapper,
     private ConversationRedisService conversationRedisService;
     @Resource
     private SysUserConversationMapper sysUserConversationMapper;
+    @Resource
+    private SysGroupInvitationMapper sysGroupInvitationMapper;
 
     @Override
     public List<GroupMemberVo> getGroupMembers(int groupId, int pageNum) {
@@ -45,17 +51,42 @@ public class SysGroupMemberServiceImpl extends ServiceImpl<SysGroupMemberMapper,
 
     @Override
     @CacheEvict(cacheNames = "user:perms", key = "#userId", condition = "#result==true")
+    @Transactional
     public boolean quitGroup(int userId, int groupId) {
-        GroupMemberInfoVo groupMemberInfo = this.getGroupMemberInfo(userId, groupId);
-        if (groupMemberInfo == null) {
-            return false;
-        }
         LambdaQueryWrapper<SysGroupMember> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(SysGroupMember::getUserId, userId)
                 .eq(SysGroupMember::getGroupId, groupId);
+        if (baseMapper.delete(queryWrapper) == 0)
+            return false;
         conversationRedisService.deleteConversation(userId, groupId, ChatType.GROUP);
         sysUserConversationMapper.deleteConversation(userId, groupId, ChatType.GROUP);
-        return baseMapper.delete(queryWrapper) > 0;
+        // 添加一条退群记录
+        SysGroupInvitation sysGroupInvitation = new SysGroupInvitation();
+        sysGroupInvitation.setGroupId(groupId);
+        sysGroupInvitation.setStatus(GroupInvitationStatus.QUITE);
+        sysGroupInvitation.setInvitedUserId(userId);
+        sysGroupInvitationMapper.insert(sysGroupInvitation);
+        return true;
+    }
+
+    @CacheEvict(cacheNames = "user:perms", key = "#memberId", condition = "#result==true")
+    @Override
+    public boolean kickMember(int userId, int groupId, int memberId) {
+        LambdaQueryWrapper<SysGroupMember> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SysGroupMember::getUserId, userId)
+                .eq(SysGroupMember::getGroupId, groupId);
+        if (baseMapper.selectCount(queryWrapper) == 0)
+            return false;
+        conversationRedisService.deleteConversation(userId, groupId, ChatType.GROUP);
+        sysUserConversationMapper.deleteConversation(userId, groupId, ChatType.GROUP);
+        // 添加一条踢人记录
+        SysGroupInvitation sysGroupInvitation = new SysGroupInvitation();
+        sysGroupInvitation.setGroupId(groupId);
+        sysGroupInvitation.setStatus(GroupInvitationStatus.KICKED);
+        sysGroupInvitation.setInvitedUserId(memberId);
+        sysGroupInvitation.setInvitedBy(userId);
+        sysGroupInvitationMapper.insert(sysGroupInvitation);
+        return true;
     }
 }
 

@@ -62,7 +62,8 @@
         FROM ec_user u
                  JOIN ec_group_member gm ON u.id = gm.user_id
         WHERE gm.group_id = #{groupId}
-          AND gm.deleted = 0
           AND u.id = #{userId}
+        ORDER BY gm.create_time DESC
+        LIMIT 1
     </select>
 </mapper>

@@ -39,4 +39,14 @@ public interface SysGroupMemberService extends IService<SysGroupMember> {
      * @return 是否成功
      */
     boolean quitGroup(int userId, int groupId);
+
+    /**
+     * 踢出群组成员
+     *
+     * @param userId   用户ID
+     * @param groupId  群组ID
+     * @param memberId 被踢出的成员ID
+     * @return 是否成功
+     */
+    boolean kickMember(int userId, int groupId, int memberId);
 }

@@ -28,7 +28,7 @@ public class MessageController {
         return Response.ok(sysChatMessageService.getFriendMessages(userId, chatId, currentPage));
     }
 
-    @Operation(summary = "获取消息历史", description = "获取消息历史")
+    @Operation(summary = "获取群组消息历史", description = "获取群组消息历史")
     @GetMapping("/history/group/{groupId}/{currentPage}")
     @PreAuthorize("hasAuthority('GROUP:' + #groupId)")
     public Response<List<SysChatMessage>> getGroupMessages(@PathVariable int groupId, @PathVariable int currentPage) {
