@@ -43,7 +43,8 @@ public class MessageRedisServiceImpl implements MessageRedisService {
     @Override
     public int saveMessage(WSMessage wsMessage) {
         SysChatMessage message = new SysChatMessage();
-        message.setParams(wsMessage.getParams().toString());
+        if (wsMessage.getParams() != null)
+            message.setParams(wsMessage.getParams().toString());
         message.setContent(wsMessage.getContent());
         message.setMessageType(wsMessage.getMessageType());
         message.setChatType(wsMessage.getChatType());
