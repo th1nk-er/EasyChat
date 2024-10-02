@@ -73,7 +73,7 @@ public class SysGroupMemberServiceImpl extends ServiceImpl<SysGroupMemberMapper,
     @Override
     public boolean kickMember(int userId, int groupId, int memberId) {
         LambdaQueryWrapper<SysGroupMember> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(SysGroupMember::getUserId, userId)
+        queryWrapper.eq(SysGroupMember::getUserId, memberId)
                 .eq(SysGroupMember::getGroupId, groupId);
         if (baseMapper.selectCount(queryWrapper) == 0)
             return false;

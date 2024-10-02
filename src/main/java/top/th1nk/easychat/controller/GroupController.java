@@ -108,4 +108,22 @@ public class GroupController {
     public Response<GroupMemberInfoVo> getGroupMemberInfo(@PathVariable int userId, @PathVariable int groupId) {
         return Response.ok(sysGroupMemberService.getGroupMemberInfo(userId, groupId));
     }
+
+    @Operation(summary = "退出群组", description = "退出群组")
+    @DeleteMapping("/quit/{userId}/{groupId}")
+    @PreAuthorize("hasAnyAuthority('USER:' + #userId) and hasAuthority('GROUP:' + #groupId)")
+    public Response<?> quitGroup(@PathVariable int userId, @PathVariable int groupId) {
+        if (sysGroupMemberService.quitGroup(userId, groupId))
+            return Response.ok();
+        else return Response.error();
+    }
+
+    @Operation(summary = "踢出群组成员", description = "踢出群组成员")
+    @DeleteMapping("/kick/{userId}/{groupId}/{memberId}")
+    @PreAuthorize("hasAuthority('GROUP_ADMIN:' + #userId) and hasAuthority('GROUP:' + #groupId)")
+    public Response<?> kickMember(@PathVariable int userId, @PathVariable int groupId, @PathVariable int memberId) {
+        if (sysGroupMemberService.kickMember(userId, groupId, memberId))
+            return Response.ok();
+        else return Response.error();
+    }
 }
