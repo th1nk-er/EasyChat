@@ -11,7 +11,7 @@ public enum GroupInvitationStatus {
     ADMIN_PENDING(4, "管理员待处理"),
     ADMIN_ACCEPTED(5, "管理员已同意"),
     ADMIN_REJECTED(6, "管理员已拒绝"),
-    QUITE(7, "已退出"),
+    QUITED(7, "已退出"),
     KICKED(8, "已踢出"),
     ;
 

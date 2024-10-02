@@ -63,7 +63,7 @@ public class SysGroupMemberServiceImpl extends ServiceImpl<SysGroupMemberMapper,
         // 添加一条退群记录
         SysGroupInvitation sysGroupInvitation = new SysGroupInvitation();
         sysGroupInvitation.setGroupId(groupId);
-        sysGroupInvitation.setStatus(GroupInvitationStatus.QUITE);
+        sysGroupInvitation.setStatus(GroupInvitationStatus.QUITED);
         sysGroupInvitation.setInvitedUserId(userId);
         sysGroupInvitationMapper.insert(sysGroupInvitation);
         return true;
