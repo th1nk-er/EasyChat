@@ -75,10 +75,10 @@ public class SysGroupMemberServiceImpl extends ServiceImpl<SysGroupMemberMapper,
         LambdaQueryWrapper<SysGroupMember> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(SysGroupMember::getUserId, memberId)
                 .eq(SysGroupMember::getGroupId, groupId);
-        if (baseMapper.selectCount(queryWrapper) == 0)
+        if (baseMapper.delete(queryWrapper) == 0)
             return false;
-        conversationRedisService.deleteConversation(userId, groupId, ChatType.GROUP);
-        sysUserConversationMapper.deleteConversation(userId, groupId, ChatType.GROUP);
+        conversationRedisService.deleteConversation(memberId, groupId, ChatType.GROUP);
+        sysUserConversationMapper.deleteConversation(memberId, groupId, ChatType.GROUP);
         // 添加一条踢人记录
         SysGroupInvitation sysGroupInvitation = new SysGroupInvitation();
         sysGroupInvitation.setGroupId(groupId);

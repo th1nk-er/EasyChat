@@ -38,6 +38,7 @@
           AND g.deleted = 0
           AND u.deleted = 0
           AND uf.deleted = 0
+        ORDER BY gi.create_time DESC
     </select>
     <select id="selectAdminInvitationVoByUserId" resultType="top.th1nk.easychat.domain.vo.GroupAdminInvitationVo">
         SELECT g.group_id,
@@ -57,9 +58,10 @@
                  LEFT JOIN ec_user u1 ON u1.id = gi.invited_by
                  LEFT JOIN ec_group_member gm ON gm.group_id = gi.group_id
         WHERE gm.role > 0
-          AND gm.user_id = 10
+          AND gm.user_id = #{userId}
           AND gi.status >= 4
           AND g.deleted = 0
           AND u.deleted = 0
+        ORDER BY gi.create_time DESC
     </select>
 </mapper>

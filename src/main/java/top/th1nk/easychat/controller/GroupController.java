@@ -69,6 +69,7 @@ public class GroupController {
 
     @Operation(summary = "获取用户管理的群聊的邀请列表", description = "获取用户管理的群聊的邀请列表")
     @GetMapping("/invitation/manage/list/{userId}/{pageNum}")
+    @PreAuthorize("hasAuthority('USER:' + #userId)")
     public Response<List<GroupAdminInvitationVo>> getAdminGroupInvitationList(@PathVariable int userId, @PathVariable int pageNum) {
         return Response.ok(sysGroupInvitationService.getAdminGroupInvitationList(userId, pageNum));
     }
@@ -120,7 +121,7 @@ public class GroupController {
 
     @Operation(summary = "踢出群组成员", description = "踢出群组成员")
     @DeleteMapping("/kick/{userId}/{groupId}/{memberId}")
-    @PreAuthorize("hasAuthority('GROUP_ADMIN:' + #userId) and hasAuthority('GROUP:' + #groupId)")
+    @PreAuthorize("hasAuthority('GROUP_ADMIN:' + #groupId) and hasAuthority('USER:' + #userId)")
     public Response<?> kickMember(@PathVariable int userId, @PathVariable int groupId, @PathVariable int memberId) {
         if (sysGroupMemberService.kickMember(userId, groupId, memberId))
             return Response.ok();
