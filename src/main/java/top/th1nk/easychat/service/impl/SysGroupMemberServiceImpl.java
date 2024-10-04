@@ -13,6 +13,9 @@ import top.th1nk.easychat.domain.chat.ChatType;
 import top.th1nk.easychat.domain.vo.GroupMemberInfoVo;
 import top.th1nk.easychat.domain.vo.GroupMemberVo;
 import top.th1nk.easychat.enums.GroupInvitationStatus;
+import top.th1nk.easychat.enums.UserRole;
+import top.th1nk.easychat.exception.GroupException;
+import top.th1nk.easychat.exception.enums.GroupExceptionEnum;
 import top.th1nk.easychat.mapper.SysGroupInvitationMapper;
 import top.th1nk.easychat.mapper.SysGroupMemberMapper;
 import top.th1nk.easychat.mapper.SysUserConversationMapper;
@@ -56,6 +59,10 @@ public class SysGroupMemberServiceImpl extends ServiceImpl<SysGroupMemberMapper,
         LambdaQueryWrapper<SysGroupMember> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(SysGroupMember::getUserId, userId)
                 .eq(SysGroupMember::getGroupId, groupId);
+        SysGroupMember sysGroupMember = baseMapper.selectOne(queryWrapper);
+        // 群主不能退群
+        if (sysGroupMember != null && sysGroupMember.getRole() == UserRole.LEADER)
+            throw new GroupException(GroupExceptionEnum.LEADER_CANNOT_QUIT);
         if (baseMapper.delete(queryWrapper) == 0)
             return false;
         conversationRedisService.deleteConversation(userId, groupId, ChatType.GROUP);
@@ -75,6 +82,9 @@ public class SysGroupMemberServiceImpl extends ServiceImpl<SysGroupMemberMapper,
         LambdaQueryWrapper<SysGroupMember> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(SysGroupMember::getUserId, memberId)
                 .eq(SysGroupMember::getGroupId, groupId);
+        SysGroupMember sysGroupMember = baseMapper.selectOne(queryWrapper);
+        if (sysGroupMember != null && sysGroupMember.getRole() == UserRole.LEADER)
+            throw new GroupException(GroupExceptionEnum.LEADER_CANNOT_BE_KICKED);
         if (baseMapper.delete(queryWrapper) == 0)
             return false;
         conversationRedisService.deleteConversation(memberId, groupId, ChatType.GROUP);

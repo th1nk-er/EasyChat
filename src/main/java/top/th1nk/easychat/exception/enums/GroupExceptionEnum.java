@@ -10,6 +10,8 @@ public enum GroupExceptionEnum {
     NOT_ADMIN(5004, "你不是管理员"),
     GROUP_MEMBER_CREATE_FAIL(5005, "创建群组成员失败"),
     INVITATION_NOT_FOUND(5006, "邀请不存在"),
+    LEADER_CANNOT_QUIT(5007, "群主不能退出群聊"),
+    LEADER_CANNOT_BE_KICKED(5008, "群主不能被踢出群聊"),
     ;
     private final int code;
     private final String message;
