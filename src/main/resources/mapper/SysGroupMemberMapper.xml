@@ -66,4 +66,21 @@
         ORDER BY gm.create_time DESC
         LIMIT 1
     </select>
+    <select id="selectGroupMemberInfoVoList" resultType="top.th1nk.easychat.domain.vo.GroupMemberInfoVo">
+        SELECT group_id,
+               user_id,
+               user_group_nickname,
+               gm.role,
+               gm.create_time,
+               u.username,
+               u.nickname,
+               u.avatar,
+               u.sex
+        FROM ec_user u
+                 JOIN ec_group_member gm ON u.id = gm.user_id
+        WHERE gm.group_id = #{groupId}
+          AND u.deleted = 0
+          AND gm.deleted = 0
+        ORDER BY gm.create_time
+    </select>
 </mapper>

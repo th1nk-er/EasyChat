@@ -127,4 +127,11 @@ public class GroupController {
             return Response.ok();
         else return Response.error();
     }
+
+    @Operation(summary = "获取群组成员详细信息列表", description = "获取群组成员详细信息列表")
+    @GetMapping("/{groupId}/member/list/{pageNum}")
+    @PreAuthorize("hasAuthority('GROUP:' + #groupId)")
+    public Response<List<GroupMemberInfoVo>> getGroupMemberList(@PathVariable int groupId, @PathVariable int pageNum) {
+        return Response.ok(sysGroupMemberService.getGroupMemberInfoVoList(groupId, pageNum));
+    }
 }

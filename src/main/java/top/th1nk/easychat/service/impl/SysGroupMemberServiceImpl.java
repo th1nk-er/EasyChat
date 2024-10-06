@@ -11,7 +11,6 @@ import top.th1nk.easychat.domain.SysGroupInvitation;
 import top.th1nk.easychat.domain.SysGroupMember;
 import top.th1nk.easychat.domain.chat.ChatType;
 import top.th1nk.easychat.domain.vo.GroupMemberInfoVo;
-import top.th1nk.easychat.domain.vo.GroupMemberVo;
 import top.th1nk.easychat.enums.GroupInvitationStatus;
 import top.th1nk.easychat.enums.UserRole;
 import top.th1nk.easychat.exception.GroupException;
@@ -40,8 +39,9 @@ public class SysGroupMemberServiceImpl extends ServiceImpl<SysGroupMemberMapper,
     private SysGroupInvitationMapper sysGroupInvitationMapper;
 
     @Override
-    public List<GroupMemberVo> getGroupMembers(int groupId, int pageNum) {
-        return baseMapper.selectGroupMemberVo(new Page<>(pageNum, 10), groupId);
+    public List<GroupMemberInfoVo> getGroupMemberInfoVoList(int groupId, int pageNum) {
+        if (pageNum <= 0) return List.of();
+        return baseMapper.selectGroupMemberInfoVoList(new Page<>(pageNum, 10), groupId);
     }
 
     @Override

@@ -3,7 +3,6 @@ package top.th1nk.easychat.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import top.th1nk.easychat.domain.SysGroupMember;
 import top.th1nk.easychat.domain.vo.GroupMemberInfoVo;
-import top.th1nk.easychat.domain.vo.GroupMemberVo;
 
 import java.util.List;
 
@@ -14,13 +13,13 @@ import java.util.List;
  */
 public interface SysGroupMemberService extends IService<SysGroupMember> {
     /**
-     * 分页获取群组成员信息
+     * 分页获取群组成员详细信息
      *
      * @param groupId 群组ID
      * @param pageNum 当前页码
      * @return 群组成员信息列表
      */
-    List<GroupMemberVo> getGroupMembers(int groupId, int pageNum);
+    List<GroupMemberInfoVo> getGroupMemberInfoVoList(int groupId, int pageNum);
 
     /**
      * 获取群组成员的详细信息

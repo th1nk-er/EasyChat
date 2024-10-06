@@ -58,6 +58,15 @@ public interface SysGroupMemberMapper extends BaseMapper<SysGroupMember> {
      * @return 群组成员信息
      */
     GroupMemberInfoVo selectGroupMemberInfoVo(Integer userId, Integer groupId);
+
+    /**
+     * 分页查询群组成员详细信息
+     *
+     * @param page    分页对象
+     * @param groupId 群组ID
+     * @return 群组成员详细信息列表
+     */
+    List<GroupMemberInfoVo> selectGroupMemberInfoVoList(IPage<?> page, Integer groupId);
 }
 
 
