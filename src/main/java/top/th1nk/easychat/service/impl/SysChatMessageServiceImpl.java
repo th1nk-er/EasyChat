@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import top.th1nk.easychat.domain.SysChatMessage;
 import top.th1nk.easychat.domain.chat.ChatType;
@@ -20,6 +21,7 @@ import java.util.List;
  * @description 针对表【ec_chat_message】的数据库操作Service实现
  * @createDate 2024-08-01 18:08:50
  */
+@Slf4j
 @Service
 public class SysChatMessageServiceImpl extends ServiceImpl<SysChatMessageMapper, SysChatMessage>
         implements SysChatMessageService {
@@ -55,6 +57,7 @@ public class SysChatMessageServiceImpl extends ServiceImpl<SysChatMessageMapper,
 
     @Override
     public void saveMessage(WSMessage wsMessage) {
+        log.debug("持久化存储消息 {}", wsMessage);
         if (messageRedisService.saveMessage(wsMessage) >= 15) {
             List<SysChatMessage> messages = messageRedisService.getMessages(wsMessage.getFromId(), wsMessage.getToId(), wsMessage.getChatType());
             messageRedisService.removeMessage(wsMessage.getFromId(), wsMessage.getToId(), wsMessage.getChatType());
@@ -64,6 +67,7 @@ public class SysChatMessageServiceImpl extends ServiceImpl<SysChatMessageMapper,
 
     @Override
     public List<SysChatMessage> getFriendMessages(int userId, int chatId, int currentPage) {
+        log.debug("分页获取好友消息,userId:{},chatId:{},currentPage:{}", userId, chatId, currentPage);
         if (currentPage < 0 || chatId <= 0) return List.of();
         if (currentPage == 0) {
             // 页码为0时，仅返回redis中聊天记录
@@ -76,6 +80,7 @@ public class SysChatMessageServiceImpl extends ServiceImpl<SysChatMessageMapper,
 
     @Override
     public List<SysChatMessage> getGroupMessages(int groupId, int currentPage) {
+        log.debug("分页获取群组消息,groupId:{},currentPage:{}", groupId, currentPage);
         if (currentPage < 0 || groupId <= 0) return List.of();
         if (currentPage == 0) {
             // 页码为0时，仅返回redis中聊天记录

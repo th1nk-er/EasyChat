@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.th1nk.easychat.domain.SysGroupInvitation;
@@ -30,6 +31,7 @@ import java.util.List;
  * @description 针对表【ec_group_invitation】的数据库操作Service实现
  * @createDate 2024-08-27 22:20:11
  */
+@Slf4j
 @Service
 public class SysGroupInvitationServiceImpl extends ServiceImpl<SysGroupInvitationMapper, SysGroupInvitation>
         implements SysGroupInvitationService {
@@ -54,6 +56,7 @@ public class SysGroupInvitationServiceImpl extends ServiceImpl<SysGroupInvitatio
 
     @Override
     public int refreshAllInvitationStatus() {
+        log.debug("刷新所有群组邀请状态");
         LambdaUpdateWrapper<SysGroupInvitation> qw = new LambdaUpdateWrapper<>();
         qw.lt(SysGroupInvitation::getCreateTime, LocalDateTime.now().minusHours(INVITATION_EXPIRE_TIME))
                 .eq(SysGroupInvitation::getStatus, GroupInvitationStatus.PENDING)
@@ -64,12 +67,14 @@ public class SysGroupInvitationServiceImpl extends ServiceImpl<SysGroupInvitatio
     @Override
     public List<GroupInvitationVo> getUserGroupInvitationList(int userId, int page) {
         if (page <= 0) return List.of();
+        log.debug("获取用户群聊邀请列表,userId:{},page:{}", userId, page);
         return baseMapper.selectInvitationVoByUserId(new Page<>(page, 10), userId);
     }
 
     @Override
     public List<GroupAdminInvitationVo> getAdminGroupInvitationList(int userId, int page) {
         if (page <= 0) return List.of();
+        log.debug("获取用户管理的群聊的邀请列表,userId:{},page:{}", userId, page);
         return baseMapper.selectAdminInvitationVoByUserId(new Page<>(page, 10), userId);
     }
 
@@ -78,6 +83,7 @@ public class SysGroupInvitationServiceImpl extends ServiceImpl<SysGroupInvitatio
     public boolean userAcceptInvitation(int userId, int groupId) {
         if (sysGroupMemberMapper.selectByUserIdAndGroupId(userId, groupId) != null)
             throw new GroupException(GroupExceptionEnum.ALREADY_IN_GROUP);
+        log.debug("用户接受群聊邀请,userId:{},groupId:{}", userId, groupId);
         LambdaUpdateWrapper<SysGroupInvitation> qw = new LambdaUpdateWrapper<>();
         qw.eq(SysGroupInvitation::getGroupId, groupId)
                 .eq(SysGroupInvitation::getInvitedUserId, userId)
@@ -102,6 +108,7 @@ public class SysGroupInvitationServiceImpl extends ServiceImpl<SysGroupInvitatio
 
     @Override
     public boolean userRejectInvitation(int userId, int groupId) {
+        log.debug("用户拒绝群聊邀请,userId:{},groupId:{}", userId, groupId);
         LambdaUpdateWrapper<SysGroupInvitation> qw = new LambdaUpdateWrapper<>();
         qw.eq(SysGroupInvitation::getGroupId, groupId)
                 .eq(SysGroupInvitation::getInvitedUserId, userId)
@@ -113,6 +120,7 @@ public class SysGroupInvitationServiceImpl extends ServiceImpl<SysGroupInvitatio
     @Override
     @Transactional
     public boolean adminAcceptInvitation(int userId, int groupId) {
+        log.debug("管理员同意用户的进群邀请,userId:{},groupId:{}", userId, groupId);
         if (baseMapper.update(null, new LambdaUpdateWrapper<SysGroupInvitation>()
                 .eq(SysGroupInvitation::getGroupId, groupId)
                 .eq(SysGroupInvitation::getInvitedUserId, userId)
@@ -137,6 +145,7 @@ public class SysGroupInvitationServiceImpl extends ServiceImpl<SysGroupInvitatio
 
     @Override
     public boolean adminRejectInvitation(int userId, int groupId) {
+        log.debug("管理员拒绝用户的进群邀请,userId:{},groupId:{}", userId, groupId);
         return baseMapper.update(null, new LambdaUpdateWrapper<SysGroupInvitation>()
                 .eq(SysGroupInvitation::getGroupId, groupId)
                 .eq(SysGroupInvitation::getInvitedUserId, userId)

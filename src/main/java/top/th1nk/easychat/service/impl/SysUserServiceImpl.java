@@ -68,11 +68,13 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public UserVo getByUsername(String username) {
+        log.debug("获取用户信息 用户名:{}", username);
         return UserUtils.userToVo(baseMapper.getByUsername(username));
     }
 
     @Override
     public UserVo getByEmail(String email) {
+        log.debug("获取用户信息 邮箱:{}", email);
         return UserUtils.userToVo(baseMapper.getByEmail(email));
     }
 
@@ -108,6 +110,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public UserTokenDto login(LoginDto loginDto) {
+        log.debug("用户发起登录请求 登陆方式:{} 用户名:{} 邮箱:{}", loginDto.getType().getDesc(), loginDto.getUsername(), loginDto.getEmail());
         UserVo userVo;
         Authentication authenticationToken;
         if (loginDto.getType() == LoginType.EMAIL) {
@@ -129,6 +132,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
         try {
             Authentication authenticate = authenticationManager.authenticate(authenticationToken);
+            log.debug("用户登录成功 用户名:{}", userVo.getUsername());
             // 登录成功
             baseMapper.updateLoginIp(userVo.getUsername(), RequestUtils.getClientIp()); // 更新登录IP
             SecurityContextHolder.getContext().setAuthentication(authenticate);
@@ -159,6 +163,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public SearchUserVo searchUser(String keyword, int page) {
+        log.debug("搜索用户 关键词:{} 页码:{}", keyword, page);
         SearchUserVo result = new SearchUserVo();
         result.setPageSize(10L);
         result.setTotal(0);
@@ -190,6 +195,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             throw new CommonException(CommonExceptionEnum.PASSWORD_INVALID);
         // 判断验证码是否正确
         if (emailService.verifyCode(user.getEmail(), updatePasswordDto.getCode(), EmailActionEnum.ACTION_CHANGE_PASSWORD)) {
+            log.debug("用户修改密码 用户ID:{}", updatePasswordDto.getUserId());
             user.setPassword(UserUtils.encryptPassword(updatePasswordDto.getNewPassword()));
             if (baseMapper.updateById(user) == 0) {
                 return false;
@@ -211,7 +217,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             throw new CommonException(CommonExceptionEnum.FILE_SIZE_EXCEEDED); // 头像文件过大
         UserVo userVo = UserUtils.userToVo(baseMapper.selectById(userId));
         if (userVo == null || userVo.getId() == null) return null;
-        log.info("用户修改头像，用户ID：{}", userVo.getId());
+        log.debug("用户修改头像，用户ID：{}", userVo.getId());
         String fileType = FileUtils.getFileType(file.getOriginalFilename());
         try {
             byte[] bytes = file.getInputStream().readAllBytes();
@@ -235,7 +241,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                     && baseMapper.getSameAvatarCount(userVo.getAvatar()) == 0) {
                 // 该头像没有其他用户正在使用且非默认头像时，可以删除
                 if (minioService.deleteObject(userVo.getAvatar())) {
-                    log.info("删除用户历史头像成功，文件路径：{}", userVo.getAvatar());
+                    log.debug("删除用户历史头像成功，文件路径：{}", userVo.getAvatar());
                 } else {
                     log.error("删除用户历史头像失败，文件路径：{}", userVo.getAvatar());
                 }
@@ -264,6 +270,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         if (sysUser == null) return false;
         if (sysUser.getNickname().equals(updateUserInfoDto.getNickname()) && sysUser.getSex() == updateUserInfoDto.getSex())
             return true;
+        log.debug("用户更新个人信息 用户ID:{}", updateUserInfoDto.getUserId());
         // 更新数据
         sysUser.setNickname(updateUserInfoDto.getNickname());
         sysUser.setSex(updateUserInfoDto.getSex());
@@ -279,6 +286,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public StrangerVo getStrangerInfo(int strangerId) {
+        log.debug("获取陌生人信息 陌生人ID:{}", strangerId);
         SysUser sysUser = baseMapper.selectById(strangerId);
         return UserUtils.userToStrangerVo(sysUser);
     }

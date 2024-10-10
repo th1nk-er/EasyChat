@@ -3,6 +3,7 @@ package top.th1nk.easychat.service.impl;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Nullable;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @Service
 public class ConversationRedisServiceImpl implements ConversationRedisService {
     // 使用两组key原因：
@@ -130,6 +132,7 @@ public class ConversationRedisServiceImpl implements ConversationRedisService {
 
     @Override
     public void handleMessageReceived(SysChatMessage message) {
+        log.debug("更新redis中用户对话列表,message:{}", message);
         if (message.getChatType() == ChatType.GROUP) {
             // 更新每一个群聊成员的对话
             // Page current = -1 表示不分页
@@ -142,6 +145,7 @@ public class ConversationRedisServiceImpl implements ConversationRedisService {
 
     @Override
     public List<SysUserConversation> getUserConversations(int uid) {
+        log.debug("从redis获取对话列表,userId:{}", uid);
         HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
         List<SysUserConversation> res = hashOperations.values(CHAT_CONVERSATION_PRIVATE_KEY + uid);
         res.addAll(hashOperations.values(CHAT_CONVERSATION_GROUP_KEY + uid));
@@ -151,6 +155,7 @@ public class ConversationRedisServiceImpl implements ConversationRedisService {
 
     @Override
     public List<SysUserConversation> getAllUserConversations() {
+        log.debug("从redis获取所有用户对话列表");
         HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
         Set<String> friendKeys = redisTemplate.keys(CHAT_CONVERSATION_PRIVATE_KEY + "*");
         Set<String> groupKeys = redisTemplate.keys(CHAT_CONVERSATION_GROUP_KEY + "*");
@@ -170,6 +175,7 @@ public class ConversationRedisServiceImpl implements ConversationRedisService {
 
     @Override
     public boolean setConversationRead(int userId, int chatId, ChatType chatType) {
+        log.debug("在redis中设置对话已读,userId:{},chatId:{},chatType:{}", userId, chatId, chatType);
         HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
         String redisKey;
         if (chatType == ChatType.FRIEND)
@@ -187,6 +193,7 @@ public class ConversationRedisServiceImpl implements ConversationRedisService {
     @Override
     public void addToConversation(List<SysUserConversation> conversation) {
         if (conversation == null || conversation.isEmpty()) return;
+        log.debug("在redis中添加用户对话,conversation:{}", conversation);
         HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
         for (SysUserConversation userConversation : conversation) {
             String redisKey = CHAT_CONVERSATION_PRIVATE_KEY + userConversation.getUid();
@@ -199,6 +206,7 @@ public class ConversationRedisServiceImpl implements ConversationRedisService {
 
     @Override
     public void deleteConversation(int userId, int senderId, ChatType chatType) {
+        log.debug("从redis中删除用户对话,userId:{},senderId:{},chatType:{}", userId, senderId, chatType);
         HashOperations<String, String, SysUserConversation> hashOperations = redisTemplate.opsForHash();
         if (chatType == ChatType.FRIEND)
             hashOperations.delete(CHAT_CONVERSATION_PRIVATE_KEY + userId, String.valueOf(senderId));

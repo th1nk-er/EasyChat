@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import java.util.List;
  * @description 针对表【ec_user_add_friend】的数据库操作Service实现
  * @createDate 2024-07-18 15:07:53
  */
+@Slf4j
 @Service
 public class SysUserAddFriendServiceImpl extends ServiceImpl<SysUserAddFriendMapper, SysUserAddFriend>
         implements SysUserAddFriendService {
@@ -34,6 +36,7 @@ public class SysUserAddFriendServiceImpl extends ServiceImpl<SysUserAddFriendMap
 
     @Override
     public FriendRequestListVo getFriendRequestList(int userId, int page) {
+        log.debug("获取好友申请列表 userId: {} page: {}", userId, page);
         FriendRequestListVo friendRequestListVo = new FriendRequestListVo();
         friendRequestListVo.setTotal(0);
         friendRequestListVo.setPageSize(10);
@@ -90,6 +93,7 @@ public class SysUserAddFriendServiceImpl extends ServiceImpl<SysUserAddFriendMap
     public SysUserAddFriend getPendingRequest(int userId, int strangerId) {
         if (!baseMapper.isAddRequestPending(userId, strangerId))
             return null;
+        log.debug("获取待处理的好友申请 userId: {} strangerId: {}", userId, strangerId);
         LambdaQueryWrapper<SysUserAddFriend> qw = new LambdaQueryWrapper<>();
         qw.eq(SysUserAddFriend::getUid, userId)
                 .eq(SysUserAddFriend::getStrangerId, strangerId)
@@ -107,6 +111,7 @@ public class SysUserAddFriendServiceImpl extends ServiceImpl<SysUserAddFriendMap
 
     @Override
     public boolean isRequestExpired(SysUserAddFriend sysUserAddFriend) {
+        log.debug("判断好友申请是否过期 sysUserAddFriend: {}", sysUserAddFriend);
         return sysUserAddFriend.getCreateTime().plusSeconds(REQUEST_EXPIRE_TIME).isBefore(LocalDateTime.now());
     }
 }

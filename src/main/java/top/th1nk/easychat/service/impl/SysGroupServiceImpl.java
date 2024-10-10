@@ -80,6 +80,7 @@ public class SysGroupServiceImpl extends ServiceImpl<SysGroupMapper, SysGroup>
         if (sysGroupMemberMapper.countGroupsByUserRole(userVo.getId(), UserRole.LEADER) >= groupProperties.getMaxGroupPerUser()) {
             throw new GroupException(GroupExceptionEnum.CREATABLE_GROUP_LIMIT_EXCEEDED);
         }
+        log.debug("创建群聊,用户ID:{},群聊名称:{},邀请人数:{}", userVo.getId(), createGroupDto.getGroupName(), friendIds.size());
         // 创建群聊
         SysGroup group = new SysGroup();
         group.setGroupName(createGroupDto.getGroupName());
@@ -110,17 +111,20 @@ public class SysGroupServiceImpl extends ServiceImpl<SysGroupMapper, SysGroup>
     @NotNull
     public List<UserGroupVo> getUserGroupList(int userId, int pageNum) {
         if (pageNum <= 0) return List.of();
+        log.debug("获取用户群聊列表,userId:{},pageNum:{}", userId, pageNum);
         IPage<UserGroupVo> ipage = baseMapper.selectUserGroupList(new Page<>(pageNum, 10), userId);
         return ipage.getRecords();
     }
 
     @Override
     public GroupVo getGroupVo(int groupId) {
+        log.debug("获取群聊信息Vo,groupId:{}", groupId);
         return baseMapper.selectGroupVoById(groupId);
     }
 
     @Override
     public boolean updateUserGroupInfo(int userId, UserGroupUpdateDto userGroupUpdateDto) {
+        log.debug("更新用户群组信息,userId:{},userGroupUpdateDto:{}", userId, userGroupUpdateDto);
         LambdaUpdateWrapper<SysGroupMember> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(SysGroupMember::getUserId, userId)
                 .eq(SysGroupMember::getGroupId, userGroupUpdateDto.getGroupId())

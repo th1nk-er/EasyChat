@@ -28,6 +28,7 @@ public class MinioServiceImpl implements MinioService {
 
     @Override
     public boolean upload(byte[] fileBytes, String filePath) {
+        log.debug("[minio]上传文件 {}", filePath);
         try (MinioClient minioClient = getMinioClient()) {
             minioClient.putObject(
                     PutObjectArgs.builder()
@@ -45,6 +46,7 @@ public class MinioServiceImpl implements MinioService {
 
     @Override
     public GetObjectResponse getObject(String filePath) {
+        log.debug("[minio]获取文件 {}", filePath);
         try (MinioClient minioClient = getMinioClient()) {
             return minioClient.getObject(
                     GetObjectArgs.builder()
@@ -58,6 +60,7 @@ public class MinioServiceImpl implements MinioService {
 
     @Override
     public boolean initBucket() {
+        log.debug("[minio]初始化bucket");
         try (MinioClient minioClient = getMinioClient()) {
             boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(minioProperties.getBucketName()).build());
             if (!found)
@@ -74,6 +77,7 @@ public class MinioServiceImpl implements MinioService {
 
     @Override
     public boolean deleteObject(String filePath) {
+        log.debug("[minio]删除文件 {}", filePath);
         try (MinioClient minioClient = getMinioClient()) {
             minioClient.removeObject(RemoveObjectArgs.builder()
                     .bucket(minioProperties.getBucketName())

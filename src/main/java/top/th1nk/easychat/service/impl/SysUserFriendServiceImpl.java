@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,7 @@ import java.util.List;
  * @description 针对表【ec_user_friend】的数据库操作Service实现
  * @createDate 2024-07-18 15:07:44
  */
+@Slf4j
 @Service
 public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, SysUserFriend>
         implements SysUserFriendService {
@@ -58,6 +60,7 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
     @Override
     public boolean sendAddRequest(AddFriendDto addFriendDto) {
         if (addFriendDto == null) return false;
+        log.debug("用户发起添加好友请求 userId: {} addId: {}", addFriendDto.getUserId(), addFriendDto.getAddId());
         if (addFriendDto.getUserId() == addFriendDto.getAddId())
             throw new UserFriendException(UserFriendExceptionEnum.CANNOT_ADD_SELF); // 禁止添加自己
         if (sysUserMapper.selectById(addFriendDto.getAddId()) == null)
@@ -67,6 +70,7 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
         // 判断是否已有未处理的申请
         if (sysUserAddFriendService.getPendingRequest(addFriendDto.getUserId(), addFriendDto.getAddId()) != null)
             throw new UserFriendException(UserFriendExceptionEnum.ADD_REQUEST_EXIST);
+        log.debug("用户添加好友 userId: {} addId: {}", addFriendDto.getUserId(), addFriendDto.getAddId());
         // 发送好友申请
         SysUserAddFriend addOther = new SysUserAddFriend();
         SysUserAddFriend addByOther = new SysUserAddFriend();
@@ -106,6 +110,7 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
             throw new UserFriendException(UserFriendExceptionEnum.ADD_REQUEST_EXPIRED);
         SysUserAddFriend other = sysUserAddFriendService.getStrangerRequestById(friendRequestHandleDto.getId());
         if (friendRequestHandleDto.getStatus() == AddUserStatus.AGREED) {
+            log.debug("用户同意好友申请 userId: {} strangerId: {}", friendRequest.getUid(), friendRequest.getStrangerId());
             // 同意申请
             friendRequest.setStatus(AddUserStatus.AGREED);
             if (sysUserAddFriendMapper.updateById(friendRequest) != 1)
@@ -130,6 +135,7 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
             baseMapper.insert(userFriend);
             return true;
         } else if (friendRequestHandleDto.getStatus() == AddUserStatus.REFUSED) {
+            log.debug("用户拒绝好友申请 userId: {} strangerId: {}", friendRequest.getUid(), friendRequest.getStrangerId());
             // 拒绝申请
             friendRequest.setStatus(AddUserStatus.REFUSED);
             friendRequest.setAddInfo(friendRequest.getAddInfo() + "    拒绝理由：" + friendRequestHandleDto.getRemark());
@@ -144,6 +150,7 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
                 throw new UserFriendException(UserFriendExceptionEnum.ADD_FRIEND_FAILED);
             return true;
         } else if (friendRequestHandleDto.getStatus() == AddUserStatus.IGNORED) {
+            log.debug("用户忽略好友申请 userId: {} strangerId: {}", friendRequest.getUid(), friendRequest.getStrangerId());
             // 忽略申请
             // 仅将一方的状态设置为忽略
             friendRequest.setStatus(AddUserStatus.IGNORED);
@@ -154,6 +161,7 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
 
     @Override
     public FriendListVo getFriendList(int userId, int page) {
+        log.debug("获取用户好友列表 userId: {}", userId);
         FriendListVo friendListVo = new FriendListVo();
         friendListVo.setTotal(0);
         friendListVo.setPageSize(10);
@@ -170,6 +178,7 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
 
     @Override
     public UserFriendVo getFriendInfo(int userId, int friendId) {
+        log.debug("获取用户好友详细信息 userId: {} friendId: {}", userId, friendId);
         return baseMapper.selectUserFriendVo(userId, friendId);
     }
 
@@ -178,6 +187,7 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
         if (!baseMapper.isOneWayFriend(userId, userFriendUpdateDto.getFriendId()))
             throw new UserFriendException(UserFriendExceptionEnum.NOT_FRIEND);
         SysUserFriend sysUserFriend = baseMapper.selectByUserIdAndFriendId(userId, userFriendUpdateDto.getFriendId());
+        log.debug("更新用户好友信息 userId: {} friendId: {}", userId, userFriendUpdateDto.getFriendId());
         if (userFriendUpdateDto.getRemark() != null) {
             if (UserUtils.isValidRemark(userFriendUpdateDto.getRemark()))
                 sysUserFriend.setRemark(userFriendUpdateDto.getRemark());
@@ -193,6 +203,7 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
     public boolean deleteFriend(int userId, int friendId) {
         if (!baseMapper.isOneWayFriend(userId, friendId))
             throw new UserFriendException(UserFriendExceptionEnum.NOT_FRIEND);
+        log.debug("用户删除好友 userId: {} friendId: {}", userId, friendId);
         // 删除对话列表中对应条目
         sysUserConversationMapper.deleteConversation(userId, friendId, ChatType.FRIEND);
         conversationRedisService.deleteConversation(userId, friendId, ChatType.FRIEND);

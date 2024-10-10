@@ -42,6 +42,7 @@ public class MessageRedisServiceImpl implements MessageRedisService {
 
     @Override
     public int saveMessage(WSMessage wsMessage) {
+        log.debug("保存消息到redis: {}", wsMessage);
         SysChatMessage message = new SysChatMessage();
         if (wsMessage.getParams() != null)
             message.setParams(wsMessage.getParams().toString());
@@ -60,18 +61,21 @@ public class MessageRedisServiceImpl implements MessageRedisService {
 
     @Override
     public List<SysChatMessage> getMessages(int userId, int chatId, ChatType chatType) {
+        log.debug("从redis获取消息,userId:{},chatId:{},chatType:{}", userId, chatId, chatType);
         String chatKey = getRedisKey(userId, chatId, chatType);
         return redisTemplate.opsForList().range(chatKey, 0, -1);
     }
 
     @Override
     public void removeMessage(int userId, int chatId, ChatType chatType) {
+        log.debug("删除redis中的消息,userId:{},chatId:{},chatType:{}", userId, chatId, chatType);
         String chatKey = getRedisKey(userId, chatId, chatType);
         redisTemplate.delete(chatKey);
     }
 
     @Override
     public List<SysChatMessage> getAllMessages() {
+        log.debug("获取redis中所有消息");
         Set<String> keys = redisTemplate.keys(CHAT_PRIVATE_MESSAGE_KEY + "*");
         Set<String> groupKeys = redisTemplate.keys(CHAT_GROUP_MESSAGE_KEY + "*");
         if (keys == null || groupKeys == null) {
