@@ -73,4 +73,14 @@ public interface SysGroupInvitationService extends IService<SysGroupInvitation> 
      * @return 是否成功
      */
     boolean adminRejectInvitation(int userId, int groupId);
+
+    /**
+     * 邀请用户加入群聊
+     *
+     * @param userId    用户ID
+     * @param groupId   群ID
+     * @param memberIds 被邀请的用户ID列表
+     * @return 是否成功
+     */
+    boolean inviteMembers(int userId, int groupId, List<Integer> memberIds);
 }

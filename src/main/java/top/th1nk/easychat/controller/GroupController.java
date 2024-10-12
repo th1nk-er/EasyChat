@@ -134,4 +134,13 @@ public class GroupController {
     public Response<List<GroupMemberInfoVo>> getGroupMemberList(@PathVariable int groupId, @PathVariable int pageNum) {
         return Response.ok(sysGroupMemberService.getGroupMemberInfoVoList(groupId, pageNum));
     }
+
+    @Operation(summary = "邀请用户加入群聊", description = "邀请用户加入群聊")
+    @PostMapping("/invite/{userId}/{groupId}")
+    @PreAuthorize("hasAuthority('USER:' + #userId) and hasAuthority('GROUP:' + #groupId)")
+    public Response<?> inviteMembers(@PathVariable int userId, @PathVariable int groupId, @RequestBody List<Integer> memberIds) {
+        if (sysGroupInvitationService.inviteMembers(userId, groupId, memberIds))
+            return Response.ok();
+        else return Response.error();
+    }
 }

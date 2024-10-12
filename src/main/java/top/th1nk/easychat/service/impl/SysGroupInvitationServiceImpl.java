@@ -22,9 +22,11 @@ import top.th1nk.easychat.mapper.SysGroupInvitationMapper;
 import top.th1nk.easychat.mapper.SysGroupMemberMapper;
 import top.th1nk.easychat.service.SysGroupInvitationService;
 import top.th1nk.easychat.service.WebSocketService;
+import top.th1nk.easychat.utils.SecurityUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author vinka
@@ -44,6 +46,8 @@ public class SysGroupInvitationServiceImpl extends ServiceImpl<SysGroupInvitatio
     private SysGroupMemberMapper sysGroupMemberMapper;
     @Resource
     private WebSocketService webSocketService;
+    @Resource
+    private SecurityUtils securityUtils;
 
     private boolean insertGroupMember(int userId, int groupId) {
         SysGroupMember sysGroupMember = new SysGroupMember();
@@ -151,6 +155,28 @@ public class SysGroupInvitationServiceImpl extends ServiceImpl<SysGroupInvitatio
                 .eq(SysGroupInvitation::getInvitedUserId, userId)
                 .eq(SysGroupInvitation::getStatus, GroupInvitationStatus.ADMIN_PENDING)
                 .set(SysGroupInvitation::getStatus, GroupInvitationStatus.ADMIN_REJECTED)) > 0;
+    }
+
+    @Override
+    @Transactional
+    public boolean inviteMembers(int userId, int groupId, List<Integer> memberIds) {
+        if (memberIds == null || memberIds.isEmpty() || memberIds.size() > 20) return false;
+        Set<String> permissions = securityUtils.getPermissions(userId);
+        log.debug("邀请用户加入群聊,userId:{},groupId:{},memberIds:{}", userId, groupId, memberIds);
+        memberIds
+                .stream()
+                .filter((memberId) ->
+                        permissions.contains("FRIEND:" + memberId)
+                                && !securityUtils.getPermissions(memberId).contains("GROUP:" + groupId)
+                ).forEach((id) -> {
+                    SysGroupInvitation invitation = new SysGroupInvitation();
+                    invitation.setGroupId(groupId);
+                    invitation.setInvitedBy(userId);
+                    invitation.setInvitedUserId(id);
+                    invitation.setStatus(GroupInvitationStatus.PENDING);
+                    baseMapper.insert(invitation);
+                });
+        return true;
     }
 }
 
