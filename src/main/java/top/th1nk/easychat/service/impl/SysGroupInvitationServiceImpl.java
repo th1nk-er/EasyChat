@@ -1,10 +1,12 @@
 package top.th1nk.easychat.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.th1nk.easychat.domain.SysGroupInvitation;
@@ -84,6 +86,7 @@ public class SysGroupInvitationServiceImpl extends ServiceImpl<SysGroupInvitatio
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = "user:perms", key = "#userId")
     public boolean userAcceptInvitation(int userId, int groupId) {
         if (sysGroupMemberMapper.selectByUserIdAndGroupId(userId, groupId) != null)
             throw new GroupException(GroupExceptionEnum.ALREADY_IN_GROUP);
@@ -123,6 +126,7 @@ public class SysGroupInvitationServiceImpl extends ServiceImpl<SysGroupInvitatio
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = "user:perms", key = "#userId")
     public boolean adminAcceptInvitation(int userId, int groupId) {
         log.debug("管理员同意用户的进群邀请,userId:{},groupId:{}", userId, groupId);
         if (baseMapper.update(null, new LambdaUpdateWrapper<SysGroupInvitation>()
@@ -174,7 +178,15 @@ public class SysGroupInvitationServiceImpl extends ServiceImpl<SysGroupInvitatio
                     invitation.setInvitedBy(userId);
                     invitation.setInvitedUserId(id);
                     invitation.setStatus(GroupInvitationStatus.PENDING);
-                    baseMapper.insert(invitation);
+                    LambdaQueryWrapper<SysGroupInvitation> qw = new LambdaQueryWrapper<>();
+                    qw.eq(SysGroupInvitation::getGroupId, groupId)
+                            .eq(SysGroupInvitation::getInvitedBy, userId)
+                            .eq(SysGroupInvitation::getInvitedUserId, id)
+                            .nested(s -> s.eq(SysGroupInvitation::getStatus, GroupInvitationStatus.PENDING)
+                                    .or()
+                                    .eq(SysGroupInvitation::getStatus, GroupInvitationStatus.ADMIN_PENDING));
+                    if (baseMapper.selectOne(qw) == null)
+                        baseMapper.insert(invitation);
                 });
         return true;
     }
