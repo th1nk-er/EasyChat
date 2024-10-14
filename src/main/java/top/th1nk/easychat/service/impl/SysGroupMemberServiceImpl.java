@@ -1,6 +1,7 @@
 package top.th1nk.easychat.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
@@ -21,6 +22,7 @@ import top.th1nk.easychat.mapper.SysGroupMemberMapper;
 import top.th1nk.easychat.mapper.SysUserConversationMapper;
 import top.th1nk.easychat.service.ConversationRedisService;
 import top.th1nk.easychat.service.SysGroupMemberService;
+import top.th1nk.easychat.utils.UserUtils;
 
 import java.util.List;
 
@@ -105,6 +107,18 @@ public class SysGroupMemberServiceImpl extends ServiceImpl<SysGroupMemberMapper,
         sysGroupInvitation.setInvitedBy(userId);
         sysGroupInvitationMapper.insert(sysGroupInvitation);
         return true;
+    }
+
+    @Override
+    public boolean updateUserGroupNickname(int userId, int groupId, String nickname) {
+        if (!UserUtils.isValidNickname(nickname))
+            return false;
+        log.debug("更新群组成员昵称 userId: {} groupId: {} nickname: {}", userId, groupId, nickname);
+        LambdaUpdateWrapper<SysGroupMember> wrapper = new LambdaUpdateWrapper<>();
+        wrapper.eq(SysGroupMember::getUserId, userId)
+                .eq(SysGroupMember::getGroupId, groupId)
+                .set(SysGroupMember::getUserGroupNickname, nickname);
+        return baseMapper.update(null, wrapper) > 0;
     }
 }
 

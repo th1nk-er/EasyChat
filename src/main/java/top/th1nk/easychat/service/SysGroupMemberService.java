@@ -48,4 +48,14 @@ public interface SysGroupMemberService extends IService<SysGroupMember> {
      * @return 是否成功
      */
     boolean kickMember(int userId, int groupId, int memberId);
+
+    /**
+     * 更新群组成员昵称
+     *
+     * @param userId   用户ID
+     * @param groupId  群组ID
+     * @param nickname 昵称
+     * @return 是否成功
+     */
+    boolean updateUserGroupNickname(int userId, int groupId, String nickname);
 }
