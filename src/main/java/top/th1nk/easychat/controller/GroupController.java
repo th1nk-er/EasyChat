@@ -143,4 +143,13 @@ public class GroupController {
             return Response.ok();
         else return Response.error();
     }
+
+    @Operation(summary = "更新群组成员昵称", description = "更新群组成员昵称")
+    @PutMapping("/{groupId}/user/{userId}/nickname")
+    @PreAuthorize("hasAuthority('GROUP_ADMIN' + #groupId) or hasAuthority('USER:' + #userId)")
+    public Response<?> updateUserGroupNickname(@PathVariable int groupId, @PathVariable int userId, @RequestBody String nickname) {
+        if (sysGroupMemberService.updateUserGroupNickname(userId, groupId, nickname))
+            return Response.ok();
+        else return Response.error();
+    }
 }
