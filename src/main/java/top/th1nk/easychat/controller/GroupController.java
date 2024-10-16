@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import top.th1nk.easychat.domain.Response;
 import top.th1nk.easychat.domain.dto.CreateGroupDto;
 import top.th1nk.easychat.domain.dto.GroupInvitationRequestDto;
+import top.th1nk.easychat.domain.dto.UpdateUserGroupNicknameDto;
 import top.th1nk.easychat.domain.dto.UserGroupUpdateDto;
 import top.th1nk.easychat.domain.vo.GroupAdminInvitationVo;
 import top.th1nk.easychat.domain.vo.GroupInvitationVo;
@@ -146,9 +147,9 @@ public class GroupController {
 
     @Operation(summary = "更新群组成员昵称", description = "更新群组成员昵称")
     @PutMapping("/{groupId}/user/{userId}/nickname")
-    @PreAuthorize("hasAuthority('GROUP_ADMIN' + #groupId) or hasAuthority('USER:' + #userId)")
-    public Response<?> updateUserGroupNickname(@PathVariable int groupId, @PathVariable int userId, @RequestBody String nickname) {
-        if (sysGroupMemberService.updateUserGroupNickname(userId, groupId, nickname))
+    @PreAuthorize("hasAuthority('GROUP_ADMIN:' + #groupId) or hasAuthority('USER:' + #userId)")
+    public Response<?> updateUserGroupNickname(@PathVariable int groupId, @PathVariable int userId, @RequestBody UpdateUserGroupNicknameDto nickname) {
+        if (sysGroupMemberService.updateUserGroupNickname(userId, groupId, nickname.getNickname()))
             return Response.ok();
         else return Response.error();
     }
