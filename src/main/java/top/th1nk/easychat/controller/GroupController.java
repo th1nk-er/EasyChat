@@ -10,10 +10,7 @@ import top.th1nk.easychat.domain.dto.CreateGroupDto;
 import top.th1nk.easychat.domain.dto.GroupInvitationRequestDto;
 import top.th1nk.easychat.domain.dto.UpdateUserGroupNicknameDto;
 import top.th1nk.easychat.domain.dto.UserGroupUpdateDto;
-import top.th1nk.easychat.domain.vo.GroupAdminInvitationVo;
-import top.th1nk.easychat.domain.vo.GroupInvitationVo;
-import top.th1nk.easychat.domain.vo.GroupMemberInfoVo;
-import top.th1nk.easychat.domain.vo.UserGroupVo;
+import top.th1nk.easychat.domain.vo.*;
 import top.th1nk.easychat.service.SysGroupInvitationService;
 import top.th1nk.easychat.service.SysGroupMemberService;
 import top.th1nk.easychat.service.SysGroupService;
@@ -91,7 +88,7 @@ public class GroupController {
 
     @Operation(summary = "获取群聊信息", description = "获取群聊信息")
     @GetMapping("/info/{groupId}")
-    public Response<?> getGroupInfo(@PathVariable int groupId) {
+    public Response<GroupVo> getGroupInfo(@PathVariable int groupId) {
         return Response.ok(sysGroupService.getGroupVo(groupId));
     }
 
