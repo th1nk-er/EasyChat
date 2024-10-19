@@ -58,4 +58,24 @@ public interface SysGroupMemberService extends IService<SysGroupMember> {
      * @return 是否成功
      */
     boolean updateUserGroupNickname(int userId, int groupId, String nickname);
+
+    /**
+     * 设置群组成员为管理员
+     *
+     * @param userId   用户ID
+     * @param groupId  群组ID
+     * @param memberId 成员ID
+     * @return 是否成功
+     */
+    boolean setMemberAsAdmin(int userId, int groupId, int memberId);
+
+    /**
+     * 移除群组成员的管理员角色
+     *
+     * @param userId   用户ID
+     * @param groupId  群组ID
+     * @param memberId 成员ID
+     * @return 是否成功
+     */
+    boolean removeAdminRole(int userId, int groupId, int memberId);
 }
