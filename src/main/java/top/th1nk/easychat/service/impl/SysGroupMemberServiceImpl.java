@@ -128,7 +128,12 @@ public class SysGroupMemberServiceImpl extends ServiceImpl<SysGroupMemberMapper,
         if (sysGroupMember == null || sysGroupMember.getRole() == UserRole.ADMIN) return false;
         log.debug("设置群组成员为管理员 userId: {} groupId: {} memberId: {}", userId, groupId, memberId);
         sysGroupMember.setRole(UserRole.ADMIN);
-        // TODO 添加一条群通知给群组的管理员
+        SysGroupInvitation sysGroupInvitation = new SysGroupInvitation();
+        sysGroupInvitation.setStatus(GroupInvitationStatus.SET_ADMIN);
+        sysGroupInvitation.setGroupId(groupId);
+        sysGroupInvitation.setInvitedUserId(memberId);
+        sysGroupInvitation.setInvitedBy(userId);
+        sysGroupInvitationMapper.insert(sysGroupInvitation);
         return baseMapper.updateById(sysGroupMember) > 0;
     }
 
@@ -139,7 +144,12 @@ public class SysGroupMemberServiceImpl extends ServiceImpl<SysGroupMemberMapper,
         if (sysGroupMember == null || sysGroupMember.getRole() == UserRole.USER) return false;
         log.debug("取消群组成员的管理员权限 userId: {} groupId: {} memberId: {}", userId, groupId, memberId);
         sysGroupMember.setRole(UserRole.USER);
-        // TODO 添加一条群通知给群组的管理员
+        SysGroupInvitation sysGroupInvitation = new SysGroupInvitation();
+        sysGroupInvitation.setStatus(GroupInvitationStatus.CANCEL_ADMIN);
+        sysGroupInvitation.setGroupId(groupId);
+        sysGroupInvitation.setInvitedUserId(memberId);
+        sysGroupInvitation.setInvitedBy(userId);
+        sysGroupInvitationMapper.insert(sysGroupInvitation);
         return baseMapper.updateById(sysGroupMember) > 0;
     }
 }

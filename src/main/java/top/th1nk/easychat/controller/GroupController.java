@@ -8,9 +8,10 @@ import org.springframework.web.bind.annotation.*;
 import top.th1nk.easychat.domain.Response;
 import top.th1nk.easychat.domain.dto.CreateGroupDto;
 import top.th1nk.easychat.domain.dto.GroupInvitationRequestDto;
-import top.th1nk.easychat.domain.dto.UpdateUserGroupNicknameDto;
+import top.th1nk.easychat.domain.dto.UpdateGroupMemberDto;
 import top.th1nk.easychat.domain.dto.UserGroupUpdateDto;
 import top.th1nk.easychat.domain.vo.*;
+import top.th1nk.easychat.enums.UserRole;
 import top.th1nk.easychat.service.SysGroupInvitationService;
 import top.th1nk.easychat.service.SysGroupMemberService;
 import top.th1nk.easychat.service.SysGroupService;
@@ -145,9 +146,24 @@ public class GroupController {
     @Operation(summary = "更新群组成员昵称", description = "更新群组成员昵称")
     @PutMapping("/{groupId}/user/{userId}/nickname")
     @PreAuthorize("hasAuthority('GROUP_ADMIN:' + #groupId) or hasAuthority('USER:' + #userId)")
-    public Response<?> updateUserGroupNickname(@PathVariable int groupId, @PathVariable int userId, @RequestBody UpdateUserGroupNicknameDto nickname) {
-        if (sysGroupMemberService.updateUserGroupNickname(userId, groupId, nickname.getNickname()))
+    public Response<?> updateUserGroupNickname(@PathVariable int groupId, @PathVariable int userId, @RequestBody UpdateGroupMemberDto dto) {
+        if (sysGroupMemberService.updateUserGroupNickname(userId, groupId, dto.getNickname()))
             return Response.ok();
         else return Response.error();
+    }
+
+    @Operation(summary = "更新群成员的身份", description = "更新群成员的身份")
+    @PutMapping("/{groupId}/member/{memberId}/role")
+    @PreAuthorize("hasAuthority('GROUP_ADMIN:' + #groupId) and hasAuthority('USER:' + #dto.getUserId())")
+    public Response<?> updateMemberRole(@PathVariable int groupId, @PathVariable int memberId, @RequestBody UpdateGroupMemberDto dto) {
+        if (dto.getRole() == null || dto.getUserId() == null) return Response.error();
+        if (dto.getRole() == UserRole.ADMIN) {
+            if (sysGroupMemberService.setMemberAsAdmin(dto.getUserId(), groupId, memberId))
+                return Response.ok();
+        } else if (dto.getRole() == UserRole.USER) {
+            if (sysGroupMemberService.removeAdminRole(dto.getUserId(), groupId, memberId))
+                return Response.ok();
+        }
+        return Response.error();
     }
 }

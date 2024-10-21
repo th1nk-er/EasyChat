@@ -13,6 +13,8 @@ public enum GroupInvitationStatus {
     ADMIN_REJECTED(6, "管理员已拒绝"),
     QUITED(7, "已退出"),
     KICKED(8, "已踢出"),
+    SET_ADMIN(9, "设置为管理员"),
+    CANCEL_ADMIN(10, "取消管理员"),
     ;
 
     @EnumValue
