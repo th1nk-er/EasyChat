@@ -124,7 +124,7 @@ public class SysGroupMemberServiceImpl extends ServiceImpl<SysGroupMemberMapper,
     @Override
     public boolean setMemberAsAdmin(int userId, int groupId, int memberId) {
         if (userId == memberId) return false;
-        SysGroupMember sysGroupMember = baseMapper.selectByUserIdAndGroupId(userId, groupId);
+        SysGroupMember sysGroupMember = baseMapper.selectByUserIdAndGroupId(memberId, groupId);
         if (sysGroupMember == null || sysGroupMember.getRole() == UserRole.ADMIN) return false;
         log.debug("设置群组成员为管理员 userId: {} groupId: {} memberId: {}", userId, groupId, memberId);
         sysGroupMember.setRole(UserRole.ADMIN);
@@ -140,7 +140,7 @@ public class SysGroupMemberServiceImpl extends ServiceImpl<SysGroupMemberMapper,
     @Override
     public boolean removeAdminRole(int userId, int groupId, int memberId) {
         if (userId == memberId) return false;
-        SysGroupMember sysGroupMember = baseMapper.selectByUserIdAndGroupId(userId, groupId);
+        SysGroupMember sysGroupMember = baseMapper.selectByUserIdAndGroupId(memberId, groupId);
         if (sysGroupMember == null || sysGroupMember.getRole() == UserRole.USER) return false;
         log.debug("取消群组成员的管理员权限 userId: {} groupId: {} memberId: {}", userId, groupId, memberId);
         sysGroupMember.setRole(UserRole.USER);
