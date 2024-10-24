@@ -9,16 +9,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import top.th1nk.easychat.domain.SysGroupInvitation;
 import top.th1nk.easychat.domain.SysGroupMember;
+import top.th1nk.easychat.domain.SysGroupNotification;
 import top.th1nk.easychat.domain.chat.ChatType;
 import top.th1nk.easychat.domain.vo.GroupMemberInfoVo;
-import top.th1nk.easychat.enums.GroupInvitationStatus;
+import top.th1nk.easychat.enums.GroupNotificationType;
 import top.th1nk.easychat.enums.UserRole;
 import top.th1nk.easychat.exception.GroupException;
 import top.th1nk.easychat.exception.enums.GroupExceptionEnum;
-import top.th1nk.easychat.mapper.SysGroupInvitationMapper;
 import top.th1nk.easychat.mapper.SysGroupMemberMapper;
+import top.th1nk.easychat.mapper.SysGroupNotificationMapper;
 import top.th1nk.easychat.mapper.SysUserConversationMapper;
 import top.th1nk.easychat.service.ConversationRedisService;
 import top.th1nk.easychat.service.SysGroupMemberService;
@@ -40,7 +40,7 @@ public class SysGroupMemberServiceImpl extends ServiceImpl<SysGroupMemberMapper,
     @Resource
     private SysUserConversationMapper sysUserConversationMapper;
     @Resource
-    private SysGroupInvitationMapper sysGroupInvitationMapper;
+    private SysGroupNotificationMapper sysGroupNotificationMapper;
 
     @Override
     public List<GroupMemberInfoVo> getGroupMemberInfoVoList(int groupId, int pageNum) {
@@ -76,11 +76,11 @@ public class SysGroupMemberServiceImpl extends ServiceImpl<SysGroupMemberMapper,
         conversationRedisService.deleteConversation(userId, groupId, ChatType.GROUP);
         sysUserConversationMapper.deleteConversation(userId, groupId, ChatType.GROUP);
         // 添加一条退群记录
-        SysGroupInvitation sysGroupInvitation = new SysGroupInvitation();
-        sysGroupInvitation.setGroupId(groupId);
-        sysGroupInvitation.setStatus(GroupInvitationStatus.QUITED);
-        sysGroupInvitation.setInvitedUserId(userId);
-        sysGroupInvitationMapper.insert(sysGroupInvitation);
+        SysGroupNotification sysGroupNotification = new SysGroupNotification();
+        sysGroupNotification.setGroupId(groupId);
+        sysGroupNotification.setType(GroupNotificationType.QUITED);
+        sysGroupNotification.setTargetId(userId);
+        sysGroupNotificationMapper.insert(sysGroupNotification);
         return true;
     }
 
@@ -100,12 +100,12 @@ public class SysGroupMemberServiceImpl extends ServiceImpl<SysGroupMemberMapper,
         conversationRedisService.deleteConversation(memberId, groupId, ChatType.GROUP);
         sysUserConversationMapper.deleteConversation(memberId, groupId, ChatType.GROUP);
         // 添加一条踢人记录
-        SysGroupInvitation sysGroupInvitation = new SysGroupInvitation();
-        sysGroupInvitation.setGroupId(groupId);
-        sysGroupInvitation.setStatus(GroupInvitationStatus.KICKED);
-        sysGroupInvitation.setInvitedUserId(memberId);
-        sysGroupInvitation.setInvitedBy(userId);
-        sysGroupInvitationMapper.insert(sysGroupInvitation);
+        SysGroupNotification sysGroupNotification = new SysGroupNotification();
+        sysGroupNotification.setGroupId(groupId);
+        sysGroupNotification.setType(GroupNotificationType.KICKED);
+        sysGroupNotification.setTargetId(memberId);
+        sysGroupNotification.setOperatorId(userId);
+        sysGroupNotificationMapper.insert(sysGroupNotification);
         return true;
     }
 
@@ -128,12 +128,12 @@ public class SysGroupMemberServiceImpl extends ServiceImpl<SysGroupMemberMapper,
         if (sysGroupMember == null || sysGroupMember.getRole() == UserRole.ADMIN) return false;
         log.debug("设置群组成员为管理员 userId: {} groupId: {} memberId: {}", userId, groupId, memberId);
         sysGroupMember.setRole(UserRole.ADMIN);
-        SysGroupInvitation sysGroupInvitation = new SysGroupInvitation();
-        sysGroupInvitation.setStatus(GroupInvitationStatus.SET_ADMIN);
-        sysGroupInvitation.setGroupId(groupId);
-        sysGroupInvitation.setInvitedUserId(memberId);
-        sysGroupInvitation.setInvitedBy(userId);
-        sysGroupInvitationMapper.insert(sysGroupInvitation);
+        SysGroupNotification sysGroupNotification = new SysGroupNotification();
+        sysGroupNotification.setType(GroupNotificationType.SET_ADMIN);
+        sysGroupNotification.setGroupId(groupId);
+        sysGroupNotification.setTargetId(memberId);
+        sysGroupNotification.setOperatorId(userId);
+        sysGroupNotificationMapper.insert(sysGroupNotification);
         return baseMapper.updateById(sysGroupMember) > 0;
     }
 
@@ -144,12 +144,12 @@ public class SysGroupMemberServiceImpl extends ServiceImpl<SysGroupMemberMapper,
         if (sysGroupMember == null || sysGroupMember.getRole() == UserRole.USER) return false;
         log.debug("取消群组成员的管理员权限 userId: {} groupId: {} memberId: {}", userId, groupId, memberId);
         sysGroupMember.setRole(UserRole.USER);
-        SysGroupInvitation sysGroupInvitation = new SysGroupInvitation();
-        sysGroupInvitation.setStatus(GroupInvitationStatus.CANCEL_ADMIN);
-        sysGroupInvitation.setGroupId(groupId);
-        sysGroupInvitation.setInvitedUserId(memberId);
-        sysGroupInvitation.setInvitedBy(userId);
-        sysGroupInvitationMapper.insert(sysGroupInvitation);
+        SysGroupNotification sysGroupNotification = new SysGroupNotification();
+        sysGroupNotification.setType(GroupNotificationType.CANCEL_ADMIN);
+        sysGroupNotification.setGroupId(groupId);
+        sysGroupNotification.setTargetId(memberId);
+        sysGroupNotification.setOperatorId(userId);
+        sysGroupNotificationMapper.insert(sysGroupNotification);
         return baseMapper.updateById(sysGroupMember) > 0;
     }
 }

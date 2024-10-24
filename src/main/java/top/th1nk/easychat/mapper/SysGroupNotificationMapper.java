@@ -2,7 +2,7 @@ package top.th1nk.easychat.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import top.th1nk.easychat.domain.SysGroupInvitation;
+import top.th1nk.easychat.domain.SysGroupNotification;
 import top.th1nk.easychat.domain.vo.GroupAdminInvitationVo;
 import top.th1nk.easychat.domain.vo.GroupInvitationVo;
 
@@ -14,7 +14,7 @@ import java.util.List;
  * @createDate 2024-08-27 22:20:11
  * @Entity top.th1nk.easychat.domain.SysGroupInvitation
  */
-public interface SysGroupInvitationMapper extends BaseMapper<SysGroupInvitation> {
+public interface SysGroupNotificationMapper extends BaseMapper<SysGroupNotification> {
     /**
      * 获取用户的群聊邀请列表
      *

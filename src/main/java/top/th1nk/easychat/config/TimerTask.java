@@ -15,7 +15,7 @@ import top.th1nk.easychat.mapper.SysChatMessageMapper;
 import top.th1nk.easychat.mapper.SysUserConversationMapper;
 import top.th1nk.easychat.service.ConversationRedisService;
 import top.th1nk.easychat.service.MessageRedisService;
-import top.th1nk.easychat.service.SysGroupInvitationService;
+import top.th1nk.easychat.service.SysGroupNotificationService;
 
 import java.util.List;
 
@@ -33,7 +33,7 @@ public class TimerTask {
     @Resource
     private ConversationRedisService conversationRedisService;
     @Resource
-    private SysGroupInvitationService sysGroupInvitationService;
+    private SysGroupNotificationService sysGroupNotificationService;
 
     /**
      * 每小时保存一次聊天记录到数据库
@@ -81,8 +81,8 @@ public class TimerTask {
      */
     @Scheduled(cron = "0 0 * * * ?")
     @EventListener(ContextClosedEvent.class)
-    public void groupInvitationStatusUpdate() {
-        int num = sysGroupInvitationService.refreshAllInvitationStatus();
+    public void groupNotificationStatusUpdate() {
+        int num = sysGroupNotificationService.refreshAllInvitationStatus();
         log.info("定时任务：更新[{}]条群邀请状态", num);
     }
 }

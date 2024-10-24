@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.EnumValue;
 import lombok.Getter;
 
 @Getter
-public enum GroupInvitationStatus {
+public enum GroupNotificationType {
     PENDING(0, "待处理"),
     REJECTED(2, "已拒绝"),
     EXPIRED(3, "已过期"),
@@ -21,7 +21,7 @@ public enum GroupInvitationStatus {
     private final int value;
     private final String desc;
 
-    GroupInvitationStatus(int value, String desc) {
+    GroupNotificationType(int value, String desc) {
         this.value = value;
         this.desc = desc;
     }

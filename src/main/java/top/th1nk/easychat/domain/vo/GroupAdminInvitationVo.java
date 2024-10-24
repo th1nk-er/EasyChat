@@ -2,7 +2,7 @@ package top.th1nk.easychat.domain.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import top.th1nk.easychat.enums.GroupInvitationStatus;
+import top.th1nk.easychat.enums.GroupNotificationType;
 
 import java.time.LocalDateTime;
 
@@ -28,7 +28,7 @@ public class GroupAdminInvitationVo {
     @Schema(description = "受邀请人昵称")
     private String inviterNickname;
     @Schema(description = "邀请状态")
-    private GroupInvitationStatus status;
+    private GroupNotificationType type;
     @Schema(description = "邀请创建时间")
     private LocalDateTime createTime;
 }

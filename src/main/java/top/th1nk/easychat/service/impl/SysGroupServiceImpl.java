@@ -12,21 +12,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.th1nk.easychat.config.easychat.GroupProperties;
 import top.th1nk.easychat.domain.SysGroup;
-import top.th1nk.easychat.domain.SysGroupInvitation;
 import top.th1nk.easychat.domain.SysGroupMember;
+import top.th1nk.easychat.domain.SysGroupNotification;
 import top.th1nk.easychat.domain.chat.ChatType;
 import top.th1nk.easychat.domain.dto.CreateGroupDto;
 import top.th1nk.easychat.domain.dto.UserGroupUpdateDto;
 import top.th1nk.easychat.domain.vo.GroupVo;
 import top.th1nk.easychat.domain.vo.UserGroupVo;
 import top.th1nk.easychat.domain.vo.UserVo;
-import top.th1nk.easychat.enums.GroupInvitationStatus;
+import top.th1nk.easychat.enums.GroupNotificationType;
 import top.th1nk.easychat.enums.UserRole;
 import top.th1nk.easychat.exception.GroupException;
 import top.th1nk.easychat.exception.enums.GroupExceptionEnum;
-import top.th1nk.easychat.mapper.SysGroupInvitationMapper;
 import top.th1nk.easychat.mapper.SysGroupMapper;
 import top.th1nk.easychat.mapper.SysGroupMemberMapper;
+import top.th1nk.easychat.mapper.SysGroupNotificationMapper;
 import top.th1nk.easychat.mapper.SysUserFriendMapper;
 import top.th1nk.easychat.service.SysGroupService;
 import top.th1nk.easychat.service.SysUserConversationService;
@@ -55,7 +55,7 @@ public class SysGroupServiceImpl extends ServiceImpl<SysGroupMapper, SysGroup>
     @Resource
     private SysUserFriendMapper sysUserFriendMapper;
     @Resource
-    private SysGroupInvitationMapper sysGroupInvitationMapper;
+    private SysGroupNotificationMapper sysGroupNotificationMapper;
     @Resource
     private SysUserConversationService sysUserConversationService;
 
@@ -95,12 +95,12 @@ public class SysGroupServiceImpl extends ServiceImpl<SysGroupMapper, SysGroup>
         sysGroupMemberMapper.insert(sysGroupMember);
         // 发送邀请
         friendIds.forEach(id -> {
-            SysGroupInvitation invitation = new SysGroupInvitation();
+            SysGroupNotification invitation = new SysGroupNotification();
             invitation.setGroupId(group.getGroupId());
-            invitation.setInvitedBy(userVo.getId());
-            invitation.setInvitedUserId(id);
-            invitation.setStatus(GroupInvitationStatus.PENDING);
-            sysGroupInvitationMapper.insert(invitation);
+            invitation.setOperatorId(userVo.getId());
+            invitation.setTargetId(id);
+            invitation.setType(GroupNotificationType.PENDING);
+            sysGroupNotificationMapper.insert(invitation);
         });
         // 讲群聊加入到用户会话中
         sysUserConversationService.setConversationRead(userVo.getId(), group.getGroupId(), ChatType.GROUP);

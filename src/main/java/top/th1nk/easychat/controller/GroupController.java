@@ -12,8 +12,8 @@ import top.th1nk.easychat.domain.dto.UpdateGroupMemberDto;
 import top.th1nk.easychat.domain.dto.UserGroupUpdateDto;
 import top.th1nk.easychat.domain.vo.*;
 import top.th1nk.easychat.enums.UserRole;
-import top.th1nk.easychat.service.SysGroupInvitationService;
 import top.th1nk.easychat.service.SysGroupMemberService;
+import top.th1nk.easychat.service.SysGroupNotificationService;
 import top.th1nk.easychat.service.SysGroupService;
 
 import java.util.List;
@@ -25,7 +25,7 @@ public class GroupController {
     @Resource
     private SysGroupService sysGroupService;
     @Resource
-    private SysGroupInvitationService sysGroupInvitationService;
+    private SysGroupNotificationService sysGroupNotificationService;
     @Resource
     private SysGroupMemberService sysGroupMemberService;
 
@@ -49,7 +49,7 @@ public class GroupController {
     @GetMapping("/invitation/list/{userId}/{pageNum}")
     @PreAuthorize("hasAuthority('USER:' + #userId)")
     public Response<List<GroupInvitationVo>> getGroupInvitationList(@PathVariable int userId, @PathVariable int pageNum) {
-        return Response.ok(sysGroupInvitationService.getUserGroupInvitationList(userId, pageNum));
+        return Response.ok(sysGroupNotificationService.getUserGroupInvitationList(userId, pageNum));
     }
 
     @Operation(summary = "处理群聊邀请", description = "处理群聊邀请")
@@ -57,10 +57,10 @@ public class GroupController {
     @PreAuthorize("hasAuthority('USER:' + #groupInvitationRequestDto.getUserId())")
     public Response<?> handleInvitation(@RequestBody GroupInvitationRequestDto groupInvitationRequestDto) {
         if (groupInvitationRequestDto.isAccept()) {
-            if (sysGroupInvitationService.userAcceptInvitation(groupInvitationRequestDto.getUserId(), groupInvitationRequestDto.getGroupId()))
+            if (sysGroupNotificationService.userAcceptInvitation(groupInvitationRequestDto.getUserId(), groupInvitationRequestDto.getGroupId()))
                 return Response.ok();
         } else {
-            if (sysGroupInvitationService.userRejectInvitation(groupInvitationRequestDto.getUserId(), groupInvitationRequestDto.getGroupId()))
+            if (sysGroupNotificationService.userRejectInvitation(groupInvitationRequestDto.getUserId(), groupInvitationRequestDto.getGroupId()))
                 return Response.ok();
         }
         return Response.error();
@@ -70,7 +70,7 @@ public class GroupController {
     @GetMapping("/invitation/manage/list/{userId}/{pageNum}")
     @PreAuthorize("hasAuthority('USER:' + #userId)")
     public Response<List<GroupAdminInvitationVo>> getAdminGroupInvitationList(@PathVariable int userId, @PathVariable int pageNum) {
-        return Response.ok(sysGroupInvitationService.getAdminGroupInvitationList(userId, pageNum));
+        return Response.ok(sysGroupNotificationService.getAdminGroupInvitationList(userId, pageNum));
     }
 
     @Operation(summary = "群组管理员处理群聊邀请", description = "群组管理员处理群聊邀请")
@@ -78,10 +78,10 @@ public class GroupController {
     @PreAuthorize("hasAuthority('GROUP_ADMIN:' + #groupInvitationRequestDto.getGroupId())")
     public Response<?> adminHandleInvitation(@RequestBody GroupInvitationRequestDto groupInvitationRequestDto) {
         if (groupInvitationRequestDto.isAccept()) {
-            if (sysGroupInvitationService.adminAcceptInvitation(groupInvitationRequestDto.getUserId(), groupInvitationRequestDto.getGroupId()))
+            if (sysGroupNotificationService.adminAcceptInvitation(groupInvitationRequestDto.getUserId(), groupInvitationRequestDto.getGroupId()))
                 return Response.ok();
         } else {
-            if (sysGroupInvitationService.adminRejectInvitation(groupInvitationRequestDto.getUserId(), groupInvitationRequestDto.getGroupId()))
+            if (sysGroupNotificationService.adminRejectInvitation(groupInvitationRequestDto.getUserId(), groupInvitationRequestDto.getGroupId()))
                 return Response.ok();
         }
         return Response.error();
@@ -138,7 +138,7 @@ public class GroupController {
     @PostMapping("/invite/{userId}/{groupId}")
     @PreAuthorize("hasAuthority('USER:' + #userId) and hasAuthority('GROUP:' + #groupId)")
     public Response<?> inviteMembers(@PathVariable int userId, @PathVariable int groupId, @RequestBody List<Integer> memberIds) {
-        if (sysGroupInvitationService.inviteMembers(userId, groupId, memberIds))
+        if (sysGroupNotificationService.inviteMembers(userId, groupId, memberIds))
             return Response.ok();
         else return Response.error();
     }

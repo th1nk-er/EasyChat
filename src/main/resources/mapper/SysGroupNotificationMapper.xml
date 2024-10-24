@@ -2,14 +2,14 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="top.th1nk.easychat.mapper.SysGroupInvitationMapper">
+<mapper namespace="top.th1nk.easychat.mapper.SysGroupNotificationMapper">
 
-    <resultMap id="BaseResultMap" type="top.th1nk.easychat.domain.SysGroupInvitation">
+    <resultMap id="BaseResultMap" type="top.th1nk.easychat.domain.SysGroupNotification">
         <id property="id" column="id" jdbcType="INTEGER"/>
         <result property="groupId" column="group_id" jdbcType="INTEGER"/>
-        <result property="invitedUserId" column="invited_user_id" jdbcType="INTEGER"/>
-        <result property="invitedBy" column="invited_by" jdbcType="INTEGER"/>
-        <result property="status" column="status" jdbcType="TINYINT"/>
+        <result property="targetId" column="target_id" jdbcType="INTEGER"/>
+        <result property="operatorId" column="operator_id" jdbcType="INTEGER"/>
+        <result property="type" column="type" jdbcType="TINYINT"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
         <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
     </resultMap>
@@ -27,13 +27,13 @@
                u.username AS invited_by_username,
                u.nickname AS invited_by_nickname,
                uf.remark  AS invited_by_remark,
-               gi.`status`,
+               gi.`type`,
                gi.create_time
         FROM ec_group_invitation gi
                  LEFT JOIN ec_group g ON gi.group_id = g.group_id
-                 LEFT JOIN ec_user u ON u.id = gi.invited_by
-                 LEFT JOIN ec_user_friend uf ON uf.friend_id = gi.invited_by
-        WHERE gi.invited_user_id = #{userId}
+                 LEFT JOIN ec_user u ON u.id = gi.operator_id
+                 LEFT JOIN ec_user_friend uf ON uf.friend_id = gi.operator_id
+        WHERE gi.target_id = #{userId}
           AND uf.uid = #{userId}
           AND g.deleted = 0
           AND u.deleted = 0
@@ -50,16 +50,16 @@
                u1.id       AS invited_by_id,
                u1.username AS invited_by_username,
                u1.nickname AS invited_by_nickname,
-               gi.`status`,
+               gi.`type`,
                gi.create_time
         FROM ec_group_invitation gi
                  LEFT JOIN ec_group g ON gi.group_id = g.group_id
-                 LEFT JOIN ec_user u ON u.id = gi.invited_user_id
-                 LEFT JOIN ec_user u1 ON u1.id = gi.invited_by
+                 LEFT JOIN ec_user u ON u.id = gi.target_id
+                 LEFT JOIN ec_user u1 ON u1.id = gi.operator_id
                  LEFT JOIN ec_group_member gm ON gm.group_id = gi.group_id
         WHERE gm.role > 0
           AND gm.user_id = #{userId}
-          AND gi.status >= 4
+          AND gi.type >= 4
           AND g.deleted = 0
           AND u.deleted = 0
         ORDER BY gi.create_time DESC

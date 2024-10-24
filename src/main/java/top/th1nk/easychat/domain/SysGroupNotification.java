@@ -3,7 +3,7 @@ package top.th1nk.easychat.domain;
 import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import top.th1nk.easychat.enums.GroupInvitationStatus;
+import top.th1nk.easychat.enums.GroupNotificationType;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -12,10 +12,10 @@ import java.time.LocalDateTime;
 /**
  * @TableName ec_group_invitation
  */
-@TableName(value = "ec_group_invitation")
+@TableName(value = "ec_group_notification")
 @Data
-@Schema(description = "群组邀请")
-public class SysGroupInvitation implements Serializable {
+@Schema(description = "群聊通知")
+public class SysGroupNotification implements Serializable {
     /**
      * 主键ID
      */
@@ -32,20 +32,20 @@ public class SysGroupInvitation implements Serializable {
     /**
      * 被邀请用户ID
      */
-    @Schema(description = "被邀请用户ID")
-    private Integer invitedUserId;
+    @Schema(description = "目标用户ID")
+    private Integer targetId;
 
     /**
      * 邀请人用户ID
      */
-    @Schema(description = "邀请人用户ID")
-    private Integer invitedBy;
+    @Schema(description = "操作用户ID")
+    private Integer operatorId;
 
     /**
      * 邀请状态
      */
-    @Schema(description = "邀请状态")
-    private GroupInvitationStatus status;
+    @Schema(description = "通知状态")
+    private GroupNotificationType type;
 
     /**
      * 邀请创建时间
