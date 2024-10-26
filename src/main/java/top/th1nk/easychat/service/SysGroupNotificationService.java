@@ -2,8 +2,7 @@ package top.th1nk.easychat.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import top.th1nk.easychat.domain.SysGroupNotification;
-import top.th1nk.easychat.domain.vo.GroupAdminInvitationVo;
-import top.th1nk.easychat.domain.vo.GroupInvitationVo;
+import top.th1nk.easychat.domain.vo.GroupNotificationVo;
 
 import java.util.List;
 
@@ -21,22 +20,13 @@ public interface SysGroupNotificationService extends IService<SysGroupNotificati
     int refreshAllInvitationStatus();
 
     /**
-     * 获取用户群聊邀请列表
+     * 获取用户群聊通知列表
      *
      * @param userId 用户ID
      * @param page   页码
-     * @return 邀请列表
+     * @return 通知列表
      */
-    List<GroupInvitationVo> getUserGroupInvitationList(int userId, int page);
-
-    /**
-     * 获取用户管理的群聊的邀请列表
-     *
-     * @param userId 用户ID
-     * @param page   页码
-     * @return 邀请列表
-     */
-    List<GroupAdminInvitationVo> getAdminGroupInvitationList(int userId, int page);
+    List<GroupNotificationVo> getUserGroupNotificationList(int userId, int page);
 
     /**
      * 用户接受群聊邀请

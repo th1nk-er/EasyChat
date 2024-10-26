@@ -15,53 +15,33 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,group_id,invited_user_id,
-        invited_by,status,create_time,
-        update_time
+        id,group_id,,target_id,operator_id,type
+        create_time,update_time
     </sql>
-    <select id="selectInvitationVoByUserId" resultType="top.th1nk.easychat.domain.vo.GroupInvitationVo">
-        SELECT g.group_id,
-               g.group_name,
-               g.avatar   AS group_avatar,
-               u.id       AS invited_by_id,
-               u.username AS invited_by_username,
-               u.nickname AS invited_by_nickname,
-               uf.remark  AS invited_by_remark,
-               gi.`type`,
-               gi.create_time
-        FROM ec_group_invitation gi
-                 LEFT JOIN ec_group g ON gi.group_id = g.group_id
-                 LEFT JOIN ec_user u ON u.id = gi.operator_id
-                 LEFT JOIN ec_user_friend uf ON uf.friend_id = gi.operator_id
-        WHERE gi.target_id = #{userId}
-          AND uf.uid = #{userId}
-          AND g.deleted = 0
-          AND u.deleted = 0
-          AND uf.deleted = 0
-        ORDER BY gi.create_time DESC
-    </select>
-    <select id="selectAdminInvitationVoByUserId" resultType="top.th1nk.easychat.domain.vo.GroupAdminInvitationVo">
-        SELECT g.group_id,
-               g.group_name,
-               g.avatar    AS group_avatar,
-               u.id        AS inviter_id,
-               u.username  AS inviter_username,
-               u.nickname  AS inviter_nickname,
-               u1.id       AS invited_by_id,
-               u1.username AS invited_by_username,
-               u1.nickname AS invited_by_nickname,
-               gi.`type`,
-               gi.create_time
-        FROM ec_group_invitation gi
-                 LEFT JOIN ec_group g ON gi.group_id = g.group_id
-                 LEFT JOIN ec_user u ON u.id = gi.target_id
-                 LEFT JOIN ec_user u1 ON u1.id = gi.operator_id
-                 LEFT JOIN ec_group_member gm ON gm.group_id = gi.group_id
-        WHERE gm.role > 0
-          AND gm.user_id = #{userId}
-          AND gi.type >= 4
-          AND g.deleted = 0
-          AND u.deleted = 0
-        ORDER BY gi.create_time DESC
+    <select id="selectNotificationVoByUserId" resultType="top.th1nk.easychat.domain.vo.GroupNotificationVo">
+        SELECT DISTINCT gn.id,
+                        g.group_id,
+                        g.group_name,
+                        g.avatar    AS group_avatar,
+                        u.id        AS target_id,
+                        u.username  AS target_username,
+                        u.nickname  AS target_nickname,
+                        u1.id       AS operator_id,
+                        u1.username AS operator_username,
+                        u1.nickname AS operator_nickname,
+                        gn.`type`,
+                        gn.create_time
+        FROM easychat.ec_group_notification gn
+                 LEFT JOIN ec_group g ON gn.group_id = g.group_id
+                 LEFT JOIN ec_user u ON u.id = gn.target_id
+                 LEFT JOIN ec_user u1 ON u1.id = gn.operator_id
+                 LEFT JOIN ec_group_member gm ON gm.group_id = gn.group_id
+        WHERE gn.target_id = #{userId}
+           OR (gn.type >= 4 AND gm.role > 0 AND gm.user_id = #{userId})
+            AND g.deleted = 0
+            AND u.deleted = 0
+            AND (u1.deleted = 0 OR u1.deleted IS NULL)
+            AND gm.deleted = 0
+        ORDER BY gn.create_time DESC
     </select>
 </mapper>

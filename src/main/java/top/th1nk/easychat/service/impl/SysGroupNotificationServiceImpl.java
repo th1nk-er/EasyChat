@@ -14,8 +14,7 @@ import top.th1nk.easychat.domain.SysGroupNotification;
 import top.th1nk.easychat.domain.chat.ChatType;
 import top.th1nk.easychat.domain.chat.MessageCommand;
 import top.th1nk.easychat.domain.chat.WSMessage;
-import top.th1nk.easychat.domain.vo.GroupAdminInvitationVo;
-import top.th1nk.easychat.domain.vo.GroupInvitationVo;
+import top.th1nk.easychat.domain.vo.GroupNotificationVo;
 import top.th1nk.easychat.enums.GroupNotificationType;
 import top.th1nk.easychat.enums.UserRole;
 import top.th1nk.easychat.exception.GroupException;
@@ -71,17 +70,10 @@ public class SysGroupNotificationServiceImpl extends ServiceImpl<SysGroupNotific
     }
 
     @Override
-    public List<GroupInvitationVo> getUserGroupInvitationList(int userId, int page) {
+    public List<GroupNotificationVo> getUserGroupNotificationList(int userId, int page) {
         if (page <= 0) return List.of();
-        log.debug("获取用户群聊邀请列表,userId:{},page:{}", userId, page);
-        return baseMapper.selectInvitationVoByUserId(new Page<>(page, 10), userId);
-    }
-
-    @Override
-    public List<GroupAdminInvitationVo> getAdminGroupInvitationList(int userId, int page) {
-        if (page <= 0) return List.of();
-        log.debug("获取用户管理的群聊的邀请列表,userId:{},page:{}", userId, page);
-        return baseMapper.selectAdminInvitationVoByUserId(new Page<>(page, 10), userId);
+        log.debug("获取用户群聊通知列表,userId:{},page:{}", userId, page);
+        return baseMapper.selectNotificationVoByUserId(new Page<>(page, 10), userId);
     }
 
     @Override

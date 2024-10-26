@@ -10,7 +10,10 @@ import top.th1nk.easychat.domain.dto.CreateGroupDto;
 import top.th1nk.easychat.domain.dto.GroupInvitationRequestDto;
 import top.th1nk.easychat.domain.dto.UpdateGroupMemberDto;
 import top.th1nk.easychat.domain.dto.UserGroupUpdateDto;
-import top.th1nk.easychat.domain.vo.*;
+import top.th1nk.easychat.domain.vo.GroupMemberInfoVo;
+import top.th1nk.easychat.domain.vo.GroupNotificationVo;
+import top.th1nk.easychat.domain.vo.GroupVo;
+import top.th1nk.easychat.domain.vo.UserGroupVo;
 import top.th1nk.easychat.enums.UserRole;
 import top.th1nk.easychat.service.SysGroupMemberService;
 import top.th1nk.easychat.service.SysGroupNotificationService;
@@ -45,11 +48,11 @@ public class GroupController {
         return Response.ok(sysGroupService.getUserGroupList(userId, pageNum));
     }
 
-    @Operation(summary = "获取用户群聊邀请列表", description = "获取用户群聊邀请列表")
-    @GetMapping("/invitation/list/{userId}/{pageNum}")
+    @Operation(summary = "获取用户群聊通知列表", description = "获取用户群聊通知列表")
+    @GetMapping("/notification/list/{userId}/{pageNum}")
     @PreAuthorize("hasAuthority('USER:' + #userId)")
-    public Response<List<GroupInvitationVo>> getGroupInvitationList(@PathVariable int userId, @PathVariable int pageNum) {
-        return Response.ok(sysGroupNotificationService.getUserGroupInvitationList(userId, pageNum));
+    public Response<List<GroupNotificationVo>> getGroupInvitationList(@PathVariable int userId, @PathVariable int pageNum) {
+        return Response.ok(sysGroupNotificationService.getUserGroupNotificationList(userId, pageNum));
     }
 
     @Operation(summary = "处理群聊邀请", description = "处理群聊邀请")
@@ -64,13 +67,6 @@ public class GroupController {
                 return Response.ok();
         }
         return Response.error();
-    }
-
-    @Operation(summary = "获取用户管理的群聊的邀请列表", description = "获取用户管理的群聊的邀请列表")
-    @GetMapping("/invitation/manage/list/{userId}/{pageNum}")
-    @PreAuthorize("hasAuthority('USER:' + #userId)")
-    public Response<List<GroupAdminInvitationVo>> getAdminGroupInvitationList(@PathVariable int userId, @PathVariable int pageNum) {
-        return Response.ok(sysGroupNotificationService.getAdminGroupInvitationList(userId, pageNum));
     }
 
     @Operation(summary = "群组管理员处理群聊邀请", description = "群组管理员处理群聊邀请")

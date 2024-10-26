@@ -7,13 +7,13 @@ import top.th1nk.easychat.mapper.SysGroupMemberMutedMapper;
 import top.th1nk.easychat.service.SysGroupMemberMutedService;
 
 /**
-* @author vinka
-* @description 针对表【ec_group_member_muted】的数据库操作Service实现
-* @createDate 2024-10-20 18:46:12
-*/
+ * @author vinka
+ * @description 针对表【ec_group_member_muted】的数据库操作Service实现
+ * @createDate 2024-10-20 18:46:12
+ */
 @Service
 public class SysGroupMemberMutedServiceImpl extends ServiceImpl<SysGroupMemberMutedMapper, SysGroupMemberMuted>
-    implements SysGroupMemberMutedService{
+        implements SysGroupMemberMutedService {
 
 }
 
