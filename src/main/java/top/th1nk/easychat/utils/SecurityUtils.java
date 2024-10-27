@@ -2,6 +2,7 @@ package top.th1nk.easychat.utils;
 
 import jakarta.annotation.Resource;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import top.th1nk.easychat.domain.SysGroupMember;
 import top.th1nk.easychat.domain.SysUserFriend;
@@ -20,6 +21,8 @@ public class SecurityUtils {
     private SysUserFriendMapper sysUserFriendMapper;
     @Resource
     private SysGroupMemberMapper sysGroupMemberMapper;
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     @Cacheable(cacheNames = "user:perms", key = "#userId")
     public Set<String> getPermissions(Integer userId) {
@@ -38,5 +41,10 @@ public class SecurityUtils {
             }
         });
         return permissions;
+    }
+
+    public void clearPermissionsCache(int userId) {
+        if (userId <= 0) return;
+        stringRedisTemplate.delete("user:perms::" + userId);
     }
 }

@@ -51,7 +51,7 @@ public class GroupController {
     @Operation(summary = "获取用户群聊通知列表", description = "获取用户群聊通知列表")
     @GetMapping("/notification/list/{userId}/{pageNum}")
     @PreAuthorize("hasAuthority('USER:' + #userId)")
-    public Response<List<GroupNotificationVo>> getGroupInvitationList(@PathVariable int userId, @PathVariable int pageNum) {
+    public Response<List<GroupNotificationVo>> getGroupNotificationList(@PathVariable int userId, @PathVariable int pageNum) {
         return Response.ok(sysGroupNotificationService.getUserGroupNotificationList(userId, pageNum));
     }
 

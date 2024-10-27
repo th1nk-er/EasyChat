@@ -121,26 +121,23 @@ public class SysGroupNotificationServiceImpl extends ServiceImpl<SysGroupNotific
     @CacheEvict(cacheNames = "user:perms", key = "#userId")
     public boolean adminAcceptInvitation(int userId, int groupId) {
         log.debug("管理员同意用户的进群邀请,userId:{},groupId:{}", userId, groupId);
-        if (baseMapper.update(null, new LambdaUpdateWrapper<SysGroupNotification>()
-                .eq(SysGroupNotification::getGroupId, groupId)
+        // 获取邀请详细信息
+        LambdaUpdateWrapper<SysGroupNotification> qw = new LambdaUpdateWrapper<>();
+        qw.eq(SysGroupNotification::getGroupId, groupId)
                 .eq(SysGroupNotification::getTargetId, userId)
-                .eq(SysGroupNotification::getType, GroupNotificationType.ADMIN_PENDING)
-                .set(SysGroupNotification::getType, GroupNotificationType.ADMIN_ACCEPTED)) == 0)
+                .eq(SysGroupNotification::getType, GroupNotificationType.ADMIN_PENDING);
+        SysGroupNotification invitation = baseMapper.selectOne(qw);
+        if (invitation == null) throw new GroupException(GroupExceptionEnum.INVITATION_NOT_FOUND);
+        invitation.setType(GroupNotificationType.ADMIN_ACCEPTED);
+        if (baseMapper.updateById(invitation) == 0)
             return false;
         // 添加群组成员
         if (this.insertGroupMember(userId, groupId)) {
-            // 获取邀请详细信息
-            LambdaUpdateWrapper<SysGroupNotification> qw = new LambdaUpdateWrapper<>();
-            qw.eq(SysGroupNotification::getGroupId, groupId)
-                    .eq(SysGroupNotification::getTargetId, userId)
-                    .eq(SysGroupNotification::getType, GroupNotificationType.ADMIN_PENDING);
-            SysGroupNotification invitation = baseMapper.selectOne(qw);
-            if (invitation == null) throw new GroupException(GroupExceptionEnum.INVITATION_NOT_FOUND);
             webSocketService.publishMessage(WSMessage.command(groupId, ChatType.GROUP,
                     MessageCommand.GROUP_INVITED,
                     List.of(String.valueOf(invitation.getOperatorId()), String.valueOf(invitation.getTargetId()))));
             return true;
-        } else throw new GroupException(GroupExceptionEnum.GROUP_MEMBER_CREATE_FAIL);
+        } else throw new GroupException(GroupExceptionEnum.INSERT_GROUP_MEMBER_FAIL);
     }
 
     @Override

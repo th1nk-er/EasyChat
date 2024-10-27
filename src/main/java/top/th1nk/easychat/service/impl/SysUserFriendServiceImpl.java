@@ -31,6 +31,7 @@ import top.th1nk.easychat.mapper.SysUserMapper;
 import top.th1nk.easychat.service.ConversationRedisService;
 import top.th1nk.easychat.service.SysUserAddFriendService;
 import top.th1nk.easychat.service.SysUserFriendService;
+import top.th1nk.easychat.utils.SecurityUtils;
 import top.th1nk.easychat.utils.UserUtils;
 
 import java.util.ArrayList;
@@ -55,6 +56,8 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
     private SysUserConversationMapper sysUserConversationMapper;
     @Resource
     private ConversationRedisService conversationRedisService;
+    @Resource
+    private SecurityUtils securityUtils;
 
     @Transactional
     @Override
@@ -112,6 +115,8 @@ public class SysUserFriendServiceImpl extends ServiceImpl<SysUserFriendMapper, S
         if (friendRequestHandleDto.getStatus() == AddUserStatus.AGREED) {
             log.debug("用户同意好友申请 userId: {} strangerId: {}", friendRequest.getUid(), friendRequest.getStrangerId());
             // 同意申请
+            securityUtils.clearPermissionsCache(friendRequest.getUid());
+            securityUtils.clearPermissionsCache(friendRequest.getStrangerId());
             friendRequest.setStatus(AddUserStatus.AGREED);
             if (sysUserAddFriendMapper.updateById(friendRequest) != 1)
                 throw new UserFriendException(UserFriendExceptionEnum.ADD_FRIEND_FAILED);
