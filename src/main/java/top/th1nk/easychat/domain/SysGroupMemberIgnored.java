@@ -8,11 +8,11 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * @TableName ec_group_member_muted
+ * @TableName ec_group_member_ignored
  */
-@TableName(value = "ec_group_member_muted")
+@TableName(value = "ec_group_member_ignored")
 @Data
-public class SysGroupMemberMuted implements Serializable {
+public class SysGroupMemberIgnored implements Serializable {
     /**
      * 主键ID
      */
@@ -32,12 +32,12 @@ public class SysGroupMemberMuted implements Serializable {
     /**
      * 屏蔽的用户ID
      */
-    private Integer mutedId;
+    private Integer ignoredId;
 
     /**
      * 是否屏蔽
      */
-    private boolean muted;
+    private boolean ignored;
 
     /**
      * 创建时间
