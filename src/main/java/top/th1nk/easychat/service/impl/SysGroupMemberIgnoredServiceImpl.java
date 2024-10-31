@@ -21,6 +21,10 @@ public class SysGroupMemberIgnoredServiceImpl extends ServiceImpl<SysGroupMember
 
     @Override
     public boolean ignoreMemberForUser(int userId, int groupId, int ignoredId) {
+        if (userId <= 0 || groupId <= 0 || ignoredId <= 0)
+            return false;
+        if (userId == ignoredId)
+            return false;
         SysGroupMemberIgnored sysGroupMemberIgnored = new SysGroupMemberIgnored();
         sysGroupMemberIgnored.setUserId(userId);
         sysGroupMemberIgnored.setGroupId(groupId);
@@ -31,6 +35,10 @@ public class SysGroupMemberIgnoredServiceImpl extends ServiceImpl<SysGroupMember
 
     @Override
     public boolean cancelIgnoreMemberForUser(int userId, int groupId, int ignoredId) {
+        if (userId <= 0 || groupId <= 0 || ignoredId <= 0)
+            return false;
+        if (userId == ignoredId)
+            return false;
         LambdaUpdateWrapper<SysGroupMemberIgnored> wrapper = new LambdaUpdateWrapper<>();
         wrapper.eq(SysGroupMemberIgnored::getUserId, userId)
                 .eq(SysGroupMemberIgnored::getGroupId, groupId)
@@ -41,6 +49,8 @@ public class SysGroupMemberIgnoredServiceImpl extends ServiceImpl<SysGroupMember
 
     @Override
     public List<Integer> getIgnoredMemberIds(int userId, int groupId) {
+        if (userId <= 0 || groupId <= 0)
+            return List.of();
         LambdaQueryWrapper<SysGroupMemberIgnored> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(SysGroupMemberIgnored::getUserId, userId)
                 .eq(SysGroupMemberIgnored::getGroupId, groupId)

@@ -15,6 +15,7 @@ import top.th1nk.easychat.domain.vo.GroupNotificationVo;
 import top.th1nk.easychat.domain.vo.GroupVo;
 import top.th1nk.easychat.domain.vo.UserGroupVo;
 import top.th1nk.easychat.enums.UserRole;
+import top.th1nk.easychat.service.SysGroupMemberIgnoredService;
 import top.th1nk.easychat.service.SysGroupMemberService;
 import top.th1nk.easychat.service.SysGroupNotificationService;
 import top.th1nk.easychat.service.SysGroupService;
@@ -31,6 +32,8 @@ public class GroupController {
     private SysGroupNotificationService sysGroupNotificationService;
     @Resource
     private SysGroupMemberService sysGroupMemberService;
+    @Resource
+    private SysGroupMemberIgnoredService sysGroupMemberIgnoredService;
 
     @Operation(summary = "创建群聊", description = "创建群聊")
     @PostMapping("/create")
@@ -161,5 +164,30 @@ public class GroupController {
                 return Response.ok();
         }
         return Response.error();
+    }
+
+    @Operation(summary = "获取用户忽略的群成员ID列表", description = "获取用户忽略的群成员ID列表")
+    @GetMapping("/{groupId}/{userId}/ignored/members")
+    @PreAuthorize("hasAuthority('USER:' + #userId) and hasAuthority('GROUP:' + #groupId)")
+    public Response<List<Integer>> getIgnoredMemberIds(@PathVariable int groupId, @PathVariable int userId) {
+        return Response.ok(sysGroupMemberIgnoredService.getIgnoredMemberIds(userId, groupId));
+    }
+
+    @Operation(summary = "忽略群成员", description = "忽略群成员")
+    @PostMapping("/{groupId}/{userId}/ignore/member/{memberId}")
+    @PreAuthorize("hasAuthority('USER:' + #userId) and hasAuthority('GROUP:' + #groupId)")
+    public Response<?> ignoreMember(@PathVariable int groupId, @PathVariable int userId, @PathVariable int memberId) {
+        if (sysGroupMemberIgnoredService.ignoreMemberForUser(userId, groupId, memberId))
+            return Response.ok();
+        else return Response.error();
+    }
+
+    @Operation(summary = "取消忽略群成员", description = "取消忽略群成员")
+    @DeleteMapping("/{groupId}/{userId}/ignore/member/{memberId}")
+    @PreAuthorize("hasAuthority('USER:' + #userId) and hasAuthority('GROUP:' + #groupId)")
+    public Response<?> cancelIgnoreMember(@PathVariable int groupId, @PathVariable int userId, @PathVariable int memberId) {
+        if (sysGroupMemberIgnoredService.cancelIgnoreMemberForUser(userId, groupId, memberId))
+            return Response.ok();
+        else return Response.error();
     }
 }
