@@ -10,10 +10,7 @@ import top.th1nk.easychat.domain.dto.CreateGroupDto;
 import top.th1nk.easychat.domain.dto.GroupInvitationRequestDto;
 import top.th1nk.easychat.domain.dto.UpdateGroupMemberDto;
 import top.th1nk.easychat.domain.dto.UserGroupUpdateDto;
-import top.th1nk.easychat.domain.vo.GroupMemberInfoVo;
-import top.th1nk.easychat.domain.vo.GroupNotificationVo;
-import top.th1nk.easychat.domain.vo.GroupVo;
-import top.th1nk.easychat.domain.vo.UserGroupVo;
+import top.th1nk.easychat.domain.vo.*;
 import top.th1nk.easychat.enums.UserRole;
 import top.th1nk.easychat.service.SysGroupMemberIgnoredService;
 import top.th1nk.easychat.service.SysGroupMemberService;
@@ -166,11 +163,11 @@ public class GroupController {
         return Response.error();
     }
 
-    @Operation(summary = "获取用户忽略的群成员ID列表", description = "获取用户忽略的群成员ID列表")
+    @Operation(summary = "获取用户对某个群聊中成员的屏蔽信息", description = "获取用户对某个群聊中成员的屏蔽信息")
     @GetMapping("/{groupId}/{userId}/ignored/members")
     @PreAuthorize("hasAuthority('USER:' + #userId) and hasAuthority('GROUP:' + #groupId)")
-    public Response<List<Integer>> getIgnoredMemberIds(@PathVariable int groupId, @PathVariable int userId) {
-        return Response.ok(sysGroupMemberIgnoredService.getIgnoredMemberIds(userId, groupId));
+    public Response<List<GroupMemberIgnoredVo>> getIgnoredMemberIds(@PathVariable int groupId, @PathVariable int userId) {
+        return Response.ok(sysGroupMemberIgnoredService.getGroupIgnoredVo(userId, groupId));
     }
 
     @Operation(summary = "忽略群成员", description = "忽略群成员")

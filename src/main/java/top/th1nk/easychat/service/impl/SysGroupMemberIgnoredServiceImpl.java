@@ -3,8 +3,10 @@ package top.th1nk.easychat.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import top.th1nk.easychat.domain.SysGroupMemberIgnored;
+import top.th1nk.easychat.domain.vo.GroupMemberIgnoredVo;
 import top.th1nk.easychat.mapper.SysGroupMemberIgnoredMapper;
 import top.th1nk.easychat.service.SysGroupMemberIgnoredService;
 
@@ -48,14 +50,18 @@ public class SysGroupMemberIgnoredServiceImpl extends ServiceImpl<SysGroupMember
     }
 
     @Override
-    public List<Integer> getIgnoredMemberIds(int userId, int groupId) {
+    public List<GroupMemberIgnoredVo> getGroupIgnoredVo(int userId, int groupId) {
         if (userId <= 0 || groupId <= 0)
             return List.of();
         LambdaQueryWrapper<SysGroupMemberIgnored> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(SysGroupMemberIgnored::getUserId, userId)
                 .eq(SysGroupMemberIgnored::getGroupId, groupId)
                 .eq(SysGroupMemberIgnored::isIgnored, true);
-        return baseMapper.selectList(wrapper).stream().map(SysGroupMemberIgnored::getIgnoredId).toList();
+        return baseMapper.selectList(wrapper).stream().map(m -> {
+            GroupMemberIgnoredVo vo = new GroupMemberIgnoredVo();
+            BeanUtils.copyProperties(m, vo);
+            return vo;
+        }).toList();
     }
 }
 

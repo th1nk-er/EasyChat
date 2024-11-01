@@ -2,6 +2,7 @@ package top.th1nk.easychat.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import top.th1nk.easychat.domain.SysGroupMemberIgnored;
+import top.th1nk.easychat.domain.vo.GroupMemberIgnoredVo;
 
 import java.util.List;
 
@@ -32,11 +33,11 @@ public interface SysGroupMemberIgnoredService extends IService<SysGroupMemberIgn
     boolean cancelIgnoreMemberForUser(int userId, int groupId, int ignoredId);
 
     /**
-     * 获取用户屏蔽的群组成员ID列表
+     * 获取用户对某个群聊中成员的屏蔽信息
      *
      * @param userId  用户ID
      * @param groupId 群组ID
-     * @return 屏蔽的成员ID列表
+     * @return 屏蔽信息列表
      */
-    List<Integer> getIgnoredMemberIds(int userId, int groupId);
+    List<GroupMemberIgnoredVo> getGroupIgnoredVo(int userId, int groupId);
 }
