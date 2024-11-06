@@ -15,6 +15,8 @@ public enum GroupNotificationType {
     KICKED(8, "已踢出"),
     SET_ADMIN(9, "设置为管理员"),
     CANCEL_ADMIN(10, "取消管理员"),
+    SET_MUTE(11, "设置禁言"),
+    CANCEL_MUTE(12, "取消禁言"),
     ;
 
     @EnumValue

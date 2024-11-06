@@ -25,7 +25,8 @@ public interface SysGroupMemberMutedService extends IService<SysGroupMemberMuted
      *
      * @param groupId  群聊ID
      * @param memberId 群成员ID
+     * @param adminId  执行解除禁言的管理员ID
      * @return 是否成功
      */
-    boolean unmuteMember(int groupId, int memberId);
+    boolean unmuteMember(int groupId, int memberId, int adminId);
 }
