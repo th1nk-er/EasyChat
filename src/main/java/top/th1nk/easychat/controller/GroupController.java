@@ -6,16 +6,10 @@ import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import top.th1nk.easychat.domain.Response;
-import top.th1nk.easychat.domain.dto.CreateGroupDto;
-import top.th1nk.easychat.domain.dto.GroupInvitationRequestDto;
-import top.th1nk.easychat.domain.dto.UpdateGroupMemberDto;
-import top.th1nk.easychat.domain.dto.UserGroupUpdateDto;
+import top.th1nk.easychat.domain.dto.*;
 import top.th1nk.easychat.domain.vo.*;
 import top.th1nk.easychat.enums.UserRole;
-import top.th1nk.easychat.service.SysGroupMemberIgnoredService;
-import top.th1nk.easychat.service.SysGroupMemberService;
-import top.th1nk.easychat.service.SysGroupNotificationService;
-import top.th1nk.easychat.service.SysGroupService;
+import top.th1nk.easychat.service.*;
 
 import java.util.List;
 
@@ -31,6 +25,8 @@ public class GroupController {
     private SysGroupMemberService sysGroupMemberService;
     @Resource
     private SysGroupMemberIgnoredService sysGroupMemberIgnoredService;
+    @Resource
+    private SysGroupMemberMutedService sysGroupMemberMutedService;
 
     @Operation(summary = "创建群聊", description = "创建群聊")
     @PostMapping("/create")
@@ -184,6 +180,25 @@ public class GroupController {
     @PreAuthorize("hasAuthority('USER:' + #userId) and hasAuthority('GROUP:' + #groupId)")
     public Response<?> cancelIgnoreMember(@PathVariable int groupId, @PathVariable int userId, @PathVariable int memberId) {
         if (sysGroupMemberIgnoredService.cancelIgnoreMemberForUser(userId, groupId, memberId))
+            return Response.ok();
+        else return Response.error();
+    }
+
+    @Operation(summary = "禁言群成员", description = "禁言群成员")
+    @PostMapping("/mute/member")
+    @PreAuthorize("hasAuthority('GROUP_ADMIN:' + #muteMemberDto.getGroupId()) and hasAuthority('USER:' + #muteMemberDto.getAdminId())")
+    public Response<?> muteMember(@RequestBody MuteMemberDto muteMemberDto) {
+        if (sysGroupMemberMutedService.muteMember
+                (muteMemberDto.getGroupId(), muteMemberDto.getMemberId(), muteMemberDto.getAdminId(), muteMemberDto.getDuration()))
+            return Response.ok();
+        else return Response.error();
+    }
+
+    @Operation(summary = "解除禁言群成员", description = "解除禁言群成员")
+    @DeleteMapping("/{groupId}/unmute/member/{memberId}/{adminId}")
+    @PreAuthorize("hasAuthority('GROUP_ADMIN:' + #groupId) and hasAuthority('USER:' + #adminId)")
+    public Response<?> unmuteMember(@PathVariable int groupId, @PathVariable int memberId, @PathVariable int adminId) {
+        if (sysGroupMemberMutedService.unmuteMember(groupId, memberId, adminId))
             return Response.ok();
         else return Response.error();
     }
