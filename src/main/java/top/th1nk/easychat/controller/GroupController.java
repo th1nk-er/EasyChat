@@ -195,7 +195,7 @@ public class GroupController {
     }
 
     @Operation(summary = "解除禁言群成员", description = "解除禁言群成员")
-    @DeleteMapping("/{groupId}/unmute/member/{memberId}/{adminId}")
+    @DeleteMapping("/{groupId}/mute/member/{memberId}/{adminId}")
     @PreAuthorize("hasAuthority('GROUP_ADMIN:' + #groupId) and hasAuthority('USER:' + #adminId)")
     public Response<?> unmuteMember(@PathVariable int groupId, @PathVariable int memberId, @PathVariable int adminId) {
         if (sysGroupMemberMutedService.unmuteMember(groupId, memberId, adminId))
