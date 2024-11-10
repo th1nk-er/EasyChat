@@ -47,7 +47,7 @@ public class SysGroupMemberMutedServiceImpl extends ServiceImpl<SysGroupMemberMu
         sysGroupMemberMuted.setMuted(true);
         sysGroupMemberMuted.setMuteTime(LocalDateTime.now());
         sysGroupMemberMuted.setUnmuteTime(LocalDateTime.now().plusMinutes(duration));
-        if (save(sysGroupMemberMuted)) {
+        if (saveOrUpdate(sysGroupMemberMuted)) {
             webSocketService.publishMessage(WSMessage.command(groupId,
                     ChatType.GROUP,
                     MessageCommand.MEMBER_MUTED,
@@ -76,6 +76,15 @@ public class SysGroupMemberMutedServiceImpl extends ServiceImpl<SysGroupMemberMu
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean isMuted(int groupId, int memberId) {
+        if (groupId <= 0 || memberId <= 0) {
+            return false;
+        }
+        SysGroupMemberMuted sysGroupMemberMuted = lambdaQuery().eq(SysGroupMemberMuted::getGroupId, groupId).eq(SysGroupMemberMuted::getUserId, memberId).one();
+        return sysGroupMemberMuted != null && sysGroupMemberMuted.isMuted();
     }
 }
 
