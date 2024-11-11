@@ -202,4 +202,11 @@ public class GroupController {
             return Response.ok();
         else return Response.error();
     }
+
+    @Operation(summary = "获取群成员禁言状态", description = "获取群成员禁言状态")
+    @GetMapping("/{groupId}/mute/status/member/{memberId}")
+    @PreAuthorize("hasAuthority('GROUP:' + #groupId)")
+    public Response<Boolean> isMemberMute(@PathVariable int groupId, @PathVariable int memberId) {
+        return Response.ok(sysGroupMemberMutedService.isMuted(groupId, memberId));
+    }
 }
