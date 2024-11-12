@@ -3,11 +3,13 @@ package top.th1nk.easychat.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import top.th1nk.easychat.domain.SysGroupMemberMuted;
 import top.th1nk.easychat.domain.chat.ChatType;
 import top.th1nk.easychat.domain.chat.MessageCommand;
 import top.th1nk.easychat.domain.chat.WSMessage;
+import top.th1nk.easychat.domain.vo.GroupMemberMuteVo;
 import top.th1nk.easychat.mapper.SysGroupMemberMutedMapper;
 import top.th1nk.easychat.service.SysGroupMemberMutedService;
 import top.th1nk.easychat.service.WebSocketService;
@@ -79,12 +81,14 @@ public class SysGroupMemberMutedServiceImpl extends ServiceImpl<SysGroupMemberMu
     }
 
     @Override
-    public boolean isMuted(int groupId, int memberId) {
+    public GroupMemberMuteVo getMuteInfo(int groupId, int memberId) {
         if (groupId <= 0 || memberId <= 0) {
-            return false;
+            return null;
         }
         SysGroupMemberMuted sysGroupMemberMuted = lambdaQuery().eq(SysGroupMemberMuted::getGroupId, groupId).eq(SysGroupMemberMuted::getUserId, memberId).one();
-        return sysGroupMemberMuted != null && sysGroupMemberMuted.isMuted();
+        GroupMemberMuteVo vo = new GroupMemberMuteVo();
+        BeanUtils.copyProperties(sysGroupMemberMuted, vo);
+        return vo;
     }
 }
 

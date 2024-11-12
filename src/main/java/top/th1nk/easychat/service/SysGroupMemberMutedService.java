@@ -2,6 +2,7 @@ package top.th1nk.easychat.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import top.th1nk.easychat.domain.SysGroupMemberMuted;
+import top.th1nk.easychat.domain.vo.GroupMemberMuteVo;
 
 /**
  * @author vinka
@@ -31,11 +32,11 @@ public interface SysGroupMemberMutedService extends IService<SysGroupMemberMuted
     boolean unmuteMember(int groupId, int memberId, int adminId);
 
     /**
-     * 判断群成员是否被禁言
+     * 获取群成员禁言信息
      *
      * @param groupId  群聊ID
      * @param memberId 群成员ID
      * @return 是否被禁言
      */
-    boolean isMuted(int groupId, int memberId);
+    GroupMemberMuteVo getMuteInfo(int groupId, int memberId);
 }
