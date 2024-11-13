@@ -1,6 +1,7 @@
 package top.th1nk.easychat.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import jakarta.annotation.Nullable;
 import top.th1nk.easychat.domain.SysGroupMemberMuted;
 import top.th1nk.easychat.domain.vo.GroupMemberMuteVo;
 
@@ -38,5 +39,6 @@ public interface SysGroupMemberMutedService extends IService<SysGroupMemberMuted
      * @param memberId 群成员ID
      * @return 是否被禁言
      */
+    @Nullable
     GroupMemberMuteVo getMuteInfo(int groupId, int memberId);
 }

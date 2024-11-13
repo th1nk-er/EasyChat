@@ -5,14 +5,14 @@
 <mapper namespace="top.th1nk.easychat.mapper.SysGroupMemberMutedMapper">
 
     <resultMap id="BaseResultMap" type="top.th1nk.easychat.domain.SysGroupMemberMuted">
-            <id property="id" column="id" jdbcType="INTEGER"/>
-            <result property="userId" column="user_id" jdbcType="INTEGER"/>
-            <result property="groupId" column="group_id" jdbcType="INTEGER"/>
-            <result property="muted" column="muted" jdbcType="TINYINT"/>
-            <result property="muteTime" column="mute_time" jdbcType="TIMESTAMP"/>
-            <result property="unmuteTime" column="unmute_time" jdbcType="TIMESTAMP"/>
-            <result property="adminId" column="admin_id" jdbcType="INTEGER"/>
-            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="groupId" column="group_id" jdbcType="INTEGER"/>
+        <result property="muted" column="muted" jdbcType="TINYINT"/>
+        <result property="muteTime" column="mute_time" jdbcType="TIMESTAMP"/>
+        <result property="unmuteTime" column="unmute_time" jdbcType="TIMESTAMP"/>
+        <result property="adminId" column="admin_id" jdbcType="INTEGER"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -20,4 +20,12 @@
         muted,mute_time,unmute_time,
         admin_id,update_time
     </sql>
+    <select id="selectByGroupIdAndUserId" resultType="top.th1nk.easychat.domain.SysGroupMemberMuted">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM ec_group_member_muted
+        WHERE group_id = #{groupId}
+        AND user_id = #{userId}
+        LIMIT 1
+    </select>
 </mapper>

@@ -85,7 +85,8 @@ public class SysGroupMemberMutedServiceImpl extends ServiceImpl<SysGroupMemberMu
         if (groupId <= 0 || memberId <= 0) {
             return null;
         }
-        SysGroupMemberMuted sysGroupMemberMuted = lambdaQuery().eq(SysGroupMemberMuted::getGroupId, groupId).eq(SysGroupMemberMuted::getUserId, memberId).one();
+        SysGroupMemberMuted sysGroupMemberMuted = baseMapper.selectByGroupIdAndUserId(groupId, memberId);
+        if (sysGroupMemberMuted == null) return null;
         GroupMemberMuteVo vo = new GroupMemberMuteVo();
         BeanUtils.copyProperties(sysGroupMemberMuted, vo);
         return vo;
