@@ -206,7 +206,14 @@ public class GroupController {
     @Operation(summary = "获取群成员禁言状态", description = "获取群成员禁言状态")
     @GetMapping("/{groupId}/mute/status/member/{memberId}")
     @PreAuthorize("hasAuthority('GROUP:' + #groupId)")
-    public Response<GroupMemberMuteVo> isMemberMute(@PathVariable int groupId, @PathVariable int memberId) {
+    public Response<GroupMemberMuteVo> getMemberMuteInfo(@PathVariable int groupId, @PathVariable int memberId) {
         return Response.ok(sysGroupMemberMutedService.getMuteInfo(groupId, memberId));
+    }
+
+    @Operation(summary = "获取群聊中所有群成员禁言信息列表", description = "获取群聊中所有群成员禁言信息列表")
+    @GetMapping("/{groupId}/mute/list")
+    @PreAuthorize("hasAuthority('GROUP:' + #groupId)")
+    public Response<List<GroupMemberMuteVo>> getGroupMuteInfoList(@PathVariable int groupId) {
+        return Response.ok(sysGroupMemberMutedService.getMuteInfoList(groupId));
     }
 }

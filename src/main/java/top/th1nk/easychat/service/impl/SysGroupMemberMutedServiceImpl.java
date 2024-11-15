@@ -91,6 +91,18 @@ public class SysGroupMemberMutedServiceImpl extends ServiceImpl<SysGroupMemberMu
         BeanUtils.copyProperties(sysGroupMemberMuted, vo);
         return vo;
     }
+
+    @Override
+    public List<GroupMemberMuteVo> getMuteInfoList(int groupId) {
+        if (groupId <= 0) {
+            return List.of();
+        }
+        return lambdaQuery().eq(SysGroupMemberMuted::getGroupId, groupId).list().stream().map(entity -> {
+            GroupMemberMuteVo vo = new GroupMemberMuteVo();
+            BeanUtils.copyProperties(entity, vo);
+            return vo;
+        }).toList();
+    }
 }
 
 

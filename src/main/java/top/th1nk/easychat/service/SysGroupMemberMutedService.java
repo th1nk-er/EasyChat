@@ -2,8 +2,11 @@ package top.th1nk.easychat.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotNull;
 import top.th1nk.easychat.domain.SysGroupMemberMuted;
 import top.th1nk.easychat.domain.vo.GroupMemberMuteVo;
+
+import java.util.List;
 
 /**
  * @author vinka
@@ -41,4 +44,13 @@ public interface SysGroupMemberMutedService extends IService<SysGroupMemberMuted
      */
     @Nullable
     GroupMemberMuteVo getMuteInfo(int groupId, int memberId);
+
+    /**
+     * 获取群聊中所有群成员禁言信息列表
+     *
+     * @param groupId 群聊ID
+     * @return 禁言信息列表
+     */
+    @NotNull
+    List<GroupMemberMuteVo> getMuteInfoList(int groupId);
 }
