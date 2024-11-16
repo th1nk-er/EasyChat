@@ -146,7 +146,7 @@ public class GroupController {
 
     @Operation(summary = "更新群成员的身份", description = "更新群成员的身份")
     @PutMapping("/{groupId}/member/{memberId}/role")
-    @PreAuthorize("hasAuthority('GROUP_ADMIN:' + #groupId) and hasAuthority('USER:' + #dto.getUserId())")
+    @PreAuthorize("hasAuthority('GROUP_LEADER:' + #groupId) and hasAuthority('USER:' + #dto.getUserId())")
     public Response<?> updateMemberRole(@PathVariable int groupId, @PathVariable int memberId, @RequestBody UpdateGroupMemberDto dto) {
         if (dto.getRole() == null || dto.getUserId() == null) return Response.error();
         if (dto.getRole() == UserRole.ADMIN) {

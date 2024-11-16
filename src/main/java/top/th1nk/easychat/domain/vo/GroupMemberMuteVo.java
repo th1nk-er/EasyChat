@@ -11,7 +11,7 @@ public class GroupMemberMuteVo {
     @Schema(description = "群聊ID")
     private int groupId;
     @Schema(description = "群成员ID")
-    private int memberId;
+    private int userId;
     @Schema(description = "执行禁言的管理员ID")
     private int adminId;
     @Schema(description = "是否被禁言")
