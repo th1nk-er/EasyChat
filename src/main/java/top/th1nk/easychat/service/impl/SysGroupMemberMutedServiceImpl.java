@@ -87,6 +87,11 @@ public class SysGroupMemberMutedServiceImpl extends ServiceImpl<SysGroupMemberMu
         }
         SysGroupMemberMuted sysGroupMemberMuted = baseMapper.selectByGroupIdAndUserId(groupId, memberId);
         if (sysGroupMemberMuted == null) return null;
+        // 判断禁言是否已经失效，如果失效则解除禁言
+        if (sysGroupMemberMuted.isMuted() && sysGroupMemberMuted.getUnmuteTime().isBefore(LocalDateTime.now())) {
+            sysGroupMemberMuted.setMuted(false);
+            updateById(sysGroupMemberMuted);
+        }
         GroupMemberMuteVo vo = new GroupMemberMuteVo();
         BeanUtils.copyProperties(sysGroupMemberMuted, vo);
         return vo;
@@ -98,6 +103,10 @@ public class SysGroupMemberMutedServiceImpl extends ServiceImpl<SysGroupMemberMu
             return List.of();
         }
         return lambdaQuery().eq(SysGroupMemberMuted::getGroupId, groupId).list().stream().map(entity -> {
+            if (entity.isMuted() && entity.getUnmuteTime().isBefore(LocalDateTime.now())) {
+                entity.setMuted(false);
+                updateById(entity);
+            }
             GroupMemberMuteVo vo = new GroupMemberMuteVo();
             BeanUtils.copyProperties(entity, vo);
             return vo;

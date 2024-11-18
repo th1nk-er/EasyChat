@@ -37,6 +37,7 @@ public interface SysGroupMemberMutedService extends IService<SysGroupMemberMuted
 
     /**
      * 获取群成员禁言信息
+     * 并且判断禁言是否已经失效，如果失效则解除禁言
      *
      * @param groupId  群聊ID
      * @param memberId 群成员ID
@@ -47,6 +48,7 @@ public interface SysGroupMemberMutedService extends IService<SysGroupMemberMuted
 
     /**
      * 获取群聊中所有群成员禁言信息列表
+     * 并且判断禁言是否已经失效，如果失效则解除禁言
      *
      * @param groupId 群聊ID
      * @return 禁言信息列表
