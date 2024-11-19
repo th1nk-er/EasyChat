@@ -5,10 +5,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import top.th1nk.easychat.domain.Response;
 import top.th1nk.easychat.domain.dto.*;
 import top.th1nk.easychat.domain.vo.*;
 import top.th1nk.easychat.enums.UserRole;
+import top.th1nk.easychat.exception.CommonException;
+import top.th1nk.easychat.exception.enums.CommonExceptionEnum;
 import top.th1nk.easychat.service.*;
 
 import java.util.List;
@@ -215,5 +218,15 @@ public class GroupController {
     @PreAuthorize("hasAuthority('GROUP:' + #groupId)")
     public Response<List<GroupMemberMuteVo>> getGroupMuteInfoList(@PathVariable int groupId) {
         return Response.ok(sysGroupMemberMutedService.getMuteInfoList(groupId));
+    }
+
+    @Operation(summary = "更新群组头像", description = "更新群组头像")
+    @PostMapping("/{groupId}/avatar/{userId}")
+    public Response<String> updateGroupAvatar(@RequestParam("file") MultipartFile file, @PathVariable int groupId, @PathVariable int userId) {
+        String avatarPath = sysGroupService.updateAvatar(userId, groupId, file);
+        if (avatarPath != null)
+            return Response.ok(avatarPath);
+        else
+            throw new CommonException(CommonExceptionEnum.FILE_UPLOAD_FAILED);
     }
 }

@@ -20,6 +20,12 @@
         avatar,deleted,create_time,
         update_time
     </sql>
+    <update id="updateAvatar">
+        UPDATE ec_group
+        SET avatar = #{avatar}
+        WHERE group_id = #{groupId}
+          and deleted = 0
+    </update>
     <select id="selectUserGroupList" resultType="top.th1nk.easychat.domain.vo.UserGroupVo">
         SELECT g.group_id,
                g.group_name,
@@ -61,5 +67,11 @@
           AND gm.user_id = #{userId}
           AND gm.deleted = 0
           AND g.deleted = 0
+    </select>
+    <select id="getSameAvatarCount" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM ec_group
+        where avatar = #{avatar}
+          and deleted = 0
     </select>
 </mapper>

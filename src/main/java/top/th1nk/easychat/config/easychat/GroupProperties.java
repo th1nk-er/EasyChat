@@ -25,4 +25,8 @@ public class GroupProperties {
      * 每个用户能创建群组数的最大值
      */
     private Integer maxGroupPerUser = 10;
+    /**
+     * 最大头像大小，单位：KB
+     */
+    private Integer avatarMaxSize = 1024 * 5;
 }

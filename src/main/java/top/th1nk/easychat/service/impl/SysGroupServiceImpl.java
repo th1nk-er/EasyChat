@@ -7,9 +7,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import top.th1nk.easychat.config.easychat.GroupProperties;
 import top.th1nk.easychat.domain.SysGroup;
 import top.th1nk.easychat.domain.SysGroupMember;
@@ -22,18 +24,23 @@ import top.th1nk.easychat.domain.vo.UserGroupVo;
 import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.enums.GroupNotificationType;
 import top.th1nk.easychat.enums.UserRole;
+import top.th1nk.easychat.exception.CommonException;
 import top.th1nk.easychat.exception.GroupException;
+import top.th1nk.easychat.exception.enums.CommonExceptionEnum;
 import top.th1nk.easychat.exception.enums.GroupExceptionEnum;
 import top.th1nk.easychat.mapper.SysGroupMapper;
 import top.th1nk.easychat.mapper.SysGroupMemberMapper;
 import top.th1nk.easychat.mapper.SysGroupNotificationMapper;
 import top.th1nk.easychat.mapper.SysUserFriendMapper;
+import top.th1nk.easychat.service.MinioService;
 import top.th1nk.easychat.service.SysGroupService;
 import top.th1nk.easychat.service.SysUserConversationService;
+import top.th1nk.easychat.utils.FileUtils;
 import top.th1nk.easychat.utils.GroupUtils;
 import top.th1nk.easychat.utils.JwtUtils;
 import top.th1nk.easychat.utils.RequestUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,6 +65,8 @@ public class SysGroupServiceImpl extends ServiceImpl<SysGroupMapper, SysGroup>
     private SysGroupNotificationMapper sysGroupNotificationMapper;
     @Resource
     private SysUserConversationService sysUserConversationService;
+    @Resource
+    private MinioService minioService;
 
     @Transactional
     @Override
@@ -131,5 +140,51 @@ public class SysGroupServiceImpl extends ServiceImpl<SysGroupMapper, SysGroup>
                 .set(SysGroupMember::isMuted, userGroupUpdateDto.isMuted())
                 .set(SysGroupMember::getGroupRemark, userGroupUpdateDto.getGroupRemark());
         return sysGroupMemberMapper.update(null, updateWrapper) > 0;
+    }
+
+    @Nullable
+    @Override
+    public String updateAvatar(int userId, int groupId, MultipartFile file) {
+        if (file == null) return null;
+        if (!FileUtils.isImage(file.getOriginalFilename()))
+            throw new CommonException(CommonExceptionEnum.FILE_TYPE_NOT_SUPPORTED); // 文件类型不支持
+        if ((file.getSize() / 1024) > groupProperties.getAvatarMaxSize())
+            throw new CommonException(CommonExceptionEnum.FILE_SIZE_EXCEEDED); // 头像文件过大
+        SysGroup group = baseMapper.selectById(groupId);
+        if (group == null) return null;
+        log.debug("更新群聊头像,userId:{},groupId:{}", userId, groupId);
+        String fileType = FileUtils.getFileType(file.getOriginalFilename());
+        try {
+            byte[] bytes = file.getInputStream().readAllBytes();
+            String checkSum = FileUtils.getCheckSum(bytes);
+            if (checkSum.isEmpty())
+                throw new CommonException(CommonExceptionEnum.FILE_UPLOAD_FAILED);
+            String avatarPath = "/" + groupProperties.getAvatarDir() + "/" + checkSum + "." + fileType;
+            if (minioService.getObject(avatarPath) != null) {
+                // 文件存在,更新数据库
+                baseMapper.updateAvatar(groupId, avatarPath);
+            } else {
+                // 文件不存在,上传文件
+                if (minioService.upload(bytes, avatarPath)) {
+                    // 上传成功
+                    baseMapper.updateAvatar(groupId, avatarPath);
+                } else
+                    return null;
+            }
+            // 删除历史头像
+            if (!group.getAvatar().equals("/" + groupProperties.getDefaultAvatarPath() + "/" + groupProperties.getDefaultAvatarName())
+                    && baseMapper.getSameAvatarCount(group.getAvatar()) == 0) {
+                // 该头像没有其他用户正在使用且非默认头像时，可以删除
+                if (minioService.deleteObject(group.getAvatar())) {
+                    log.debug("删除群聊历史头像成功，文件路径：{}", group.getAvatar());
+                } else {
+                    log.error("删除群聊历史头像失败，文件路径：{}", group.getAvatar());
+                }
+            }
+            return avatarPath;
+        } catch (IOException e) {
+            log.error("文件上传异常", e);
+            return null;
+        }
     }
 }

@@ -1,6 +1,8 @@
 package top.th1nk.easychat.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import jakarta.annotation.Nullable;
+import org.springframework.web.multipart.MultipartFile;
 import top.th1nk.easychat.domain.SysGroup;
 import top.th1nk.easychat.domain.dto.CreateGroupDto;
 import top.th1nk.easychat.domain.dto.UserGroupUpdateDto;
@@ -48,4 +50,15 @@ public interface SysGroupService extends IService<SysGroup> {
      * @return 是否更新成功
      */
     boolean updateUserGroupInfo(int userId, UserGroupUpdateDto userGroupUpdateDto);
+
+    /**
+     * 更新群聊头像
+     *
+     * @param userId  管理员ID
+     * @param groupId 群聊ID
+     * @param file    头像文件
+     * @return 上传后的头像路径, null 表示上传失败
+     */
+    @Nullable
+    String updateAvatar(int userId, int groupId, MultipartFile file);
 }

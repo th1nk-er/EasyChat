@@ -38,6 +38,23 @@ public interface SysGroupMapper extends BaseMapper<SysGroup> {
      * @return 用户群组信息
      */
     UserGroupVo selectUserGroupVo(int userId, int groupId);
+
+
+    /**
+     * 更新头像
+     *
+     * @param groupId 群聊ID
+     * @param avatar  头像地址
+     */
+    int updateAvatar(int groupId, String avatar);
+
+    /**
+     * 查询相同头像的群聊数量
+     *
+     * @param avatar 头像
+     * @return 群聊数量
+     */
+    int getSameAvatarCount(String avatar);
 }
 
 
