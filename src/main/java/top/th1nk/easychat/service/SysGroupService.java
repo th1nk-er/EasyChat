@@ -5,6 +5,7 @@ import jakarta.annotation.Nullable;
 import org.springframework.web.multipart.MultipartFile;
 import top.th1nk.easychat.domain.SysGroup;
 import top.th1nk.easychat.domain.dto.CreateGroupDto;
+import top.th1nk.easychat.domain.dto.GroupUpdateDto;
 import top.th1nk.easychat.domain.dto.UserGroupUpdateDto;
 import top.th1nk.easychat.domain.vo.GroupVo;
 import top.th1nk.easychat.domain.vo.UserGroupVo;
@@ -61,4 +62,13 @@ public interface SysGroupService extends IService<SysGroup> {
      */
     @Nullable
     String updateAvatar(int userId, int groupId, MultipartFile file);
+
+    /**
+     * 更新群聊信息
+     *
+     * @param groupId        群聊ID
+     * @param groupUpdateDto 群聊信息更新Dto
+     * @return 是否更新成功
+     */
+    boolean updateGroupInfo(int groupId, GroupUpdateDto groupUpdateDto);
 }

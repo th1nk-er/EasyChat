@@ -18,6 +18,7 @@ import top.th1nk.easychat.domain.SysGroupMember;
 import top.th1nk.easychat.domain.SysGroupNotification;
 import top.th1nk.easychat.domain.chat.ChatType;
 import top.th1nk.easychat.domain.dto.CreateGroupDto;
+import top.th1nk.easychat.domain.dto.GroupUpdateDto;
 import top.th1nk.easychat.domain.dto.UserGroupUpdateDto;
 import top.th1nk.easychat.domain.vo.GroupVo;
 import top.th1nk.easychat.domain.vo.UserGroupVo;
@@ -186,5 +187,19 @@ public class SysGroupServiceImpl extends ServiceImpl<SysGroupMapper, SysGroup>
             log.error("文件上传异常", e);
             return null;
         }
+    }
+
+    @Override
+    public boolean updateGroupInfo(int groupId, GroupUpdateDto groupUpdateDto) {
+        if (groupId <= 0) return false;
+        if (!GroupUtils.isValidGroupName(groupUpdateDto.getGroupName()))
+            throw new GroupException(GroupExceptionEnum.INVALID_GROUP_NAME);
+        if (!GroupUtils.isValidDescription(groupUpdateDto.getGroupDesc()))
+            throw new GroupException(GroupExceptionEnum.INVALID_GROUP_DESCRIPTION);
+        log.debug("更新群聊信息,groupId:{},groupUpdateDto:{}", groupId, groupUpdateDto);
+        return lambdaUpdate().eq(SysGroup::getGroupId, groupId)
+                .set(SysGroup::getGroupName, groupUpdateDto.getGroupName())
+                .set(SysGroup::getGroupDesc, groupUpdateDto.getGroupDesc())
+                .update();
     }
 }

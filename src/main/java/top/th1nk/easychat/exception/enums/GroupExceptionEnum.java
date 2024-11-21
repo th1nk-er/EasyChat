@@ -13,6 +13,7 @@ public enum GroupExceptionEnum {
     LEADER_CANNOT_QUIT(5007, "群主不能退出群聊"),
     LEADER_CANNOT_BE_KICKED(5008, "群主不能被踢出群聊"),
     INSERT_GROUP_MEMBER_FAIL(5009, "添加群组成员失败"),
+    INVALID_GROUP_DESCRIPTION(5010, "群聊简介不合法"),
     ;
     private final int code;
     private final String message;

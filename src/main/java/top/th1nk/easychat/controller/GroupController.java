@@ -229,4 +229,13 @@ public class GroupController {
         else
             throw new CommonException(CommonExceptionEnum.FILE_UPLOAD_FAILED);
     }
+
+    @Operation(summary = "更新群组信息", description = "更新群组信息")
+    @PutMapping("/{groupId}/info")
+    @PreAuthorize("hasAuthority('GROUP_ADMIN:' + #groupId) and hasAnyAuthority('USER:' + #groupUpdateDto.getUserId())")
+    public Response<?> updateGroupInfo(@PathVariable int groupId, @RequestBody GroupUpdateDto groupUpdateDto) {
+        if (sysGroupService.updateGroupInfo(groupId, groupUpdateDto))
+            return Response.ok();
+        else return Response.error();
+    }
 }
