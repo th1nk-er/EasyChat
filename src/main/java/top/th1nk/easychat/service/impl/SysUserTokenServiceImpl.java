@@ -4,9 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import top.th1nk.easychat.config.easychat.JwtProperties;
 import top.th1nk.easychat.domain.SysUserToken;
+import top.th1nk.easychat.domain.vo.UserTokenVo;
 import top.th1nk.easychat.mapper.SysUserTokenMapper;
 import top.th1nk.easychat.service.SysUserTokenService;
 import top.th1nk.easychat.utils.JwtUtils;
@@ -61,6 +63,17 @@ public class SysUserTokenServiceImpl extends ServiceImpl<SysUserTokenMapper, Sys
         LambdaQueryWrapper<SysUserToken> qw = new LambdaQueryWrapper<>();
         qw.eq(SysUserToken::getUserId, userId);
         return baseMapper.selectList(qw);
+    }
+
+    @Override
+    public List<UserTokenVo> getUserTokenVoList(int userId) {
+        List<SysUserToken> userTokenList = getUserTokenList(userId);
+        if (userTokenList.isEmpty()) return List.of();
+        return userTokenList.stream().map(token -> {
+            UserTokenVo vo = new UserTokenVo();
+            BeanUtils.copyProperties(token, vo);
+            return vo;
+        }).toList();
     }
 }
 

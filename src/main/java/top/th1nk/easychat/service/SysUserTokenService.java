@@ -2,6 +2,7 @@ package top.th1nk.easychat.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import top.th1nk.easychat.domain.SysUserToken;
+import top.th1nk.easychat.domain.vo.UserTokenVo;
 
 import java.util.List;
 
@@ -33,4 +34,12 @@ public interface SysUserTokenService extends IService<SysUserToken> {
      * @return token列表
      */
     List<SysUserToken> getUserTokenList(Integer userId);
+
+    /**
+     * 获取用户tokenVo列表
+     *
+     * @param userId 用户id
+     * @return tokenVo列表
+     */
+    List<UserTokenVo> getUserTokenVoList(int userId);
 }
