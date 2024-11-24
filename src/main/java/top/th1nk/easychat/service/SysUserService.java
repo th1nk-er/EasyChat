@@ -4,9 +4,13 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import jakarta.annotation.Nullable;
 import org.springframework.web.multipart.MultipartFile;
 import top.th1nk.easychat.domain.SysUser;
-import top.th1nk.easychat.domain.dto.*;
+import top.th1nk.easychat.domain.dto.LoginDto;
+import top.th1nk.easychat.domain.dto.RegisterDto;
+import top.th1nk.easychat.domain.dto.UpdatePasswordDto;
+import top.th1nk.easychat.domain.dto.UpdateUserInfoDto;
 import top.th1nk.easychat.domain.vo.SearchUserVo;
 import top.th1nk.easychat.domain.vo.StrangerVo;
+import top.th1nk.easychat.domain.vo.UserLoginTokenVo;
 import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.exception.LoginException;
 import top.th1nk.easychat.exception.RegisterException;
@@ -52,7 +56,7 @@ public interface SysUserService extends IService<SysUser> {
      * @return 用户Token
      * @throws LoginException 登录异常
      */
-    UserTokenDto login(LoginDto loginDto) throws LoginException;
+    UserLoginTokenVo login(LoginDto loginDto) throws LoginException;
 
     /**
      * 判断用户名是否已注册

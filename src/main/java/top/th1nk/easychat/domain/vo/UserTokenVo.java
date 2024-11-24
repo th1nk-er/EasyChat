@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 @Data
 @Schema(description = "用户Token Vo")
 public class UserTokenVo {
+    @Schema(description = "主键ID")
+    private Integer id;
     @Schema(description = "用户ID")
     private Integer userId;
     @Schema(description = "设备UA")

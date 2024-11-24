@@ -18,9 +18,13 @@ import top.th1nk.easychat.config.easychat.UserProperties;
 import top.th1nk.easychat.config.security.EmailAuthenticationToken;
 import top.th1nk.easychat.domain.SysUser;
 import top.th1nk.easychat.domain.SysUserToken;
-import top.th1nk.easychat.domain.dto.*;
+import top.th1nk.easychat.domain.dto.LoginDto;
+import top.th1nk.easychat.domain.dto.RegisterDto;
+import top.th1nk.easychat.domain.dto.UpdatePasswordDto;
+import top.th1nk.easychat.domain.dto.UpdateUserInfoDto;
 import top.th1nk.easychat.domain.vo.SearchUserVo;
 import top.th1nk.easychat.domain.vo.StrangerVo;
+import top.th1nk.easychat.domain.vo.UserLoginTokenVo;
 import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.enums.EmailActionEnum;
 import top.th1nk.easychat.enums.LoginType;
@@ -109,7 +113,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    public UserTokenDto login(LoginDto loginDto) {
+    public UserLoginTokenVo login(LoginDto loginDto) {
         log.debug("用户发起登录请求 登陆方式:{} 用户名:{} 邮箱:{}", loginDto.getType().getDesc(), loginDto.getUsername(), loginDto.getEmail());
         UserVo userVo;
         Authentication authenticationToken;
@@ -146,9 +150,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         // 生成Token
         SysUserToken sysUserToken = jwtUtils.generateToken(userVo);
         sysUserTokenService.saveUserToken(sysUserToken);
-        UserTokenDto userTokenDto = new UserTokenDto();
-        BeanUtils.copyProperties(sysUserToken, userTokenDto);
-        return userTokenDto;
+        UserLoginTokenVo userLoginTokenVo = new UserLoginTokenVo();
+        BeanUtils.copyProperties(sysUserToken, userLoginTokenVo);
+        return userLoginTokenVo;
     }
 
     @Override

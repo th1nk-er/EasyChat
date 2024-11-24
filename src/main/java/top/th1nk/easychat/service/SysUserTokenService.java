@@ -42,4 +42,13 @@ public interface SysUserTokenService extends IService<SysUserToken> {
      * @return tokenVo列表
      */
     List<UserTokenVo> getUserTokenVoList(int userId);
+
+    /**
+     * 根据ID过期token
+     *
+     * @param userId  用户id
+     * @param tokenId tokenId
+     * @return token
+     */
+    boolean expireTokenById(int userId, int tokenId);
 }

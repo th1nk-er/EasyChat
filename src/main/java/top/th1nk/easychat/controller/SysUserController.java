@@ -10,6 +10,7 @@ import top.th1nk.easychat.domain.Response;
 import top.th1nk.easychat.domain.dto.*;
 import top.th1nk.easychat.domain.vo.SearchUserVo;
 import top.th1nk.easychat.domain.vo.StrangerVo;
+import top.th1nk.easychat.domain.vo.UserLoginTokenVo;
 import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.enums.EmailActionEnum;
 import top.th1nk.easychat.exception.CommonException;
@@ -87,7 +88,7 @@ public class SysUserController {
 
     @Operation(summary = "用户登录", description = "用户登录")
     @PostMapping("/login")
-    public Response<UserTokenDto> login(@RequestBody LoginDto loginDto) {
+    public Response<UserLoginTokenVo> login(@RequestBody LoginDto loginDto) {
         return Response.ok(sysUserService.login(loginDto));
     }
 

@@ -75,6 +75,22 @@ public class SysUserTokenServiceImpl extends ServiceImpl<SysUserTokenMapper, Sys
             return vo;
         }).toList();
     }
+
+    @Override
+    public boolean expireTokenById(int userId, int tokenId) {
+        if (tokenId <= 0 || userId <= 0) return false;
+        SysUserToken userToken = lambdaQuery().eq(SysUserToken::getId, tokenId)
+                .eq(SysUserToken::getUserId, userId)
+                .gt(SysUserToken::getExpireTime, LocalDateTime.now()).one();
+        if (userToken == null) return false;
+        log.debug("根据ID过期token: {}", tokenId);
+        userToken.setExpireTime(LocalDateTime.now());
+        if (this.updateById(userToken)) {
+            jwtUtils.expireToken(userToken.getToken());
+            return true;
+        }
+        return false;
+    }
 }
 
 

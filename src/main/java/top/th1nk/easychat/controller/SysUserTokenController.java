@@ -4,10 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import top.th1nk.easychat.domain.Response;
 import top.th1nk.easychat.domain.vo.UserTokenVo;
 import top.th1nk.easychat.service.SysUserTokenService;
@@ -26,5 +23,14 @@ public class SysUserTokenController {
     @PreAuthorize("hasAuthority('USER:' + #userId)")
     public Response<List<UserTokenVo>> getTokenVoList(@PathVariable int userId) {
         return Response.ok(sysUserTokenService.getUserTokenVoList(userId));
+    }
+
+    @Operation(summary = "根据ID过期token", description = "根据token主键过期token")
+    @PutMapping("/token/expire/{userId}/{tokenId}")
+    @PreAuthorize("hasAuthority('USER:' + #userId)")
+    public Response<?> expireToken(@PathVariable int userId, @PathVariable int tokenId) {
+        boolean success = sysUserTokenService.expireTokenById(userId, tokenId);
+        if (success) return Response.ok();
+        else return Response.error();
     }
 }
