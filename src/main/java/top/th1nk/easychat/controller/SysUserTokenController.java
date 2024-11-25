@@ -26,7 +26,7 @@ public class SysUserTokenController {
     }
 
     @Operation(summary = "根据ID过期token", description = "根据token主键过期token")
-    @PutMapping("/token/expire/{userId}/{tokenId}")
+    @PutMapping("/token/expire/user/{userId}/token/{tokenId}")
     @PreAuthorize("hasAuthority('USER:' + #userId)")
     public Response<?> expireToken(@PathVariable int userId, @PathVariable int tokenId) {
         boolean success = sysUserTokenService.expireTokenById(userId, tokenId);
