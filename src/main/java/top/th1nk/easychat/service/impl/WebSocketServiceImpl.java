@@ -74,7 +74,7 @@ public class WebSocketServiceImpl implements WebSocketService {
                 return;
             }
             SysGroupMemberMuted muteInfo = sysGroupMemberMutedMapper.selectByGroupIdAndUserId(message.getToId(), message.getFromId());
-            if (muteInfo == null || muteInfo.isMuted()) {
+            if (muteInfo != null && muteInfo.isMuted()) {
                 // 群组成员被禁言
                 log.warn("用户 {} 试图在被禁言状态下向群组 {} 发送消息", message.getFromId(), message.getToId());
                 //发送错误提示
