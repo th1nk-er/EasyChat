@@ -92,6 +92,16 @@ public class SysUserController {
         return Response.ok(sysUserService.login(loginDto));
     }
 
+    @Operation(summary = "用户登出", description = "用户登出")
+    @PostMapping("/logout")
+    public Response<?> logout() {
+        String userTokenString = RequestUtils.getUserTokenString();
+        if (userTokenString.isEmpty()) return Response.error();
+        if (sysUserService.logout(userTokenString))
+            return Response.ok();
+        else return Response.error();
+    }
+
     @Operation(summary = "用户搜索", description = "根据关键字搜索用户")
     @GetMapping("/search")
     public Response<SearchUserVo> search(@RequestParam("keyword") String keyword, @RequestParam("page") int page) {

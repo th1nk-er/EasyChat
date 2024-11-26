@@ -16,16 +16,18 @@ public interface SysUserTokenService extends IService<SysUserToken> {
      * 强制过期token
      *
      * @param token token字符串
+     * @return 是否成功
      */
-    void expireToken(String token);
+    boolean expireToken(String token);
 
     /**
      * 保存token到数据库
      * 并检查是否超出token在线数，超出则强制覆盖最早token
      *
      * @param sysUserToken token
+     * @return 是否成功
      */
-    void saveUserToken(SysUserToken sysUserToken);
+    boolean saveUserToken(SysUserToken sysUserToken);
 
     /**
      * 获取用户token列表

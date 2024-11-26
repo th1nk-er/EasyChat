@@ -59,6 +59,14 @@ public interface SysUserService extends IService<SysUser> {
     UserLoginTokenVo login(LoginDto loginDto) throws LoginException;
 
     /**
+     * 用户登出
+     *
+     * @param token 用户Token
+     * @return 是否登出成功
+     */
+    boolean logout(String token);
+
+    /**
      * 判断用户名是否已注册
      *
      * @param username 用户名

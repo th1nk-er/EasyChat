@@ -33,27 +33,30 @@ public class SysUserTokenServiceImpl extends ServiceImpl<SysUserTokenMapper, Sys
     private JwtUtils jwtUtils;
 
     @Override
-    public void expireToken(String token) {
-        if (token == null || token.isEmpty()) return;
+    public boolean expireToken(String token) {
+        if (token == null || token.isEmpty()) return false;
         log.debug("强制过期token: {}", token);
-        if (baseMapper.updateExpireTimeByToken(token, LocalDateTime.now()) == 1)
+        if (baseMapper.updateExpireTimeByToken(token, LocalDateTime.now()) > 0) {
             jwtUtils.expireToken(token);
+            return true;
+        }
+        return false;
     }
 
     @Override
-    public void saveUserToken(SysUserToken sysUserToken) {
+    public boolean saveUserToken(SysUserToken sysUserToken) {
         log.debug("保存token到数据库: {}", sysUserToken);
         int max = jwtProperties.getMaxToken();
         List<SysUserToken> userTokenList = baseMapper.getByUserId(sysUserToken.getUserId());
         if (userTokenList.isEmpty() || userTokenList.size() < max)
-            baseMapper.insert(sysUserToken);
+            return baseMapper.insert(sysUserToken) > 0;
         else {
             // 根据token的issueTime排序，获取最早创建的token
             userTokenList.sort(Comparator.comparing(SysUserToken::getIssueTime));
             sysUserToken.setId(userTokenList.getFirst().getId());
             // 覆盖最早的token
             jwtUtils.expireToken(userTokenList.getFirst().getToken());
-            baseMapper.updateById(sysUserToken);
+            return baseMapper.updateById(sysUserToken) > 0;
         }
     }
 

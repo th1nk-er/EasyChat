@@ -29,9 +29,11 @@ import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.enums.EmailActionEnum;
 import top.th1nk.easychat.enums.LoginType;
 import top.th1nk.easychat.exception.CommonException;
+import top.th1nk.easychat.exception.DataException;
 import top.th1nk.easychat.exception.LoginException;
 import top.th1nk.easychat.exception.RegisterException;
 import top.th1nk.easychat.exception.enums.CommonExceptionEnum;
+import top.th1nk.easychat.exception.enums.DataExceptionEnum;
 import top.th1nk.easychat.exception.enums.LoginExceptionEnum;
 import top.th1nk.easychat.exception.enums.RegisterExceptionEnum;
 import top.th1nk.easychat.mapper.SysUserMapper;
@@ -149,10 +151,20 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
         // 生成Token
         SysUserToken sysUserToken = jwtUtils.generateToken(userVo);
-        sysUserTokenService.saveUserToken(sysUserToken);
-        UserLoginTokenVo userLoginTokenVo = new UserLoginTokenVo();
-        BeanUtils.copyProperties(sysUserToken, userLoginTokenVo);
-        return userLoginTokenVo;
+        if (sysUserTokenService.saveUserToken(sysUserToken)) {
+            UserLoginTokenVo userLoginTokenVo = new UserLoginTokenVo();
+            BeanUtils.copyProperties(sysUserToken, userLoginTokenVo);
+            return userLoginTokenVo;
+        } else {
+            throw new DataException(DataExceptionEnum.DATA_INSERT_FAILED);
+        }
+    }
+
+    @Override
+    public boolean logout(String token) {
+        UserVo userVo = jwtUtils.parseToken(token);
+        if (userVo == null || userVo.getId() == null) return false;
+        return sysUserTokenService.expireToken(token);
     }
 
     @Override
