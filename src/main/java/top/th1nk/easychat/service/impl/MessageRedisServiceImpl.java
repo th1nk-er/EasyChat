@@ -78,10 +78,6 @@ public class MessageRedisServiceImpl implements MessageRedisService {
         log.debug("获取redis中所有消息");
         Set<String> keys = redisTemplate.keys(CHAT_PRIVATE_MESSAGE_KEY + "*");
         Set<String> groupKeys = redisTemplate.keys(CHAT_GROUP_MESSAGE_KEY + "*");
-        if (keys == null || groupKeys == null) {
-            log.error("redis异常，无法获取消息");
-            return List.of();
-        }
         keys.addAll(groupKeys);
         List<SysChatMessage> result = new ArrayList<>();
         for (String key : keys) {

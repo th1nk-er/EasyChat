@@ -19,6 +19,7 @@ import top.th1nk.easychat.mapper.SysUserFriendMapper;
 import top.th1nk.easychat.mapper.SysUserMapper;
 import top.th1nk.easychat.service.ConversationRedisService;
 import top.th1nk.easychat.service.SysUserConversationService;
+import top.th1nk.easychat.utils.SecurityUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -42,6 +43,8 @@ public class SysUserConversationServiceImpl extends ServiceImpl<SysUserConversat
     private SysUserFriendMapper sysUserFriendMapper;
     @Resource
     private SysGroupMapper sysGroupMapper;
+    @Resource
+    private SecurityUtils securityUtils;
 
     private UserConversationVo transformToVo(SysUserConversation sysUserConversation) {
         UserConversationVo vo = new UserConversationVo();
@@ -98,6 +101,11 @@ public class SysUserConversationServiceImpl extends ServiceImpl<SysUserConversat
     @Override
     public void setConversationRead(int userId, int chatId, ChatType chatType) {
         if (chatType == ChatType.FRIEND && userId == chatId) return;
+        if (chatType == ChatType.FRIEND) {
+            if (!securityUtils.getPermissions(userId).contains("FRIEND:" + chatId)) return;
+        } else if (chatType == ChatType.GROUP) {
+            if (!securityUtils.getPermissions(userId).contains("GROUP:" + chatId)) return;
+        }
         log.debug("设置用户对话为已读 userId:{} receiverId:{} chatType:{}", userId, chatId, chatType);
         if (conversationRedisService.setConversationRead(userId, chatId, chatType))
             return;
