@@ -83,4 +83,12 @@
           AND gm.deleted = 0
         ORDER BY gm.create_time
     </select>
+    <select id="selectGroupLeader" resultType="top.th1nk.easychat.domain.SysGroupMember">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM ec_group_member
+        WHERE group_id = #{groupId}
+        AND role = 2
+        AND deleted = 0
+    </select>
 </mapper>

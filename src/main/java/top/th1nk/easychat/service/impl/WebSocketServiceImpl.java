@@ -7,10 +7,13 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import top.th1nk.easychat.config.easychat.JwtProperties;
+import top.th1nk.easychat.domain.SysGroup;
 import top.th1nk.easychat.domain.SysGroupMemberMuted;
 import top.th1nk.easychat.domain.chat.ChatType;
 import top.th1nk.easychat.domain.chat.MessageCommand;
 import top.th1nk.easychat.domain.chat.WSMessage;
+import top.th1nk.easychat.enums.GroupStatus;
+import top.th1nk.easychat.mapper.SysGroupMapper;
 import top.th1nk.easychat.mapper.SysGroupMemberMutedMapper;
 import top.th1nk.easychat.service.SysChatMessageService;
 import top.th1nk.easychat.service.WebSocketService;
@@ -36,6 +39,8 @@ public class WebSocketServiceImpl implements WebSocketService {
     private SecurityUtils securityUtils;
     @Resource
     private SysGroupMemberMutedMapper sysGroupMemberMutedMapper;
+    @Resource
+    private SysGroupMapper sysGroupMapper;
 
     @Override
     public void sendMessage(Authentication authentication, WSMessage message) {
@@ -79,6 +84,12 @@ public class WebSocketServiceImpl implements WebSocketService {
                 log.warn("用户 {} 试图在被禁言状态下向群组 {} 发送消息", message.getFromId(), message.getToId());
                 //发送错误提示
                 simpMessagingTemplate.convertAndSend("/notify/message/" + StringUtils.getSHA256Hash(authentication.getCredentials().toString()), WSMessage.error(message.getFromId(), "你已被禁言"));
+                return;
+            }
+            SysGroup sysGroup = sysGroupMapper.selectById(message.getToId());
+            if (sysGroup == null) return;
+            if (sysGroup.getStatus() == GroupStatus.DISBAND) {
+                simpMessagingTemplate.convertAndSend("/notify/message/" + StringUtils.getSHA256Hash(authentication.getCredentials().toString()), WSMessage.error(message.getFromId(), "该群组已解散"));
                 return;
             }
             log.info("用户 {} 向群组 {} 发送消息", message.getFromId(), message.getToId());

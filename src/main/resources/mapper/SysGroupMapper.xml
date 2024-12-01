@@ -9,6 +9,7 @@
         <result property="groupName" column="group_name" jdbcType="VARCHAR"/>
         <result property="groupDesc" column="group_desc" jdbcType="VARCHAR"/>
         <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="TINYINT"/>
         <result property="deleted" column="deleted" jdbcType="TINYINT"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
         <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
@@ -17,7 +18,7 @@
     <sql id="Base_Column_List">
         group_id
         ,group_name,group_desc,
-        avatar,deleted,create_time,
+        avatar,`status`,deleted,create_time,
         update_time
     </sql>
     <update id="updateAvatar">
@@ -31,6 +32,7 @@
                g.group_name,
                g.group_desc,
                g.avatar,
+               g.status,
                gm.role,
                gm.muted,
                gm.group_remark
@@ -45,6 +47,7 @@
                g.group_name,
                g.group_desc,
                g.avatar,
+               g.status,
                g.create_time,
                count(gm.user_id) AS member_count
         FROM ec_group g
@@ -58,6 +61,7 @@
                g.group_name,
                g.group_desc,
                g.avatar,
+               g.status,
                gm.role,
                gm.muted,
                gm.group_remark

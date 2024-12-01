@@ -3,6 +3,7 @@ package top.th1nk.easychat.domain;
 import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import top.th1nk.easychat.enums.GroupStatus;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -39,6 +40,12 @@ public class SysGroup implements Serializable {
      */
     @Schema(description = "群组头像")
     private String avatar;
+
+    /**
+     * 群组状态
+     */
+    @Schema(description = "群组状态")
+    private GroupStatus status;
 
     /**
      * 是否已删除

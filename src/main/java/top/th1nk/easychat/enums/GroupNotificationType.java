@@ -17,7 +17,7 @@ public enum GroupNotificationType {
     CANCEL_ADMIN(10, "取消管理员"),
     SET_MUTE(11, "设置禁言"),
     CANCEL_MUTE(12, "取消禁言"),
-    ;
+    DISBAND(13, "解散");
 
     @EnumValue
     private final int value;

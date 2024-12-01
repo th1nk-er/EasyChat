@@ -2,6 +2,7 @@ package top.th1nk.easychat.domain.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import top.th1nk.easychat.enums.GroupStatus;
 
 import java.time.LocalDateTime;
 
@@ -16,6 +17,8 @@ public class GroupVo {
     private String groupDesc;
     @Schema(description = "群组头像")
     private String avatar;
+    @Schema(description = "群组状态")
+    private GroupStatus status;
     @Schema(description = "群组创建时间")
     private LocalDateTime createTime;
     @Schema(description = "群组成员数量")

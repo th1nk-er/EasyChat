@@ -17,6 +17,8 @@ import top.th1nk.easychat.domain.SysGroup;
 import top.th1nk.easychat.domain.SysGroupMember;
 import top.th1nk.easychat.domain.SysGroupNotification;
 import top.th1nk.easychat.domain.chat.ChatType;
+import top.th1nk.easychat.domain.chat.MessageCommand;
+import top.th1nk.easychat.domain.chat.WSMessage;
 import top.th1nk.easychat.domain.dto.CreateGroupDto;
 import top.th1nk.easychat.domain.dto.GroupUpdateDto;
 import top.th1nk.easychat.domain.dto.UserGroupUpdateDto;
@@ -24,6 +26,7 @@ import top.th1nk.easychat.domain.vo.GroupVo;
 import top.th1nk.easychat.domain.vo.UserGroupVo;
 import top.th1nk.easychat.domain.vo.UserVo;
 import top.th1nk.easychat.enums.GroupNotificationType;
+import top.th1nk.easychat.enums.GroupStatus;
 import top.th1nk.easychat.enums.UserRole;
 import top.th1nk.easychat.exception.CommonException;
 import top.th1nk.easychat.exception.GroupException;
@@ -36,6 +39,7 @@ import top.th1nk.easychat.mapper.SysUserFriendMapper;
 import top.th1nk.easychat.service.MinioService;
 import top.th1nk.easychat.service.SysGroupService;
 import top.th1nk.easychat.service.SysUserConversationService;
+import top.th1nk.easychat.service.WebSocketService;
 import top.th1nk.easychat.utils.FileUtils;
 import top.th1nk.easychat.utils.GroupUtils;
 import top.th1nk.easychat.utils.JwtUtils;
@@ -68,6 +72,8 @@ public class SysGroupServiceImpl extends ServiceImpl<SysGroupMapper, SysGroup>
     private SysUserConversationService sysUserConversationService;
     @Resource
     private MinioService minioService;
+    @Resource
+    private WebSocketService webSocketService;
 
     @Transactional
     @Override
@@ -94,6 +100,7 @@ public class SysGroupServiceImpl extends ServiceImpl<SysGroupMapper, SysGroup>
         // 创建群聊
         SysGroup group = new SysGroup();
         group.setGroupName(createGroupDto.getGroupName());
+        group.setStatus(GroupStatus.NORMAL);
         group.setAvatar("/" + groupProperties.getAvatarDir() + "/" + groupProperties.getDefaultAvatarName());
         baseMapper.insert(group);
         // 设置群主
@@ -112,7 +119,7 @@ public class SysGroupServiceImpl extends ServiceImpl<SysGroupMapper, SysGroup>
             invitation.setType(GroupNotificationType.PENDING);
             sysGroupNotificationMapper.insert(invitation);
         });
-        // 讲群聊加入到用户会话中
+        // 将群聊加入到用户会话中
         sysUserConversationService.setConversationRead(userVo.getId(), group.getGroupId(), ChatType.GROUP);
         return true;
     }
@@ -201,5 +208,28 @@ public class SysGroupServiceImpl extends ServiceImpl<SysGroupMapper, SysGroup>
                 .set(SysGroup::getGroupName, groupUpdateDto.getGroupName())
                 .set(SysGroup::getGroupDesc, groupUpdateDto.getGroupDesc())
                 .update();
+    }
+
+    @Transactional
+    @Override
+    public boolean disbandGroup(int groupId) {
+        if (groupId <= 0) return false;
+        SysGroupMember groupLeader = sysGroupMemberMapper.selectGroupLeader(groupId);
+        SysGroup sysGroup = baseMapper.selectById(groupId);
+        if (groupLeader == null || sysGroup == null) return false;
+        log.debug("解散群聊,groupId:{}", groupId);
+        // 更新群组状态
+        sysGroup.setStatus(GroupStatus.DISBAND);
+        baseMapper.updateById(sysGroup);
+        // 发送解散通知
+        SysGroupNotification notification = new SysGroupNotification();
+        notification.setGroupId(groupId);
+        notification.setOperatorId(groupLeader.getUserId());
+        notification.setType(GroupNotificationType.DISBAND);
+        sysGroupNotificationMapper.insert(notification);
+        webSocketService.publishMessage(WSMessage.command(groupId, ChatType.GROUP,
+                MessageCommand.GROUP_DISBAND,
+                List.of(String.valueOf(groupLeader.getUserId()))));
+        return true;
     }
 }

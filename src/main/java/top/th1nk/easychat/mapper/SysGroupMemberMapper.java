@@ -34,7 +34,7 @@ public interface SysGroupMemberMapper extends BaseMapper<SysGroupMember> {
     SysGroupMember selectByUserIdAndGroupId(Integer userId, Integer groupId);
 
     /**
-     * 根据用户ID查询所有群组成员信息
+     * 根据用户ID查询其在所有群的群成员信息
      *
      * @param userId 用户ID
      * @return 群组成员信息列表
@@ -67,6 +67,14 @@ public interface SysGroupMemberMapper extends BaseMapper<SysGroupMember> {
      * @return 群组成员详细信息列表
      */
     List<GroupMemberInfoVo> selectGroupMemberInfoVoList(IPage<?> page, Integer groupId);
+
+    /**
+     * 查询群组的群主
+     *
+     * @param groupId 群组ID
+     * @return 群主信息
+     */
+    SysGroupMember selectGroupLeader(int groupId);
 }
 
 

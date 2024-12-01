@@ -71,4 +71,12 @@ public interface SysGroupService extends IService<SysGroup> {
      * @return 是否更新成功
      */
     boolean updateGroupInfo(int groupId, GroupUpdateDto groupUpdateDto);
+
+    /**
+     * 解散群聊
+     *
+     * @param groupId 群聊ID
+     * @return 是否解散成功
+     */
+    boolean disbandGroup(int groupId);
 }
