@@ -36,13 +36,14 @@
                  LEFT JOIN ec_user u ON u.id = gn.target_id
                  LEFT JOIN ec_user u1 ON u1.id = gn.operator_id
                  LEFT JOIN ec_group_member gm ON gm.group_id = gn.group_id
-        WHERE (gn.target_id = #{userId} OR gn.operator_id = #{userId} OR
-               gn.type = 13)
-           OR (gn.type >= 4 AND gm.role > 0 AND gm.user_id = #{userId})
-            AND g.deleted = 0
-            AND u.deleted = 0
-            AND (u1.deleted = 0 OR u1.deleted IS NULL)
-            AND gm.deleted = 0
+        WHERE (
+            (gn.target_id = #{userId} OR gn.operator_id = #{userId})
+                OR (gn.type > 4 AND gm.role > 0 AND gm.user_id = #{userId})
+                OR (gn.type = 13 AND gm.user_id = #{userId}))
+          AND g.deleted = 0
+          AND (u.deleted = 0 OR u.deleted IS NULL)
+          AND (u1.deleted = 0 OR u1.deleted IS NULL)
+          AND gm.deleted = 0
         ORDER BY gn.create_time DESC
     </select>
 </mapper>
