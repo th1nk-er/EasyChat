@@ -240,7 +240,7 @@ public class GroupController {
     }
 
     @Operation(summary = "解散群组", description = "解散群组")
-    @PostMapping("/{groupId}/disband/")
+    @DeleteMapping("/{groupId}/disband")
     @PreAuthorize("hasAuthority('GROUP_LEADER:' + #groupId)")
     public Response<?> disband(@PathVariable int groupId) {
         if (sysGroupService.disbandGroup(groupId))
