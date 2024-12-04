@@ -141,6 +141,11 @@ public class SysGroupServiceImpl extends ServiceImpl<SysGroupMapper, SysGroup>
 
     @Override
     public boolean updateUserGroupInfo(int userId, UserGroupUpdateDto userGroupUpdateDto) {
+        SysGroup sysGroup = baseMapper.selectById(userGroupUpdateDto.getGroupId());
+        if (sysGroup == null)
+            return false;
+        if (sysGroup.getStatus() == GroupStatus.DISBAND)
+            throw new GroupException(GroupExceptionEnum.GROUP_DISBAND);
         log.debug("更新用户群组信息,userId:{},userGroupUpdateDto:{}", userId, userGroupUpdateDto);
         LambdaUpdateWrapper<SysGroupMember> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(SysGroupMember::getUserId, userId)
@@ -160,6 +165,8 @@ public class SysGroupServiceImpl extends ServiceImpl<SysGroupMapper, SysGroup>
             throw new CommonException(CommonExceptionEnum.FILE_SIZE_EXCEEDED); // 头像文件过大
         SysGroup group = baseMapper.selectById(groupId);
         if (group == null) return null;
+        if (group.getStatus() == GroupStatus.DISBAND)
+            throw new GroupException(GroupExceptionEnum.GROUP_DISBAND);
         log.debug("更新群聊头像,userId:{},groupId:{}", userId, groupId);
         String fileType = FileUtils.getFileType(file.getOriginalFilename());
         try {
@@ -199,6 +206,11 @@ public class SysGroupServiceImpl extends ServiceImpl<SysGroupMapper, SysGroup>
     @Override
     public boolean updateGroupInfo(int groupId, GroupUpdateDto groupUpdateDto) {
         if (groupId <= 0) return false;
+        SysGroup sysGroup = baseMapper.selectById(groupId);
+        if (sysGroup == null)
+            return false;
+        if (sysGroup.getStatus() == GroupStatus.DISBAND)
+            throw new GroupException(GroupExceptionEnum.GROUP_DISBAND);
         if (!GroupUtils.isValidGroupName(groupUpdateDto.getGroupName()))
             throw new GroupException(GroupExceptionEnum.INVALID_GROUP_NAME);
         if (!GroupUtils.isValidDescription(groupUpdateDto.getGroupDesc()))
@@ -217,6 +229,8 @@ public class SysGroupServiceImpl extends ServiceImpl<SysGroupMapper, SysGroup>
         SysGroupMember groupLeader = sysGroupMemberMapper.selectGroupLeader(groupId);
         SysGroup sysGroup = baseMapper.selectById(groupId);
         if (groupLeader == null || sysGroup == null) return false;
+        if (sysGroup.getStatus() == GroupStatus.DISBAND)
+            throw new GroupException(GroupExceptionEnum.GROUP_DISBAND);
         log.debug("解散群聊,groupId:{}", groupId);
         // 更新群组状态
         sysGroup.setStatus(GroupStatus.DISBAND);

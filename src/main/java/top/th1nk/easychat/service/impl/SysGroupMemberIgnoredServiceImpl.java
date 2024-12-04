@@ -3,10 +3,16 @@ package top.th1nk.easychat.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import top.th1nk.easychat.domain.SysGroup;
 import top.th1nk.easychat.domain.SysGroupMemberIgnored;
 import top.th1nk.easychat.domain.vo.GroupMemberIgnoredVo;
+import top.th1nk.easychat.enums.GroupStatus;
+import top.th1nk.easychat.exception.GroupException;
+import top.th1nk.easychat.exception.enums.GroupExceptionEnum;
+import top.th1nk.easychat.mapper.SysGroupMapper;
 import top.th1nk.easychat.mapper.SysGroupMemberIgnoredMapper;
 import top.th1nk.easychat.service.SysGroupMemberIgnoredService;
 
@@ -20,6 +26,8 @@ import java.util.List;
 @Service
 public class SysGroupMemberIgnoredServiceImpl extends ServiceImpl<SysGroupMemberIgnoredMapper, SysGroupMemberIgnored>
         implements SysGroupMemberIgnoredService {
+    @Resource
+    private SysGroupMapper sysGroupMapper;
 
     @Override
     public boolean ignoreMemberForUser(int userId, int groupId, int ignoredId) {
@@ -27,6 +35,10 @@ public class SysGroupMemberIgnoredServiceImpl extends ServiceImpl<SysGroupMember
             return false;
         if (userId == ignoredId)
             return false;
+        SysGroup sysGroup = sysGroupMapper.selectById(groupId);
+        if (sysGroup == null) return false;
+        if (sysGroup.getStatus() == GroupStatus.DISBAND)
+            throw new GroupException(GroupExceptionEnum.GROUP_DISBAND);
         SysGroupMemberIgnored sysGroupMemberIgnored = new SysGroupMemberIgnored();
         sysGroupMemberIgnored.setUserId(userId);
         sysGroupMemberIgnored.setGroupId(groupId);
@@ -41,6 +53,10 @@ public class SysGroupMemberIgnoredServiceImpl extends ServiceImpl<SysGroupMember
             return false;
         if (userId == ignoredId)
             return false;
+        SysGroup sysGroup = sysGroupMapper.selectById(groupId);
+        if (sysGroup == null) return false;
+        if (sysGroup.getStatus() == GroupStatus.DISBAND)
+            throw new GroupException(GroupExceptionEnum.GROUP_DISBAND);
         LambdaUpdateWrapper<SysGroupMemberIgnored> wrapper = new LambdaUpdateWrapper<>();
         wrapper.eq(SysGroupMemberIgnored::getUserId, userId)
                 .eq(SysGroupMemberIgnored::getGroupId, groupId)

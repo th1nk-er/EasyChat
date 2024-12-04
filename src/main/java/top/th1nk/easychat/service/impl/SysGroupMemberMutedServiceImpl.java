@@ -5,11 +5,16 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import top.th1nk.easychat.domain.SysGroup;
 import top.th1nk.easychat.domain.SysGroupMemberMuted;
 import top.th1nk.easychat.domain.chat.ChatType;
 import top.th1nk.easychat.domain.chat.MessageCommand;
 import top.th1nk.easychat.domain.chat.WSMessage;
 import top.th1nk.easychat.domain.vo.GroupMemberMuteVo;
+import top.th1nk.easychat.enums.GroupStatus;
+import top.th1nk.easychat.exception.GroupException;
+import top.th1nk.easychat.exception.enums.GroupExceptionEnum;
+import top.th1nk.easychat.mapper.SysGroupMapper;
 import top.th1nk.easychat.mapper.SysGroupMemberMutedMapper;
 import top.th1nk.easychat.service.SysGroupMemberMutedService;
 import top.th1nk.easychat.service.WebSocketService;
@@ -30,12 +35,18 @@ public class SysGroupMemberMutedServiceImpl extends ServiceImpl<SysGroupMemberMu
     private static final int MAX_MUTE_DURATION = 60 * 24 * 30;
     @Resource
     private WebSocketService webSocketService;
+    @Resource
+    private SysGroupMapper sysGroupMapper;
 
     @Override
     public boolean muteMember(int groupId, int memberId, int adminId, int duration) {
         if (groupId <= 0 || memberId <= 0 || adminId <= 0 || duration <= 0 || duration > MAX_MUTE_DURATION) {
             return false;
         }
+        SysGroup sysGroup = sysGroupMapper.selectById(groupId);
+        if (sysGroup == null) return false;
+        if (sysGroup.getStatus() == GroupStatus.DISBAND)
+            throw new GroupException(GroupExceptionEnum.GROUP_DISBAND);
         SysGroupMemberMuted sysGroupMemberMuted = lambdaQuery().eq(SysGroupMemberMuted::getGroupId, groupId).eq(SysGroupMemberMuted::getUserId, memberId).one();
         if (sysGroupMemberMuted == null) {
             sysGroupMemberMuted = new SysGroupMemberMuted();
@@ -64,6 +75,10 @@ public class SysGroupMemberMutedServiceImpl extends ServiceImpl<SysGroupMemberMu
         if (groupId <= 0 || memberId <= 0 || adminId <= 0) {
             return false;
         }
+        SysGroup sysGroup = sysGroupMapper.selectById(groupId);
+        if (sysGroup == null) return false;
+        if (sysGroup.getStatus() == GroupStatus.DISBAND)
+            throw new GroupException(GroupExceptionEnum.GROUP_DISBAND);
         log.debug("解除禁言群成员 群聊ID:{} 管理员ID:{} 成员ID:{}", groupId, adminId, memberId);
         if (lambdaUpdate()
                 .eq(SysGroupMemberMuted::getGroupId, groupId)

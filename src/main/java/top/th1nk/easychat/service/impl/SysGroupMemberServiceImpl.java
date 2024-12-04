@@ -9,14 +9,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.th1nk.easychat.domain.SysGroup;
 import top.th1nk.easychat.domain.SysGroupMember;
 import top.th1nk.easychat.domain.SysGroupNotification;
 import top.th1nk.easychat.domain.chat.ChatType;
 import top.th1nk.easychat.domain.vo.GroupMemberInfoVo;
 import top.th1nk.easychat.enums.GroupNotificationType;
+import top.th1nk.easychat.enums.GroupStatus;
 import top.th1nk.easychat.enums.UserRole;
 import top.th1nk.easychat.exception.GroupException;
 import top.th1nk.easychat.exception.enums.GroupExceptionEnum;
+import top.th1nk.easychat.mapper.SysGroupMapper;
 import top.th1nk.easychat.mapper.SysGroupMemberMapper;
 import top.th1nk.easychat.mapper.SysGroupNotificationMapper;
 import top.th1nk.easychat.mapper.SysUserConversationMapper;
@@ -41,6 +44,8 @@ public class SysGroupMemberServiceImpl extends ServiceImpl<SysGroupMemberMapper,
     private SysUserConversationMapper sysUserConversationMapper;
     @Resource
     private SysGroupNotificationMapper sysGroupNotificationMapper;
+    @Resource
+    private SysGroupMapper sysGroupMapper;
 
     @Override
     public List<GroupMemberInfoVo> getGroupMemberInfoVoList(int groupId, int pageNum) {
@@ -87,6 +92,13 @@ public class SysGroupMemberServiceImpl extends ServiceImpl<SysGroupMemberMapper,
     @CacheEvict(cacheNames = "user:perms", key = "#memberId", condition = "#result==true")
     @Override
     public boolean kickMember(int userId, int groupId, int memberId) {
+        if (userId <= 0 || groupId <= 0 || memberId <= 0 || userId == memberId) {
+            return false;
+        }
+        SysGroup sysGroup = sysGroupMapper.selectById(groupId);
+        if (sysGroup == null) return false;
+        if (sysGroup.getStatus() == GroupStatus.DISBAND)
+            throw new GroupException(GroupExceptionEnum.GROUP_DISBAND);
         log.debug("用户发起踢出群聊成员请求 userId: {} groupId: {} memberId: {}", userId, groupId, memberId);
         LambdaQueryWrapper<SysGroupMember> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(SysGroupMember::getUserId, memberId)
@@ -111,8 +123,12 @@ public class SysGroupMemberServiceImpl extends ServiceImpl<SysGroupMemberMapper,
 
     @Override
     public boolean updateUserGroupNickname(int userId, int groupId, String nickname) {
-        if (!UserUtils.isValidNickname(nickname))
+        if (!UserUtils.isValidNickname(nickname) || userId <= 0 || groupId <= 0)
             return false;
+        SysGroup sysGroup = sysGroupMapper.selectById(groupId);
+        if (sysGroup == null) return false;
+        if (sysGroup.getStatus() == GroupStatus.DISBAND)
+            throw new GroupException(GroupExceptionEnum.GROUP_DISBAND);
         log.debug("更新群组成员昵称 userId: {} groupId: {} nickname: {}", userId, groupId, nickname);
         LambdaUpdateWrapper<SysGroupMember> wrapper = new LambdaUpdateWrapper<>();
         wrapper.eq(SysGroupMember::getUserId, userId)
@@ -124,6 +140,10 @@ public class SysGroupMemberServiceImpl extends ServiceImpl<SysGroupMemberMapper,
     @Override
     public boolean setMemberAsAdmin(int userId, int groupId, int memberId) {
         if (userId == memberId) return false;
+        SysGroup sysGroup = sysGroupMapper.selectById(groupId);
+        if (sysGroup == null) return false;
+        if (sysGroup.getStatus() == GroupStatus.DISBAND)
+            throw new GroupException(GroupExceptionEnum.GROUP_DISBAND);
         SysGroupMember sysGroupMember = baseMapper.selectByUserIdAndGroupId(memberId, groupId);
         if (sysGroupMember == null || sysGroupMember.getRole() == UserRole.ADMIN) return false;
         log.debug("设置群组成员为管理员 userId: {} groupId: {} memberId: {}", userId, groupId, memberId);
@@ -140,6 +160,10 @@ public class SysGroupMemberServiceImpl extends ServiceImpl<SysGroupMemberMapper,
     @Override
     public boolean removeAdminRole(int userId, int groupId, int memberId) {
         if (userId == memberId) return false;
+        SysGroup sysGroup = sysGroupMapper.selectById(groupId);
+        if (sysGroup == null) return false;
+        if (sysGroup.getStatus() == GroupStatus.DISBAND)
+            throw new GroupException(GroupExceptionEnum.GROUP_DISBAND);
         SysGroupMember sysGroupMember = baseMapper.selectByUserIdAndGroupId(memberId, groupId);
         if (sysGroupMember == null || sysGroupMember.getRole() == UserRole.USER) return false;
         log.debug("取消群组成员的管理员权限 userId: {} groupId: {} memberId: {}", userId, groupId, memberId);
