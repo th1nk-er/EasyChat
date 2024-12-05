@@ -9,7 +9,9 @@ import lombok.Getter;
 public enum EmailActionEnum {
     ACTION_REGISTER("REGISTER", "注册账号"),
     ACTION_LOGIN("LOGIN", "登录操作"),
-    ACTION_CHANGE_PASSWORD("CHANGE_PASSWORD", "修改密码");
+    ACTION_CHANGE_PASSWORD("CHANGE_PASSWORD", "修改密码"),
+    ACTION_CHANGE_EMAIL("CHANGE_EMAIL", "修改邮箱"),
+    ;
 
     private final String code;
     private final String desc;

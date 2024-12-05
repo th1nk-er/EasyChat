@@ -155,4 +155,31 @@ public class SysUserController {
         }
         return Response.error("用户信息修改失败");
     }
+
+    @Operation(summary = "发送修改邮箱验证码邮件", description = "发送修改邮箱验证码邮件")
+    @PostMapping("/email/change-email")
+    public Response<?> sendChangeEmailVerifyCodeEmail() {
+        String code = StringUtils.getRandomString(6).toUpperCase();
+        UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
+        if (userVo == null || userVo.getEmail() == null)
+            throw new CommonException(CommonExceptionEnum.USER_NOT_FOUND);
+        if (!sysUserService.isEmailExist(userVo.getEmail()))
+            throw new CommonException(CommonExceptionEnum.USER_NOT_FOUND);
+        if (emailService.isEmailSendFrequently(userVo.getEmail(), EmailActionEnum.ACTION_CHANGE_EMAIL)) {
+            throw new CommonException(CommonExceptionEnum.EMAIL_VERIFY_CODE_SEND__FREQUENTLY);
+        }
+        emailService.sendVerifyCodeEmail(userVo.getEmail(), code, EmailActionEnum.ACTION_CHANGE_EMAIL);
+        emailService.saveVerifyCode(userVo.getEmail(), code, EmailActionEnum.ACTION_CHANGE_EMAIL);
+        return Response.ok();
+    }
+
+    @Operation(summary = "修改邮箱", description = "修改邮箱")
+    @PutMapping("/email")
+    @PreAuthorize("hasAuthority('USER:' + #updateEmailDto.getUserId())")
+    public Response<?> updateEmail(@RequestBody UpdateEmailDto updateEmailDto) {
+        if (sysUserService.updateEmail(updateEmailDto)) {
+            return Response.ok();
+        }
+        return Response.error("邮箱修改失败");
+    }
 }

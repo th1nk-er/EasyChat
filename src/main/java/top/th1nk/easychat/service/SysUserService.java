@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import jakarta.annotation.Nullable;
 import org.springframework.web.multipart.MultipartFile;
 import top.th1nk.easychat.domain.SysUser;
-import top.th1nk.easychat.domain.dto.LoginDto;
-import top.th1nk.easychat.domain.dto.RegisterDto;
-import top.th1nk.easychat.domain.dto.UpdatePasswordDto;
-import top.th1nk.easychat.domain.dto.UpdateUserInfoDto;
+import top.th1nk.easychat.domain.dto.*;
 import top.th1nk.easychat.domain.vo.SearchUserVo;
 import top.th1nk.easychat.domain.vo.StrangerVo;
 import top.th1nk.easychat.domain.vo.UserLoginTokenVo;
@@ -124,4 +121,12 @@ public interface SysUserService extends IService<SysUser> {
      * @return 陌生人信息
      */
     StrangerVo getStrangerInfo(int strangerId);
+
+    /**
+     * 更新邮箱
+     *
+     * @param updateEmailDto 更新邮箱信息
+     * @return 更新结果
+     */
+    boolean updateEmail(UpdateEmailDto updateEmailDto);
 }

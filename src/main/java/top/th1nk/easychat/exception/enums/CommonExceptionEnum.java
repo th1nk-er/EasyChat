@@ -21,6 +21,7 @@ public enum CommonExceptionEnum {
     FILE_UPLOAD_FAILED(1015, "文件上传失败"),
     VERIFY_CODE_ERROR(1016, "验证码错误"),
     NICKNAME_INVALID(1017, "昵称不合法"),
+    EMAIL_EXIST(1018, "邮箱已存在"),
     ;
     private final String message;
     private final int code;

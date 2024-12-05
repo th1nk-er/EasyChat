@@ -18,10 +18,7 @@ import top.th1nk.easychat.config.easychat.UserProperties;
 import top.th1nk.easychat.config.security.EmailAuthenticationToken;
 import top.th1nk.easychat.domain.SysUser;
 import top.th1nk.easychat.domain.SysUserToken;
-import top.th1nk.easychat.domain.dto.LoginDto;
-import top.th1nk.easychat.domain.dto.RegisterDto;
-import top.th1nk.easychat.domain.dto.UpdatePasswordDto;
-import top.th1nk.easychat.domain.dto.UpdateUserInfoDto;
+import top.th1nk.easychat.domain.dto.*;
 import top.th1nk.easychat.domain.vo.SearchUserVo;
 import top.th1nk.easychat.domain.vo.StrangerVo;
 import top.th1nk.easychat.domain.vo.UserLoginTokenVo;
@@ -305,5 +302,29 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         log.debug("获取陌生人信息 陌生人ID:{}", strangerId);
         SysUser sysUser = baseMapper.selectById(strangerId);
         return UserUtils.userToStrangerVo(sysUser);
+    }
+
+    @Override
+    public boolean updateEmail(UpdateEmailDto updateEmailDto) {
+        if (updateEmailDto == null) return false;
+        if (!UserUtils.isValidEmail(updateEmailDto.getNewEmail()))
+            throw new CommonException(CommonExceptionEnum.EMAIL_INVALID);
+        SysUser sysUser = baseMapper.selectById(updateEmailDto.getUserId());
+        if (sysUser == null) return false;
+        // 判断新邮箱是否已注册
+        if (this.isEmailExist(updateEmailDto.getNewEmail()))
+            throw new CommonException(CommonExceptionEnum.EMAIL_EXIST);
+        if (sysUser.getEmail().equals(updateEmailDto.getNewEmail())) return true;
+        // 判断验证码是否正确
+        if (emailService.verifyCode(sysUser.getEmail(), updateEmailDto.getCode(), EmailActionEnum.ACTION_CHANGE_EMAIL)) {
+            log.debug("用户更新邮箱 用户ID:{}", updateEmailDto.getUserId());
+            sysUser.setEmail(updateEmailDto.getNewEmail());
+            if (baseMapper.updateById(sysUser) == 0) return false;
+            // 强制过期所有token
+            List<SysUserToken> userTokenList = sysUserTokenService.getUserTokenList(updateEmailDto.getUserId());
+            userTokenList.forEach(token -> sysUserTokenService.expireToken(token.getToken()));
+            return true;
+        } else
+            throw new CommonException(CommonExceptionEnum.VERIFY_CODE_ERROR);
     }
 }
