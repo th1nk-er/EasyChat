@@ -10,6 +10,8 @@ public class UpdateEmailDto {
     private int userId;
     @Schema(description = "邮箱验证码")
     private String code;
-    @Schema(description = "新密码")
+    @Schema(description = "新邮箱")
     private String newEmail;
+    @Schema(description = "新邮箱验证码")
+    private String newCode;
 }

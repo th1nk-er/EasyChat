@@ -316,7 +316,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             throw new CommonException(CommonExceptionEnum.EMAIL_EXIST);
         if (sysUser.getEmail().equals(updateEmailDto.getNewEmail())) return true;
         // 判断验证码是否正确
-        if (emailService.verifyCode(sysUser.getEmail(), updateEmailDto.getCode(), EmailActionEnum.ACTION_CHANGE_EMAIL)) {
+        if (emailService.verifyCode(sysUser.getEmail(), updateEmailDto.getCode(), EmailActionEnum.ACTION_CHANGE_EMAIL) &&
+                emailService.verifyCode(updateEmailDto.getNewEmail(), updateEmailDto.getNewCode(), EmailActionEnum.ACTION_EMAIL_VERIFY)) {
             log.debug("用户更新邮箱 用户ID:{}", updateEmailDto.getUserId());
             sysUser.setEmail(updateEmailDto.getNewEmail());
             if (baseMapper.updateById(sysUser) == 0) return false;

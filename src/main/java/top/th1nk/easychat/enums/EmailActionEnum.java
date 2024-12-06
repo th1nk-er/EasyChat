@@ -11,6 +11,7 @@ public enum EmailActionEnum {
     ACTION_LOGIN("LOGIN", "登录操作"),
     ACTION_CHANGE_PASSWORD("CHANGE_PASSWORD", "修改密码"),
     ACTION_CHANGE_EMAIL("CHANGE_EMAIL", "修改邮箱"),
+    ACTION_EMAIL_VERIFY("EMAIL_VERIFY", "邮箱验证"),
     ;
 
     private final String code;
