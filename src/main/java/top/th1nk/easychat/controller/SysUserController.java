@@ -175,18 +175,22 @@ public class SysUserController {
 
     @Operation(summary = "发送新邮箱验证邮件", description = "发送新邮箱验证邮件")
     @PostMapping("/email/email-verify")
-    public Response<?> sendEmailVerifyCodeEmail() {
+    public Response<?> sendEmailVerifyCodeEmail(@RequestBody EmailVerifyDto emailVerifyDto) {
         String code = StringUtils.getRandomString(6).toUpperCase();
         UserVo userVo = jwtUtils.parseToken(RequestUtils.getUserTokenString());
         if (userVo == null || userVo.getEmail() == null)
             throw new CommonException(CommonExceptionEnum.USER_NOT_FOUND);
-        if (sysUserService.isEmailExist(userVo.getEmail()))
+        if (sysUserService.isEmailExist(emailVerifyDto.getEmail()))
             throw new CommonException(CommonExceptionEnum.EMAIL_EXIST);
-        if (emailService.isEmailSendFrequently(userVo.getEmail(), EmailActionEnum.ACTION_EMAIL_VERIFY)) {
+        // 首先验证修改邮箱的验证码
+        if (emailService.verifyCode(userVo.getEmail(), emailVerifyDto.getCode(), EmailActionEnum.ACTION_CHANGE_EMAIL, false)) {
+            throw new CommonException(CommonExceptionEnum.VERIFY_CODE_ERROR);
+        }
+        if (emailService.isEmailSendFrequently(emailVerifyDto.getEmail(), EmailActionEnum.ACTION_EMAIL_VERIFY)) {
             throw new CommonException(CommonExceptionEnum.EMAIL_VERIFY_CODE_SEND__FREQUENTLY);
         }
-        emailService.sendVerifyCodeEmail(userVo.getEmail(), code, EmailActionEnum.ACTION_EMAIL_VERIFY);
-        emailService.saveVerifyCode(userVo.getEmail(), code, EmailActionEnum.ACTION_EMAIL_VERIFY);
+        emailService.sendVerifyCodeEmail(emailVerifyDto.getEmail(), code, EmailActionEnum.ACTION_EMAIL_VERIFY);
+        emailService.saveVerifyCode(emailVerifyDto.getEmail(), code, EmailActionEnum.ACTION_EMAIL_VERIFY);
         return Response.ok();
     }
 

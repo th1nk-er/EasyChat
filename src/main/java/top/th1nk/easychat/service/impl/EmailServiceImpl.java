@@ -98,10 +98,18 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public boolean verifyCode(String email, String verifyCode, EmailActionEnum emailAction) {
+        return verifyCode(email, verifyCode, emailAction, true);
+    }
+
+    @Override
+    public boolean verifyCode(String email, String verifyCode, EmailActionEnum emailAction, boolean delete) {
+        if (email == null || verifyCode == null || email.isEmpty() || verifyCode.isEmpty()) {
+            return false;
+        }
         log.info("验证验证码:{},{}", email, verifyCode);
         String code = stringRedisTemplate.opsForValue().get(CODE_PREFIX + emailAction.getCode() + ":" + email);
         if (code == null) throw new CommonException(CommonExceptionEnum.EMAIL_VERIFY_CODE_EXPIRE);
-        if (code.equals(verifyCode)) {
+        if (code.equals(verifyCode) && delete) {
             // 验证成功，删除验证码
             stringRedisTemplate.delete(CODE_PREFIX + emailAction.getCode() + ":" + email);
             return true;

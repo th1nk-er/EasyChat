@@ -36,7 +36,7 @@ public interface EmailService {
     void saveVerifyCode(String email, String verifyCode, EmailActionEnum emailAction);
 
     /**
-     * 验证码验证
+     * 验证码验证，验证成功后立刻删除验证码
      *
      * @param email       邮箱
      * @param verifyCode  验证码
@@ -45,4 +45,16 @@ public interface EmailService {
      * @throws CommonException 验证码过期时抛出异常
      */
     boolean verifyCode(String email, String verifyCode, EmailActionEnum emailAction) throws CommonException;
+
+    /**
+     * 验证码验证
+     *
+     * @param email       邮箱
+     * @param verifyCode  验证码
+     * @param emailAction 验证码类型
+     * @param delete      验证成功后是否删除验证码
+     * @return 验证码是否正确
+     * @throws CommonException 验证码过期时抛出异常
+     */
+    boolean verifyCode(String email, String verifyCode, EmailActionEnum emailAction, boolean delete) throws CommonException;
 }
