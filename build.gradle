@@ -43,10 +43,8 @@ dependencies {
 
     implementation group: 'com.alibaba', name: 'druid-spring-boot-3-starter', version: '1.2.23'  // druid连接池
     implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.6.0' // spring-doc
-    implementation group: 'com.baomidou', name: 'mybatis-plus-boot-starter', version: '3.5.7' // mybatis plus
-
-    // 引入新版 mybatis-spring 解决 https://github.com/baomidou/mybatis-plus/issues/5962
-    implementation group: 'org.mybatis', name: 'mybatis-spring', version: '3.0.3'
+    implementation 'com.baomidou:mybatis-plus-spring-boot3-starter:3.5.9' // mybatis plus
+    implementation 'com.baomidou:mybatis-plus-jsqlparser:3.5.9'  // mybatis plus jsqlparser
 
 
     // jwt

@@ -68,7 +68,7 @@ public class JwtUtils {
      */
     @Nullable
     public UserVo parseToken(@Nullable String tokenString) {
-        if (tokenString == null || tokenString.isEmpty() || tokenString.isBlank())
+        if (tokenString == null || tokenString.isBlank())
             return null;
         UserVo userVo;
         try {
@@ -118,8 +118,7 @@ public class JwtUtils {
         if (Boolean.TRUE.equals(redisTemplate.hasKey(TOKEN_PREFIX + tokenString))) {
             // 当原key存在时，更新userVo
             Long expire = redisTemplate.getExpire(TOKEN_PREFIX + tokenString);
-            if (expire != null)
-                redisTemplate.opsForValue().set(TOKEN_PREFIX + tokenString, userVo, Duration.ofSeconds(expire));
+            redisTemplate.opsForValue().set(TOKEN_PREFIX + tokenString, userVo, Duration.ofSeconds(expire));
         }
     }
 

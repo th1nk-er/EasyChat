@@ -59,8 +59,8 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public boolean isEmailSendFrequently(String email, EmailActionEnum emailAction) {
         if (!UserUtils.isValidEmail(email)) throw new CommonException(CommonExceptionEnum.EMAIL_INVALID);
-        Long expire = stringRedisTemplate.getExpire(CODE_PREFIX + emailAction.getCode() + ":" + email);
-        if (expire == null || expire <= 0) return false;
+        long expire = stringRedisTemplate.getExpire(CODE_PREFIX + emailAction.getCode() + ":" + email);
+        if (expire <= 0) return false;
         // 1分钟之内只能发送一次
         return mailProperties.getVerifyCode().getExpire() * 60L - expire < 60L;
     }

@@ -160,15 +160,11 @@ public class ConversationRedisServiceImpl implements ConversationRedisService {
         Set<String> friendKeys = redisTemplate.keys(CHAT_CONVERSATION_PRIVATE_KEY + "*");
         Set<String> groupKeys = redisTemplate.keys(CHAT_CONVERSATION_GROUP_KEY + "*");
         List<SysUserConversation> result = new ArrayList<>();
-        if (friendKeys != null) {
-            for (String key : friendKeys) {
-                result.addAll(hashOperations.values(key));
-            }
+        for (String key : friendKeys) {
+            result.addAll(hashOperations.values(key));
         }
-        if (groupKeys != null) {
-            for (String key : groupKeys) {
-                result.addAll(hashOperations.values(key));
-            }
+        for (String key : groupKeys) {
+            result.addAll(hashOperations.values(key));
         }
         return result;
     }
