@@ -149,8 +149,13 @@ public class FileController {
             String checkSum = FileUtils.getCheckSum(localPath);
             String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
             String filePath = "/" + chatProperties.getFileDir() + "/" + date + "/" + checkSum + "." + FileUtils.getFileType(filename);
-            minioService.upload(localPath, filePath);
-            return Response.ok(filePath);
+            if (minioService.isObjectExist(filePath)) {
+                return Response.ok(filePath);
+            }
+            if (minioService.upload(localPath, filePath)) {
+                return Response.ok(filePath);
+            }
+            throw new CommonException(CommonExceptionEnum.FILE_UPLOAD_FAILED);
         } catch (IOException e) {
             throw new CommonException(CommonExceptionEnum.FILE_UPLOAD_FAILED);
         } finally {
