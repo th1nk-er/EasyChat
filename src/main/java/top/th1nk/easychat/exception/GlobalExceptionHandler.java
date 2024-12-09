@@ -1,6 +1,11 @@
 package top.th1nk.easychat.exception;
 
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -9,6 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import top.th1nk.easychat.config.easychat.ChatProperties;
 import top.th1nk.easychat.domain.Response;
 import top.th1nk.easychat.exception.enums.CommonExceptionEnum;
 
@@ -18,6 +24,9 @@ import top.th1nk.easychat.exception.enums.CommonExceptionEnum;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @Resource
+    private ChatProperties chatProperties;
+
     /**
      * 自定义异常
      *
@@ -66,11 +75,15 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 未知异常
+     * 其他异常
      */
     @ExceptionHandler(Exception.class)
-    public Response<?> exception(Exception e) {
+    public ResponseEntity<?> exception(Exception e, HttpServletRequest request) {
+        if (request.getRequestURI().startsWith("/upload/" + chatProperties.getFileDir())) {
+            // 文件下载异常
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).contentType(MediaType.TEXT_PLAIN).body("File download error");
+        }
         log.error("内部异常", e);
-        return Response.error("Unknown error");
+        return ResponseEntity.ok(Response.error("Unknown error"));
     }
 }

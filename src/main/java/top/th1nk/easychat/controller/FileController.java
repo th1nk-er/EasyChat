@@ -3,9 +3,12 @@ package top.th1nk.easychat.controller;
 import io.minio.GetObjectResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Nullable;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.InputStreamSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +26,7 @@ import top.th1nk.easychat.utils.FileUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -64,6 +68,16 @@ public class FileController {
                 .body(avatarBytes);
     }
 
+    private ResponseEntity<InputStreamSource> getFileResponseEntity(String fileName, String filePath, @Nullable String specificName) throws IOException {
+        InputStream objectResponse = minioService.getObject(filePath + "/" + fileName);
+        if (objectResponse == null) return ResponseEntity.notFound().build();
+        String name = specificName == null ? fileName : specificName;
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + name + "\"")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(new InputStreamResource(objectResponse));
+    }
+
     @Operation(summary = "获取头像", description = "以文件形式返回用户头像")
     @GetMapping("/avatar/{imgName}")
     public ResponseEntity<byte[]> getAvatar(@PathVariable String imgName) {
@@ -98,13 +112,17 @@ public class FileController {
         }
     }
 
-    @Operation(summary = "获取聊天图片", description = "以文件形式返回聊天图片")
-    @GetMapping("/chat-file/{imgDate}/{imgName}")
-    public ResponseEntity<byte[]> getChatImg(@PathVariable String imgDate, @PathVariable String imgName) {
+    @Operation(summary = "获取聊天文件", description = "返回聊天文件，图片/文件")
+    @GetMapping("/chat-file/{fileDate}/{fileName}")
+    public ResponseEntity<?> getChatImg(@PathVariable String fileDate, @PathVariable String fileName, @RequestParam("name") String specificName) {
         try {
-            return getImageResponseEntity(imgName, chatProperties.getFileDir() + "/" + imgDate);
+            if (FileUtils.isImage(fileName))
+                return getImageResponseEntity(fileName, chatProperties.getFileDir() + "/" + fileDate);
+            else {
+                return getFileResponseEntity(fileName, chatProperties.getFileDir() + "/" + fileDate, specificName);
+            }
         } catch (IOException e) {
-            log.error("获取聊天图片失败", e);
+            log.error("获取聊天文件失败", e);
             return ResponseEntity.internalServerError().build();
         }
     }
