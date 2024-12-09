@@ -20,7 +20,12 @@ import top.th1nk.easychat.exception.enums.CommonExceptionEnum;
 import top.th1nk.easychat.service.MinioService;
 import top.th1nk.easychat.utils.FileUtils;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -112,6 +117,48 @@ public class FileController {
         } catch (IOException e) {
             log.error("获取群头像失败", e);
             return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @Operation(summary = "上传文件分片", description = "上传文件分片")
+    @PostMapping("/chat/file/chunk")
+    public Response<String> uploadFileChunk(@RequestParam("chunk") MultipartFile chunk,
+                                            @RequestParam("fileName") String filename,
+                                            @RequestParam("total") int total,
+                                            @RequestParam("index") int index) {
+        String tempDir = System.getProperty("java.io.tmpdir");
+        try {
+            if (chunk.getSize() > chatProperties.getFileMaxSize())
+                throw new CommonException(CommonExceptionEnum.FILE_SIZE_EXCEEDED);
+            String tempFilePath = Paths.get(tempDir, filename + "_" + index).toString();
+            chunk.transferTo(new File(tempFilePath));
+            for (int i = 0; i < total; i++) {
+                if (!new File(Paths.get(tempDir, filename + "_" + i).toString()).exists()) {
+                    return Response.ok();
+                }
+            }
+            // 合并分片
+            String localPath = Paths.get(tempDir, filename).toString();
+            FileOutputStream fos = new FileOutputStream(localPath);
+            for (int i = 0; i < total; i++) {
+                Path chunkPath = Paths.get(tempDir, filename + "_" + i);
+                Files.copy(chunkPath, fos);
+                Files.delete(chunkPath); // 删除已合并的分片
+            }
+            fos.close();
+            String checkSum = FileUtils.getCheckSum(localPath);
+            String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
+            String filePath = "/" + chatProperties.getFileDir() + "/" + date + "/" + checkSum + "." + FileUtils.getFileType(filename);
+            minioService.upload(localPath, filePath);
+            return Response.ok(filePath);
+        } catch (IOException e) {
+            throw new CommonException(CommonExceptionEnum.FILE_UPLOAD_FAILED);
+        } finally {
+            try {
+                String localPath = Paths.get(tempDir, filename).toString();
+                Files.delete(Paths.get(localPath)); // 删除合并后的文件
+            } catch (IOException _) {
+            }
         }
     }
 }

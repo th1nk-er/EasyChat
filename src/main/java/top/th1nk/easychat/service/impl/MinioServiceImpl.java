@@ -45,6 +45,23 @@ public class MinioServiceImpl implements MinioService {
     }
 
     @Override
+    public boolean upload(String localPath, String filePath) {
+        log.debug("[minio]上传文件,{}, {}", localPath, filePath);
+        try (MinioClient minioClient = getMinioClient()) {
+            minioClient.uploadObject(UploadObjectArgs.builder()
+                    .bucket(minioProperties.getBucketName())
+                    .object(filePath)
+                    .filename(localPath)
+                    .build());
+            log.debug("文件上传成功,{}, {}", localPath, filePath);
+            return true;
+        } catch (Exception e) {
+            log.error("文件上传失败", e);
+            return false;
+        }
+    }
+
+    @Override
     public GetObjectResponse getObject(String filePath) {
         log.debug("[minio]获取文件 {}", filePath);
         try (MinioClient minioClient = getMinioClient()) {
@@ -55,6 +72,20 @@ public class MinioServiceImpl implements MinioService {
                             .build());
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    @Override
+    public boolean isObjectExist(String filePath) {
+        log.debug("[minio]判断文件是否存在 {}", filePath);
+        try (MinioClient minioClient = getMinioClient()) {
+            return minioClient.statObject(
+                    StatObjectArgs.builder()
+                            .bucket(minioProperties.getBucketName())
+                            .object(filePath)
+                            .build()) != null;
+        } catch (Exception e) {
+            return false;
         }
     }
 

@@ -3,6 +3,8 @@ package top.th1nk.easychat.utils;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 
+import java.io.FileInputStream;
+import java.security.DigestInputStream;
 import java.security.MessageDigest;
 
 public class FileUtils {
@@ -43,5 +45,43 @@ public class FileUtils {
         } catch (Exception e) {
             return "";
         }
+    }
+
+    /**
+     * 计算文件的校验和
+     *
+     * @param filePath 文件路径
+     * @return 校验和，错误时返回空字符串
+     */
+    public static String getCheckSum(String filePath) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            FileInputStream fis = new FileInputStream(filePath);
+            DigestInputStream dis = new DigestInputStream(fis, md);
+            // 读取文件内容，计算哈希值
+            byte[] buffer = new byte[8192];
+            int read = dis.read(buffer);
+            while (read > 0) {
+                read = dis.read(buffer);
+            }
+            byte[] digest = md.digest();
+            return bytesToHex(digest);
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    /**
+     * 将字节数组转换为十六进制字符串
+     *
+     * @param bytes 字节数组
+     * @return 十六进制字符串
+     */
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
     }
 }

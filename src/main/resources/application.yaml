@@ -1,4 +1,7 @@
 spring:
+  servlet:
+    multipart:
+      max-file-size: 10MB
   cache:
     cache-names: easy-chat-cache
     redis:
