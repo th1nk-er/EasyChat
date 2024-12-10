@@ -114,7 +114,7 @@ public class FileController {
 
     @Operation(summary = "获取聊天文件", description = "返回聊天文件，图片/文件")
     @GetMapping("/chat-file/{fileDate}/{fileName}")
-    public ResponseEntity<?> getChatImg(@PathVariable String fileDate, @PathVariable String fileName, @RequestParam("name") String specificName) {
+    public ResponseEntity<?> getChatFile(@PathVariable String fileDate, @PathVariable String fileName, @RequestParam("name") @Nullable String specificName) {
         try {
             if (FileUtils.isImage(fileName))
                 return getImageResponseEntity(fileName, chatProperties.getFileDir() + "/" + fileDate);
