@@ -52,6 +52,7 @@ easy-chat:
       - /user/register
       - /user/verify-email
       - /user/email/register
+      - /user/email/login
       - /upload/${easy-chat.user.avatar-dir}/**
       - /upload/${easy-chat.chat.file-dir}/**
       - /upload/${easy-chat.group.avatar-dir}/**
