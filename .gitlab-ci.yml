@@ -1,0 +1,27 @@
+image: docker:latest
+services:
+  - docker:dind
+stages:
+  - build
+  - push
+build-job:
+  stage: build
+  timeout: 10m
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME .
+    - docker save -o image.tar $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+  artifacts:
+    paths:
+      - image.tar
+    untracked: false
+    when: on_success
+    access: all
+    expire_in: "10 hours"
+
+push-job:
+  stage: push
+  timeout: 5m
+  script:
+    - docker load -i image.tar
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
