@@ -18,8 +18,12 @@ build-job:
     access: all
     expire_in: "10 hours"
   rules:
-    - if: '$CI_COMMIT_DIFF != "README.md"'
+    - changes:
+        - "**/*"
       when: always
+    - changes:
+        - README.md
+      when: never
 
 push-job:
   stage: push
