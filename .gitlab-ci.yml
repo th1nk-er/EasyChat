@@ -19,11 +19,11 @@ build-job:
     expire_in: "10 hours"
   rules:
     - changes:
-        - "**/*"
-      when: always
-    - changes:
-        - README.md
+        - 'README.md'
       when: never
+    - changes:
+        - '**/*'
+      when: always
 
 push-job:
   stage: push
@@ -32,5 +32,12 @@ push-job:
     - docker load -i image.tar
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+  rules:
+    - changes:
+        - 'README.md'
+      when: never
+    - changes:
+        - '**/*'
+      when: always
   needs:
     - build-job
