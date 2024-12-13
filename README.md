@@ -51,7 +51,7 @@
 
 ### 本地部署
 
-1. 修改`application-loca.yaml`，填写数据库用户名和密码，并配置 Spring mail 和 minio 的账号。
+1. 修改`application-local.yaml`，填写数据库用户名和密码，并配置 Spring mail 和 minio 的账号。
 
 ```yaml
 spring:
