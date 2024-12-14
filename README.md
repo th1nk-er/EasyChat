@@ -51,23 +51,27 @@
 
 ### 本地部署
 
-1. 修改`application-local.yaml`，填写数据库用户名和密码，并配置 Spring mail 和 minio 的账号。
+1. 新建配置文件`application-my.yaml`放置于 `src/main/resources`目录下 ，填写数据库用户名和密码，并配置 Spring mail 和 minio 的账号。
 
 ```yaml
+# 修改配置信息
 spring:
+  # CHANGE THIS
   mail:
-    host: 
-    password: 
-    username: 
-    port: 
+    host: smtp.gmail.com
+    password: password
+    username: email
+    port: 465
+# CHANGE THIS
   datasource:
-    username: 
-    password: 
-    url: 
+    username: root
+    password: 123456
+    url: jbdc:mysql://localhost:3306/easychat
 easy-chat:
+  # CHANGE THIS IF NEEDED
   minio:
-    access-key: 
-    secret-key: 
+    access-key: minioadmin
+    secret-key: miniopassword
 ```
 
 2. 启动 MySQL，将数据表结构 `sql/easychat.sql` 导入数据库
@@ -77,6 +81,45 @@ easy-chat:
 
 ```sh
 ./gradlew bootRun
+```
+
+### Docker 部署
+
+1. 新建配置文件`application-my.yaml`放置于 `src/main/resources`目录下 ，配置 Spring mail 信息。
+
+> __无需修改mysql、redis和minio连接信息，如需要修改，请在docker-compose.yml文件中一并修改__
+
+```yaml
+# 修改配置信息
+spring:
+  # CHANGE THIS
+  mail:
+    host: smtp.gmail.com
+    password: password
+    username: email
+    port: 465
+  # DO NOT CHANGE
+  datasource:
+    username: root
+    password: 123456
+    url: jdbc:mysql://db:3306/easychat
+  # DO NOT CHANGE
+  data:
+    redis:
+      host: redis
+      port: 6379
+easy-chat:
+  # DO NOT CHANGE
+  minio:
+    access-key: minioadmin
+    secret-key: miniopassword
+    endpoint: http://minio:9000
+```
+
+2. 使用 docker-compose 启动
+
+```sh
+docker-compose up -d
 ```
 
 ## LICENSE

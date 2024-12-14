@@ -1,4 +1,7 @@
 spring:
+logging:
+  level:
+    top.th1nk.easychat: debug
   config:
     import: classpath:application-my.yaml
   datasource:
