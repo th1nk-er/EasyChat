@@ -7,7 +7,7 @@
 
 [EasyChat](https://gitlab.com/th1nk-er/EasyChat)是一个在线聊天室的后端，基于 [SpringBoot](https://github.com/spring-projects/spring-boot) + [Mybatis-Plus](https://github.com/baomidou/mybatis-plus) 实现。
 
-项目前端地址:![Static Badge](https://img.shields.io/badge/GitLab-gray?logo=gitlab&link=https%3A%2F%2Fgitlab.com%2Fth1nk-er%2FEasyChat-Web) ![Static Badge](https://img.shields.io/badge/GitHub-gray?logo=github&link=https%3A%2F%2Fgithub.com%2Fth1nk-er%2FEasyChat-Web)
+<p>项目前端地址: <a href="https://gitlab.com/th1nk-er/EasyChat-Web"><img alt="Static Badge" src="https://img.shields.io/badge/GitLab-gray?logo=gitlab"></a> <a href="https://github.com/th1nk-er/EasyChat-Web"><img alt="Static Badge" src="https://img.shields.io/badge/GitHub-gray?logo=github"></a>
 
 ### 技术栈
 
