@@ -1,7 +1,7 @@
 FROM openjdk:22-jdk-slim AS build
 WORKDIR /app
 COPY . /app
-RUN chmod +x ./gradlew && ./gradlew build -x test --no-daemon
+RUN chmod +x ./gradlew && ./gradlew bootJar -x test
 
 FROM openjdk:22-jdk-slim
 WORKDIR /app
